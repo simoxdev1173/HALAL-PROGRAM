@@ -6,6 +6,7 @@ import ArabHalalProgram from "./components/ArabHalalProgram";
 import ExploreSectors from "./components/PrioritySection";
 import AccreditationWorkflow from "./components/AccreditationWorkflow";
 import OfficialMarkAndDocuments from "./components/OfficialMarkAndDocuments";
+import FAQSection from "./components/FaqSection";
 
 function App() {
   const [lang, setLang] = useState<"ar" | "en">("ar");
@@ -24,6 +25,7 @@ function App() {
         <AccreditationWorkflow />
         <ExploreSectors />
         <OfficialMarkAndDocuments />
+        <FAQSection />
       </main>
 
       {/* CSS Injection for Fonts */}
