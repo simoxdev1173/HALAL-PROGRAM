@@ -54,7 +54,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
             الهوية البصرية <span className="font-bold text-emerald-900">والنماذج الرسمية</span>
           </motion.h2>
         </div>
-
+        {/* random comment */}
         {/* --- ROW 1: BRAND IDENTITY BLOCK --- */}
         <div className="mb-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           <div className="lg:col-span-8 bg-[#F8F9FA] border border-slate-100 p-10 md:p-16 flex flex-col md:flex-row items-center gap-12 relative overflow-hidden">
