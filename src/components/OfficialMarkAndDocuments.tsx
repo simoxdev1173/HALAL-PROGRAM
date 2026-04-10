@@ -1,7 +1,7 @@
 "use client";
 import  { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, X, ShieldCheck, FileText, ArrowLeft, Palette, Search } from 'lucide-react';
+import { Download, X, ShieldCheck, ArrowLeft, Search } from 'lucide-react';
 
 interface DocumentItem {
   id: string;
