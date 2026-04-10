@@ -9,7 +9,7 @@ import {
   PlaneTakeoff,
   FileText 
 } from 'lucide-react';
-
+import { motion } from 'framer-motion';
 const ExploreSectors = () => {
   // Sector data derived from the official Arab Halal Program document
   const sectors = [
@@ -31,9 +31,15 @@ const ExploreSectors = () => {
         {/* Section Header - توسيط المحتوى بالكامل */}
         <div className="mb-16 flex flex-col items-center text-center">
           <h2 className="text-3xl md:text-4xl font-light text-gray-900 tracking-tight">
-            مجال تطبيق <span className="font-bold text-emerald-700">البرنامج</span>
           </h2>
-          
+             <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl text-center font-light text-slate-900 tracking-tight leading-tight mb-6"
+          >
+            مجال تطبيق <span className="font-bold text-emerald-900">البرنامج</span>
+          </motion.h2>
           {/* تحسين قراءة الوصف وإبراز الكلمات المفتاحية بخط عريض */}
           <p className="mt-6 text-lg text-gray-600 max-w-3xl leading-relaxed">
             يُطبَق هذا البرنامج على كافة <strong className="font-bold text-gray-900">المنتجات</strong> التي تتطلب استيفاء <strong className="font-bold text-gray-900">اشتراطات الحلال</strong> وفقاً <strong className="font-bold text-gray-900">لأحكام الشريعة الإسلامية</strong>، والمشار إليها بالتفصيل في المرجع الفني:

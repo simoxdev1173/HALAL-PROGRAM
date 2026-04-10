@@ -43,13 +43,14 @@ const AccreditationWorkflow = () => {
         
         {/* --- 1. HEADER & CTA --- */}
         <div className="flex flex-col items-center text-center mb-32">
-          <motion.h2 
-            initial={{ opacity: 0, y: 15 }}
+        
+            <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-6"
+            className="text-4xl md:text-5xl text-center font-light text-slate-900 tracking-tight leading-tight mb-6"
           >
-            مسار الانضمام <span className="text-emerald-700 font-extrabold relative">
+             مسار الانضمام <span className="text-emerald-900 font-bold relative">
               والاعتماد الرسمي
               <span className="absolute bottom-1 right-0 w-full h-2 bg-emerald-100 -z-10 rounded-full"></span>
             </span>
