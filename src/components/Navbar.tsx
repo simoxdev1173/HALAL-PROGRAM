@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const Navbar = ({ lang, setLang }) => {
+type Lang = "ar" | "en";
+
+interface NavbarProps {
+  lang: Lang;
+  setLang: (lang: Lang) => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
   const [isMegaMenuOpen, setMegaMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -53,12 +60,12 @@ const Navbar = ({ lang, setLang }) => {
   const d = menuData[lang];
   const isRtl = lang === "ar";
 
-  const languages = [
+  const languages: { name: string; code: Lang }[] = [
     { name: "العربية", code: "ar" },
     { name: "الإنجليزية", code: "en" }
   ];
 
-  const selectLanguage = (code) => {
+  const selectLanguage = (code: Lang) => {
     setLang(code);
     setIsLangOpen(false);
     setMegaMenuOpen(false);

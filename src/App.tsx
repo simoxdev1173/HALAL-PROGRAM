@@ -8,7 +8,7 @@ import AccreditationWorkflow from "./components/AccreditationWorkflow";
 import OfficialMarkAndDocuments from "./components/OfficialMarkAndDocuments";
 
 function App() {
-  const [lang, setLang] = useState("ar");
+  const [lang, setLang] = useState<"ar" | "en">("ar");
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";

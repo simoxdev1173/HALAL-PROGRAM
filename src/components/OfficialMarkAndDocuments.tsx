@@ -3,8 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Maximize2, X, FileText, ShieldCheck } from 'lucide-react';
 
-const OfficialMarkAndDocuments = () => {
-  const [lightboxImage, setLightboxImage] = useState(null);
+interface DocumentItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  image: string;
+  code: string;
+}
+
+const OfficialMarkAndDocuments: React.FC = () => {
+  const [lightboxImage, setLightboxImage] = useState<DocumentItem | null>(null);
 
   // Official brand specs from ملحق 4
   const brandColors = [
@@ -20,7 +29,7 @@ const OfficialMarkAndDocuments = () => {
     },
   ];
 
-  const documents = [
+  const documents: DocumentItem[] = [
     {
       id: "certificate",
       title: "شهادة الحلال العربية",
@@ -41,7 +50,7 @@ const OfficialMarkAndDocuments = () => {
 
   // Close lightbox on ESC
   useEffect(() => {
-    const handleEsc = (e) => {
+    const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") setLightboxImage(null);
     };
     window.addEventListener("keydown", handleEsc);
@@ -104,7 +113,7 @@ const OfficialMarkAndDocuments = () => {
                 whileInView={{ scale: 1, opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                src="/halal-mark.png"
+                src="/halal-mark.svg"
                 alt="علامة الحلال العربية الرسمية"
                 className="max-w-[240px] md:max-w-[280px] w-full h-auto drop-shadow-xl"
               />
