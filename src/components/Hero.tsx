@@ -109,7 +109,7 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-4xl md:text-6xl font-bold text-slate-900 leading-tight mb-6"
         >
-          البرنامج العربي <span className="text-emerald-700 font-extrabold underline underline-offset-8 decoration-emerald-100">الموحد للحلال</span>
+          البرنامج العربي <span className="text-emerald-700 font-extrabold underline underline-offset-8 decoration-emerald-100"> للحلال</span>
         </motion.h1>
       <motion.p 
   initial={{ opacity: 0 }}
@@ -117,10 +117,8 @@ const Hero = () => {
   transition={{ delay: 0.2 }}
   className="text-lg md:text-xl text-slate-600 leading-relaxed"
 >
-  شبكة اعتراف حكومية عربية موحدة تربط{" "}
-  <strong className="font-bold text-slate-900">جهات التعيين الرسمية</strong>{" "}
-  بمعايير{" "}
-  <strong className="font-bold text-slate-900">ISO/IEC الدولية</strong>
+ منظومة اعتراف متعدد الأطراف، بشهادة وعلامة الحلال العربية، بين الدول العربية المنضمة إليه{" "}
+  
   {" "}— لحماية المستهلك المسلم في كل مكان من أي شهادة حلال بلا مصداقية.
 </motion.p>
       </header>
