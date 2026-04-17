@@ -19,18 +19,34 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
       brand: "البرنامج العربي للحلال",
       links: [
         { name: "عن البرنامج", id: "about" },
-        { name: "المواصفات القياسية", id: "standards" },
-        { name: "طلب الاعتماد", id: "join" },
-        { name: "سجل المعتمدين", id: "directory" },
-        { name: "اتصل بنا", id: "contact" }
+        { name: "التحقق من شهادة / ترخيص", id: "standards" },
+        { name: "الانضمام للبرنامج", id: "join" },
+        { name: "النماذج والوثائق", id: "directory" },
+        { name: "العلامة المعتمدة", id: "contact" }
       ],
       mega: {
-        sectors: { title: "القطاعات ذات الأولوية", items: ["اللحوم ومنتجات الدواجن", "الصناعات الدوائية", "مستحضرات التجميل", "السياحة الحلال"] },
-        resources: { title: "الموارد التقنية", items: ["ISO/IEC 17000", "دليل استخدام العلامة", "نماذج طلب الشهادة"] },
-        featured: { 
-          title: "الوثائق التقنية", 
-          desc: "الوصول إلى أطر الامتثال ISO/IEC والمواصفات العربية الموحدة لتنظيم الحلال.", 
-          btn: "تحميل السجل الكامل" 
+        links: {
+          title: "روابط هامة",
+          items: [
+            { text: "آلية الانضمام للبرنامج", href: "#" },
+            { text: "تكاليف الحصول على الشهادة", href: "#" },
+            { text: "شروط استخدام العلامة", href: "#" },
+            { text: "محرك البحث والتحقق", href: "#" }
+          ]
+        },
+        faq: {
+          title: "أسئلة شائعة",
+          items: [
+            { q: "من يحق له الانضمام؟", a: "جهات التعيين الحكومية في الدول العربية." },
+            { q: "ما هي مدة صلاحية الترخيص؟", a: "ثلاث سنوات مع إمكانية التجديد." },
+            { q: "كيف أتحقق من الشهادة؟", a: "عبر محرك البحث برقم الترخيص أو الشركة." }
+          ]
+        },
+        contact: {
+          title: "تواصل معنا",
+          desc: "لأي استفسارات إضافية تتعلق بعمليات الحصول على الشهادة، أو التحقق أو المصادقة أو التفتيش، يرجى التواصل معنا.",
+          email: "halal@aidsmo.org",
+          btn: "أرسل بريداً إلكترونياً"
         }
       },
       searchPlaceholder: "ابحث برقم الترخيص أو الشركة...",
@@ -45,12 +61,28 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
         { name: "Contact", id: "contact" }
       ],
       mega: {
-        sectors: { title: "Priority Sectors", items: ["Meat & Poultry", "Pharmaceuticals", "Cosmetics", "Halal Tourism"] },
-        resources: { title: "Technical Resources", items: ["ISO/IEC 17000", "Brand Usage Guide", "Certification Forms"] },
-        featured: { 
-          title: "Technical Documents", 
-          desc: "Access ISO/IEC compliance frameworks and Arab unified standards.", 
-          btn: "Download Registry" 
+        links: {
+          title: "Important Links",
+          items: [
+            { text: "How to Join the Program", href: "#" },
+            { text: "Certification Costs", href: "#" },
+            { text: "Label Usage Terms", href: "#" },
+            { text: "Verification Search Engine", href: "#" }
+          ]
+        },
+        faq: {
+          title: "FAQ",
+          items: [
+            { q: "Who can join?", a: "Governmental accreditation bodies in Arab countries." },
+            { q: "What is the license validity?", a: "Three years, subject to renewal." },
+            { q: "How to verify a certificate?", a: "Via the search engine using license or company name." }
+          ]
+        },
+        contact: {
+          title: "Contact Us",
+          desc: "For any additional inquiries regarding certification, verification, or authentication processes, please contact us.",
+          email: "halal@aidsmo.org",
+          btn: "Send an Email"
         }
       },
       searchPlaceholder: "Search by license or company...",
@@ -90,7 +122,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             className="h-10 w-auto object-contain"
           />
           <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
-          <span className="block text-lg font-black tracking-tight text-emerald-900 leading-none cursor-pointer">
+          <span className="block text-lg font-black tracking-tight text-[#007A55] leading-none cursor-pointer">
             {d.brand}
           </span>
         </div>
@@ -102,10 +134,10 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
               <li key={i} className="h-full flex items-center">
                 <button 
                   onMouseEnter={() => setMegaMenuOpen(true)}
-                  className="relative text-[11px] font-bold text-slate-600 hover:text-emerald-700 transition-colors uppercase tracking-wider h-full flex items-center group"
+                  className="relative text-[11px] font-bold text-slate-600 hover:text-[#007A55] transition-colors uppercase tracking-wider h-full flex items-center group"
                 >
                   {link.name}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-600 transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#007A55] transition-all duration-300 group-hover:w-full"></span>
                 </button>
               </li>
             ))}
@@ -128,13 +160,13 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                   placeholder={d.searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`absolute ${isRtl ? 'left-10' : 'right-10'} h-9 px-4 text-sm bg-slate-100 border-none outline-none rounded-full text-slate-800 placeholder-slate-400`}
+                  className={`absolute ${isRtl ? 'left-10' : 'right-10'} h-9 px-4 text-sm bg-slate-100 border-none outline-none rounded-full text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-[#007A55]`}
                 />
               )}
             </AnimatePresence>
             <button 
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-2 text-slate-600 hover:text-emerald-700 transition-colors z-10 rounded-full hover:bg-slate-100"
+              className="p-2 text-slate-600 hover:text-[#007A55] transition-colors z-10 rounded-full hover:bg-slate-100"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -147,7 +179,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           <div className="relative">
             <button 
               onClick={() => setIsLangOpen(!isLangOpen)}
-              className="p-2 text-slate-600 hover:text-emerald-700 transition-colors rounded-full hover:bg-slate-100 flex items-center"
+              className="p-2 text-slate-600 hover:text-[#007A55] transition-colors rounded-full hover:bg-slate-100 flex items-center"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -168,11 +200,11 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                     <button
                       key={l.code}
                       onClick={() => selectLanguage(l.code)}
-                      className={`w-full px-4 py-2 text-sm text-right flex items-center justify-between hover:bg-slate-50 transition-colors ${lang === l.code ? 'text-emerald-700 font-bold' : 'text-slate-600'}`}
+                      className={`w-full px-4 py-2 text-sm text-right flex items-center justify-between hover:bg-slate-50 transition-colors ${lang === l.code ? 'text-[#007A55] font-bold' : 'text-slate-600'}`}
                       dir={l.code === 'ar' ? 'rtl' : 'ltr'}
                     >
                       {l.name}
-                      {lang === l.code && <div className="w-1.5 h-1.5 rounded-full bg-emerald-600"></div>}
+                      {lang === l.code && <div className="w-1.5 h-1.5 rounded-full bg-[#007A55]"></div>}
                     </button>
                   ))}
                 </motion.div>
@@ -195,52 +227,63 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           >
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 p-10">
               
-              {/* Column 1: Sectors */}
+              {/* Column 1: Links */}
               <div>
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5">
-                  {d.mega.sectors.title}
+                <h4 className="text-[10px] font-black text-[#007A55] uppercase tracking-widest mb-5">
+                  {d.mega.links.title}
                 </h4>
                 <ul className="space-y-3">
-                  {d.mega.sectors.items.map((item, i) => (
+                  {d.mega.links.items.map((item, i) => (
                     <li key={i}>
-                      <a href="#" className="text-slate-700 hover:text-emerald-700 text-sm font-bold transition-colors">
-                        {item}
+                      <a href={item.href} className="text-slate-700 hover:text-[#007A55] text-sm font-bold transition-colors">
+                        {item.text}
                       </a>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Column 2: Resources */}
+              {/* Column 2: FAQ */}
               <div>
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-5">
-                  {d.mega.resources.title}
+                <h4 className="text-[10px] font-black text-[#007A55] uppercase tracking-widest mb-5">
+                  {d.mega.faq.title}
                 </h4>
-                <ul className="space-y-3">
-                  {d.mega.resources.items.map((item, i) => (
-                    <li key={i}>
-                      <a href="#" className="text-slate-700 hover:text-emerald-700 text-sm font-bold transition-colors">
-                        {item}
-                      </a>
-                    </li>
+                <div className="space-y-4">
+                  {d.mega.faq.items.map((item, i) => (
+                    <div key={i} className="group cursor-default">
+                      <h5 className="text-sm font-bold text-slate-800 group-hover:text-[#007A55] transition-colors mb-1">
+                        {item.q}
+                      </h5>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        {item.a}
+                      </p>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
 
-              {/* Column 3 & 4: Featured Block */}
-              <div className="md:col-span-2 bg-emerald-900 rounded-xl p-8 flex flex-col justify-between relative overflow-hidden group">
-                <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-800 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+              {/* Column 3 & 4: Contact Card */}
+              <div className="md:col-span-2 bg-[#007A55] rounded-xl p-8 flex flex-col justify-between relative overflow-hidden group">
+                <div className="absolute -right-10 -top-10 w-40 h-40 bg-[#005c40] rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+                <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-[#009366] rounded-full opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
                 
                 <div className="relative z-10">
-                  <h4 className="font-bold text-white text-2xl mb-2">{d.mega.featured.title}</h4>
-                  <p className="text-emerald-100/70 text-sm leading-relaxed max-w-sm">
-                    {d.mega.featured.desc}
+                  <h4 className="font-bold text-white text-2xl mb-2">{d.mega.contact.title}</h4>
+                  <p className="text-white/80 text-sm leading-relaxed max-w-sm">
+                    {d.mega.contact.desc}
                   </p>
                 </div>
                 
-                <button className="relative z-10 mt-6 self-start text-[10px] font-black text-emerald-900 bg-white px-5 py-3 rounded-md hover:bg-slate-100 transition-colors uppercase tracking-widest">
-                  {d.mega.featured.btn}
-                </button>
+                <a 
+                  href={`mailto:${d.mega.contact.email}`}
+                  className="relative z-10 mt-6 self-start text-[11px] font-black text-[#007A55] bg-white px-6 py-3 rounded-md hover:bg-slate-100 transition-colors uppercase tracking-widest flex items-center gap-2"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  {d.mega.contact.btn}
+                </a>
               </div>
 
             </div>
