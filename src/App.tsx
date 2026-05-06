@@ -1,12 +1,12 @@
 // App.js
 import  { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
 import ArabHalalProgram from "./components/ArabHalalProgram";
 import ExploreSectors from "./components/PrioritySection";
 import AccreditationWorkflow from "./components/AccreditationWorkflow";
 import OfficialMarkAndDocuments from "./components/OfficialMarkAndDocuments";
 import FAQSection from "./components/FaqSection";
+import { Hero } from "./components/Hero";
 
 function App() {
   const [lang, setLang] = useState<"ar" | "en">("ar");
@@ -20,7 +20,7 @@ function App() {
     <div className={`min-h-screen ${lang === 'ar' ? 'font-arabic' : 'font-sans'}`}>
       <Navbar lang={lang} setLang={setLang} />
       <main>
-        <Hero  />
+        <Hero/>
         <ArabHalalProgram />
         <AccreditationWorkflow />
         <ExploreSectors />

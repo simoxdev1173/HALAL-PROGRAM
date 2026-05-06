@@ -117,9 +117,9 @@ const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
         {/* Brand / Logo Area */}
         <div className="flex items-center gap-5 z-10">
           <img 
-            src="/aidsmo.png" 
+            src="/logo.svg" 
             alt="AIDSMO Logo" 
-            className="h-10 w-auto object-contain"
+            className="h-20 w-auto object-contain"
           />
           <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
           <span className="block text-lg font-black tracking-tight text-[#007A55] leading-none cursor-pointer">
