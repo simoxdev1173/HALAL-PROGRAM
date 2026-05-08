@@ -10,77 +10,151 @@ import {
   FileText 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+
 const ExploreSectors = () => {
-  // Sector data derived from the official Arab Halal Program document
+  // Sector data with specific Unsplash background images for each domain
   const sectors = [
-    { id: 1, name: "اللحوم ومنتجاتها", icon: Beef },
-    { id: 2, name: "العصائر والمشروبات", icon: CupSoda },
-    { id: 3, name: "الأدوية", icon: Pill },
-    { id: 4, name: "مستحضرات التجميل", icon: Sparkles },
-    { id: 5, name: "خدمات الحلال", icon: Briefcase },
-    { id: 6, name: "المنتجات المحفوظة", icon: Package },
-    { id: 7, name: "المكملات الغذائية", icon: TestTube },
-    { id: 8, name: "السياحة الحلال", icon: PlaneTakeoff },
+    { 
+      id: 1, 
+      name: "اللحوم ومنتجاتها", 
+      icon: Beef, 
+      image: "/domains/meat.jpg"
+    },
+    { 
+      id: 2, 
+      name: "العصائر والمشروبات", 
+      icon: CupSoda, 
+      image: "/domains/drinks.jpg"
+    },
+    { 
+      id: 3, 
+      name: "الأدوية", 
+      icon: Pill, 
+      image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=800"
+    },
+    { 
+      id: 4, 
+      name: "مستحضرات التجميل", 
+      icon: Sparkles, 
+      image: "https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&q=80&w=800"
+    },
+    { 
+      id: 5, 
+      name: "خدمات الحلال", 
+      icon: Briefcase, 
+      image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=800"
+    },
+    { 
+      id: 6, 
+      name: "المنتجات المحفوظة", 
+      icon: Package, 
+      image: "/domains/prod.webp"
+    },
+    { 
+      id: 7, 
+      name: "المكملات الغذائية", 
+      icon: TestTube, 
+      image: "/domains/added.jpg"
+    },
+    { 
+      id: 8, 
+      name: "السياحة الحلال", 
+      icon: PlaneTakeoff, 
+      image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=800"
+    },
   ];
 
   return (
-    // تغيير خلفية القسم إلى bg-gray-50
-    <section className="py-24 px-6 md:px-12 bg-gray-50 border-t border-gray-100" dir="rtl">
-      <div className="max-w-7xl mx-auto">
+    <section className="relative py-12 px-6 md:px-12 bg-slate-950 overflow-hidden min-h-screen flex flex-col justify-center" dir="rtl">
+      
+      {/* Background Image & Overlay */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="/prioritySection.png" 
+          alt="Global Logistics Background" 
+          className="w-full h-full object-cover object-center opacity-20"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-750/50 via-slate-750/40 to-slate-950/50"></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto relative z-10 w-full">
         
-        {/* Section Header - توسيط المحتوى بالكامل */}
-        <div className="mb-16 flex flex-col items-center text-center">
-          <h2 className="text-3xl md:text-4xl font-light text-gray-900 tracking-tight">
-          </h2>
-             <motion.h2 
+        {/* Section Header */}
+        <div className="mb-10 flex flex-col items-center text-center">
+          <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl text-center font-light text-slate-900 tracking-tight leading-tight mb-6"
+            className="text-2xl md:text-4xl font-light text-white tracking-tight leading-tight mb-4"
           >
-            مجال تطبيق <span className="font-bold text-emerald-900">البرنامج</span>
+            مجال تطبيق <span className="font-bold text-[#007A55]">البرنامج</span>
           </motion.h2>
-          {/* تحسين قراءة الوصف وإبراز الكلمات المفتاحية بخط عريض */}
-          <p className="mt-6 text-lg text-gray-600 max-w-3xl leading-relaxed">
-            يُطبَق هذا البرنامج على كافة <strong className="font-bold text-gray-900">المنتجات</strong> التي تتطلب استيفاء <strong className="font-bold text-gray-900">اشتراطات الحلال</strong> وفقاً <strong className="font-bold text-gray-900">لأحكام الشريعة الإسلامية</strong>، والمشار إليها بالتفصيل في المرجع الفني:
-          </p>
 
-          {/* جعل المواصفة القياسية فريدة على شكل رابط مستند */}
-          <a 
-            href="#" 
-            className="mt-6 inline-flex items-center gap-3 px-6 py-3 bg-white border border-emerald-200 text-emerald-800 rounded-full font-bold hover:bg-emerald-50 hover:border-emerald-400 hover:shadow-md transition-all duration-300"
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="text-base md:text-lg text-slate-300 max-w-3xl leading-relaxed"
           >
-            <FileText size={20} className="text-emerald-600" />
-            <span dir="ltr">AIDSMO 3042-2019 (GSO 2055-2)</span>
-          </a>
+            يُطبَق هذا البرنامج على كافة <strong className="font-bold text-white">المنتجات</strong> التي تتطلب استيفاء <strong className="font-bold text-white">اشتراطات الحلال</strong> وفقاً <strong className="font-bold text-white">لأحكام الشريعة الإسلامية</strong>، والمشار إليها بالتفصيل في المرجع الفني:
+          </motion.p>
+
+          <motion.a 
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            href="#" 
+            className="mt-6 inline-flex items-center gap-3 px-6 py-3 bg-white/5 backdrop-blur-sm border border-white/10 text-white rounded-full font-bold hover:bg-[#007A55] hover:border-[#007A55] hover:shadow-[0_0_20px_rgba(0,122,85,0.3)] transition-all duration-500 text-sm md:text-base"
+          >
+            <FileText size={18} className="text-[#EEB422]" />
+            <span dir="ltr" className="tracking-wide">AIDSMO 3042-2019 (GSO 2055-2)</span>
+          </motion.a>
         </div>
 
-        {/* ISO-Style Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-          {sectors.map((sector) => {
+        {/* Cinematic Cards Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {sectors.map((sector, index) => {
             const IconComponent = sector.icon;
             return (
-              <a 
+              <motion.a 
                 key={sector.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
                 href="#"
-                // إضافة تأثيرات التمرير: خلفية خضراء (bg-emerald-600) وارتفاع خفيف للأعلى
-                className="group bg-white border border-gray-200 flex flex-col items-center justify-center p-8 text-center aspect-square transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:bg-emerald-600 hover:border-emerald-600 rounded-xl"
+                className="group relative flex flex-col items-center justify-center p-6 text-center min-h-[160px] overflow-hidden rounded-2xl border border-white/10 transition-all duration-500"
               >
-                {/* تحويل لون الأيقونة إلى الأبيض عند التمرير
-                */}
-                <IconComponent 
-                  size={64} 
-                  strokeWidth={1.5} 
-                  className="text-gray-700 mb-6 transition-colors duration-500 group-hover:text-white" 
-                />
-                
-                <p className="mb-0 text-lg">
-                  {/* تحويل لون النص إلى الأبيض عند التمرير */}
-                  <strong className="font-bold text-gray-900 transition-colors duration-500 group-hover:text-white">
-                    {sector.name}
-                  </strong>
-                </p>
-              </a>
+                {/* Sector Background Image */}
+                <div className="absolute inset-0 z-0">
+                  <img 
+                    src={sector.image} 
+                    alt={sector.name} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125 opacity-30 group-hover:opacity-50"
+                  />
+                  {/* Overlay to keep icon and text visible */}
+                  <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-[#007A55]/60 transition-colors duration-500"></div>
+                </div>
+
+                {/* Content Container (Icon + Text) */}
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="mb-3 p-3 rounded-full bg-white/10 backdrop-blur-sm transition-colors duration-500 group-hover:bg-white/20">
+                    <IconComponent 
+                      size={36} 
+                      strokeWidth={1.2} 
+                      className="text-white transition-all duration-500 group-hover:scale-110" 
+                    />
+                  </div>
+                  
+                  <p className="text-base">
+                    <strong className="font-bold text-white transition-colors duration-500">
+                      {sector.name}
+                    </strong>
+                  </p>
+                </div>
+              </motion.a>
             );
           })}
         </div>

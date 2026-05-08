@@ -43,56 +43,73 @@ const FAQSection: React.FC = () => {
   };
 
   return (
-    <section className="py-24 px-6 md:px-12 bg-[#FCFCFC] border-t border-slate-100" dir="rtl">
-      <div className="max-w-7xl mx-auto">
-        
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+    <section className="relative pt-20 pb-16 px-6 md:px-12 bg-slate-950 overflow-hidden" dir="rtl">
+      
+      {/* Background Image & Overlay */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="/faqSection.png" 
+          alt="Support Background" 
+          className="w-full h-full object-cover object-center opacity-10"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/60 to-slate-950"></div>
+      </div>
+
+      <div className="max-w-6xl mx-auto relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
-          {/* --- LEFT COLUMN (Editorial Header) --- */}
-          {/* In RTL, this appears on the right side. It acts as a sticky structural anchor. */}
+          {/* --- LEFT COLUMN --- */}
           <div className="lg:col-span-4 lg:sticky lg:top-32">
-           
+            <motion.h2 
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl md:text-4xl font-light text-white leading-tight tracking-tight mb-5"
+            >
+              الأسئلة <span className="font-bold text-[#007A55]">الشائعة</span>
+            </motion.h2>
             
-            <h2 className="text-4xl md:text-5xl font-light text-slate-900 leading-[1.2] tracking-tight mb-6">
-              الأسئلة <span className="font-bold text-emerald-900">الشائعة</span>
-            </h2>
-            
-            <p className="text-slate-500 text-sm leading-relaxed mb-10 max-w-sm font-light">
-              إجابات رسمية وموثوقة حول آليات عمل البرنامج العربي للحلال، شروط الانضمام، والتفاصيل المالية والقانونية للشركات وهيئات التقييم.
+            <p className="text-slate-400 text-sm md:text-base leading-relaxed mb-8 max-w-sm font-light">
+              إجابات رسمية وموثوقة حول آليات عمل البرنامج العربي للحلال، شروط الانضمام، والتفاصيل المالية والقانونية.
             </p>
 
-            <div className="bg-emerald-50/50 border border-emerald-100 p-6 rounded-sm flex flex-col items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl flex flex-col items-start gap-4"
+            >
+              <div className="w-10 h-10 rounded-xl bg-[#EEB422]/10 flex items-center justify-center text-[#EEB422]">
                 <HelpCircle size={20} strokeWidth={1.5} />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-slate-900 mb-1">لديك استفسارات أخرى؟</h4>
-                <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+                <h4 className="text-sm font-bold text-white mb-2">لديك استفسارات أخرى؟</h4>
+                <p className="text-xs text-slate-400 mb-5 leading-relaxed">
                   فريقنا الفني متاح للرد على أي استفسارات تتعلق بعمليات التفتيش أو المصادقة.
                 </p>
-                <a href="mailto:halal@aidsmo.org" className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 hover:text-emerald-500 transition-colors uppercase tracking-widest">
-                  راسلنا عبر البريد <ArrowLeft size={14} />
+                <a href="mailto:halal@aidsmo.org" className="inline-flex items-center gap-2 text-xs font-bold text-[#EEB422] hover:text-[#EEB422]/80 transition-colors uppercase tracking-widest group">
+                  راسلنا عبر البريد 
+                  <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
                 </a>
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          {/* --- RIGHT COLUMN (The Accordion List) --- */}
+          {/* --- RIGHT COLUMN (Accordion) --- */}
           <div className="lg:col-span-8">
-            <div className="border-t border-slate-200">
+            <div className="border-t border-white/10">
               {faqs.map((faq, index) => {
                 const isOpen = openIndex === index;
-                
                 return (
-                  <div key={index} className="border-b border-slate-200">
+                  <div key={index} className="border-b border-white/10 group">
                     <button
                       onClick={() => toggleFAQ(index)}
-                      className="w-full py-8 flex items-center justify-between gap-6 text-right group transition-colors"
+                      className="w-full py-5 md:py-6 flex items-center justify-between gap-6 text-right transition-colors focus:outline-none"
                     >
-                      <h3 className={`text-lg md:text-xl font-bold transition-colors ${isOpen ? 'text-emerald-900' : 'text-slate-800 group-hover:text-emerald-700'}`}>
+                      <h3 className={`text-base md:text-lg font-bold transition-colors ${isOpen ? 'text-[#007A55]' : 'text-slate-200 group-hover:text-white'}`}>
                         {faq.question}
                       </h3>
-                      <div className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${isOpen ? 'border-emerald-900 bg-emerald-900 text-white' : 'border-slate-200 text-slate-400 group-hover:border-emerald-600 group-hover:text-emerald-600'}`}>
+                      <div className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${isOpen ? 'border-[#EEB422] bg-[#EEB422] text-slate-900' : 'border-white/20 text-white group-hover:border-[#EEB422] group-hover:text-[#EEB422]'}`}>
                         {isOpen ? <Minus size={14} /> : <Plus size={14} />}
                       </div>
                     </button>
@@ -103,22 +120,12 @@ const FAQSection: React.FC = () => {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
+                          transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
                           className="overflow-hidden"
                         >
-                          <div className="pb-8 pr-4 border-r-2 border-emerald-100/50">
-                            <p className="text-slate-600 text-sm md:text-base leading-loose font-light">
-                              {/* NOTE: Citations are kept in the text to trace back to the official document */}
-                              {faq.answer.split(/(\))/).map((part, i) => {
-                                if (part === ')') {
-                                  return (
-                                    <span key={i} className="align-super text-slate-300 font-mono mx-1 select-none" dir="ltr">
-                                      {part}
-                                    </span>
-                                  );
-                                }
-                                return <span key={i}>{part}</span>;
-                              })}
+                          <div className="pb-6 pr-5 border-r-2 border-[#EEB422]/30 mb-2">
+                            <p className="text-slate-300 text-sm md:text-base leading-relaxed font-light">
+                              {faq.answer}
                             </p>
                           </div>
                         </motion.div>

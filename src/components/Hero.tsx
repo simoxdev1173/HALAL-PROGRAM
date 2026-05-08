@@ -9,31 +9,31 @@ import {
   Globe2
 } from "lucide-react";
 
-/* ---------- DATA ---------- */
+
 const CTA_DATA = [
   {
     title: "جهات التعيين الحكومية",
-    description: "للقطاعات الحكومية المخولة بتعيين جهات تقييم المطابقة والرغبة في الانضمام لمنظومة الاعتراف المتبادل.",
+    description: "البرنامج مفتوح للجهات الحكومية العربية المخوَّلة بتعيين جهات تقييم المطابقة في مجال الحلال. عند انضمامكم، تنضوي تلقائياً تحت مظلتكم جميع الجهات التي تعيِّنونها داخل دولتكم.",
     icon: Building2,
     linkText: "تقديم طلب انضمام",
-    tag: "جهات حكومية",
+    tag: "جهات حكومية فقط",
     delay: 0.1,
-    image: "/card-11.png" // Replace with your actual image path
+    image: "/card-11.png"
   },
   {
     title: "الموردون والمنشآت",
-    description: "للمنشآت الراغبة في ترخيص استخدام علامة الحلال العربية لمنتجاتها وخدماتها لولوج الأسواق العربية.",
+    description: "للحصول على شهادة الحلال العربية، تتقدم للجهة المعيَّنة المعتمدة من جهة التعيين الحكومية في دولتك — لا تتقدم مباشرة للمنظمة. ابحث عن الجهة المعيَّنة المناسبة لمجال منتجك.",
     icon: FileCheck2,
-    linkText: "طلب ترخيص العلامة",
+    linkText: "ابحث عن جهة معيَّنة معتمدة",
     tag: "قطاع الأعمال",
     delay: 0.2,
-    image: "/card-1.png" // Replace with your actual image path
+    image: "/card-1.png"
   },
   {
-    title: "محرك البحث والتحقق",
-    description: "استعلم عن حالة اعتماد الشركات ومنتجاتها وتحقق من صحة تراخيص علامة الحلال العربية.",
+    title: "التحقق من شهادة الحلال",
+    description: "تحقق من صحة شهادات الحلال العربية وحالة اعتماد الشركات ومنتجاتها. أدخل رقم الترخيص الموجود على ملصق المنتج أو اسم الشركة.",
     icon: Search,
-    linkText: "ابحث عن شركة",
+    linkText: "ابحث عن شركة أو منتج",
     tag: "خدمة عامة",
     secondary: true,
     delay: 0.3,
@@ -129,13 +129,13 @@ export const Hero = () => {
         {/* Background Image & Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/hero-image.png" 
+            src="/bg-hero-updated.png" 
             alt="Global Islamic Trade" 
             className="w-full h-full object-cover object-center"
           />
-          {/* UI EXPERT NOTE: Added a very subtle warm hue (amber/gold) to the dark overlay to tie the colors together without being obvious */}
+      
           <div className="absolute inset-0 bg-slate-900/40 mix-blend-multiply"></div>
-          <div className="absolute inset-0 bg-gradient-to-l from-[#111827]/40 via-[#111827]/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-l from-[#111827]/20 via-[#111827]/30 to-transparent"></div>
         </div>
 
         {/* Hero Content */}
@@ -144,7 +144,7 @@ export const Hero = () => {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="max-w-3xl"
+            className="max-w-4xl"
           >
          
             
@@ -157,89 +157,79 @@ export const Hero = () => {
               منظومة اعتراف متعدد الأطراف تربط <strong className="font-bold text-white">جهات التعيين الحكومية العربية</strong> بمعايير <strong className="font-bold text-white">دولية معتمدة</strong> — لضمان مصداقية شهادات الحلال وحماية المستهلك المسلم في كل الأسواق، من الدول العربية إلى كل دول العالم.
             </p>
             
-            <div className="mt-10 flex gap-4">
-              <button className="bg-[#007A55] hover:bg-[#006042] text-white px-8 py-4 rounded-lg font-bold transition-all shadow-lg shadow-[#007A55]/30 flex items-center gap-2 group border border-transparent hover:border-[#EEB422]/50">
-                اكتشف المزيد
-                {/* UI EXPERT NOTE: Subtle gold interaction on hover */}
-                <ArrowLeft size={18} className="group-hover:text-[#EEB422] transition-colors" />
+            {/* UI EXPERT NOTE: New Dual Button Layout - Prioritizing Government Entities */}
+            <div className="mt-12 flex flex-col md:flex-row items-start gap-6">
+              
+              {/* Primary Button: Governmental Entities (Now Main) */}
+              <div className="flex flex-col gap-2 w-full md:w-auto">
+                {/* Micro-copy acting as a filter */}
+                <span className="text-[#EEB422] text-sm font-semibold tracking-wide px-1 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#EEB422]"></span>
+                  خاص بالجهات الحكومية المخولة وهيئات منح الشهادات
+                </span>
+                
+                <button className="bg-[#007A55] hover:bg-[#006042] text-white px-8 py-4 rounded-lg font-bold transition-all shadow-lg shadow-[#007A55]/30 flex items-center justify-center gap-3 group border border-transparent hover:border-[#EEB422]/50 w-full md:w-auto h-[60px]">
+                  انضم كجهة تعيين حكومية
+                  <ArrowLeft size={18} className="group-hover:text-[#EEB422] transition-colors" />
+                </button>
+              </div>
+
+              {/* Secondary Button: Suppliers & Business Sector */}
+              <button className="bg-slate-900/40 backdrop-blur-sm hover:bg-[#EEB422]/10 text-white border-2 border-[#EEB422] px-8 py-4 rounded-lg font-bold transition-all shadow-[0_0_15px_rgba(238,180,34,0.15)] hover:shadow-[0_0_25px_rgba(238,180,34,0.3)] flex items-center justify-center gap-3 group w-full md:w-auto h-[60px] md:mt-[26px]">
+                طلب ترخيص العلامة للموردين
+                <ArrowLeft size={18} className="text-[#EEB422] group-hover:-translate-x-1 transition-transform" />
               </button>
+
             </div>
           </motion.div>
         </div>
       </section>
 
       <div className="-mt-16 relative z-20">
-        <ActionCards />
+        
+      {/* Intro Section */}
+      <section className="relative z-10 py-24 px-6 md:px-12 border-b border-white/10">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-3xl md:text-5xl font-light mb-10 tracking-tight leading-tight">
+            ماذا يقدم{" "}
+            <span className="font-bold text-[#007A55]">
+              البرنامج العربي للحلال
+            </span>{" "}
+            لك؟
+          </h1>
+
+          <p className="text-lg md:text-xl leading-relaxed text-black">
+            يعمل البرنامج على ضمان{" "}
+            <strong className="text-black/80 font-bold">
+              حماية المستهلك المسلم
+            </strong>{" "}
+            في الدول العربية وفي جميع دول العالم، ليس فقط من{" "}
+            <strong className="text-black/80 font-bold">
+              شهادات وعلامات الحلال المزورة
+            </strong>
+            ، بل أيضاً من الشهادات والعلامات التي تمنحها جهات لا تتوفر فيها{" "}
+            <strong className="text-black/80  font-bold underline decoration-[#EEB422]/40 underline-offset-4">
+              شروط المهنية والشرعية والمصداقية
+            </strong>{" "}
+            اللازمة لمثل هذا المجال. نحن نضع أسس{" "}
+            <strong className="text-black/80 font-bold">
+              منظومة اعتراف متعدد الأطراف
+            </strong>{" "}
+            لضمان{" "}
+            <strong className="relative text-black/80 font-bold inline-block">
+              تسهيل التبادل التجاري
+              <span className="absolute -bottom-1 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#EEB422]/50 to-transparent"></span>
+            </strong>{" "}
+            بين الدول العربية، مع التأكد من مطابقة المنتجات العالمية{" "}
+            <strong className="text-black/80 font-bold">
+              للمتطلبات الفنية والمواصفات القياسية العربية
+            </strong>
+            .
+          </p>
+        </div>
+      </section>
       </div>
     </div>
   );
 };
 
-
-/* ---------- ARAB HALAL PROGRAM (ISO STYLE) ---------- */
-export const ArabHalalProgram = () => {
-  return (
-    // UI EXPERT NOTE: Applied a very soft, warm off-white gradient background. It looks clean but removes the "plain/sterile" feeling of pure white.
-    <div className="relative overflow-hidden bg-gradient-to-b from-white via-[#faf9f6] to-stone-50 text-gray-900" dir="rtl">
-      
-      {/* Subtle ambient light effects (Gold and Green) - Very faint */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#EEB422] opacity-[0.02] blur-[150px] rounded-full pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#007A55] opacity-[0.02] blur-[120px] rounded-full pointer-events-none"></div>
-
-      {/* Intro Section */}
-      <section className="py-24 px-6 md:px-12 border-b border-stone-200/60 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-light mb-10 tracking-tight leading-tight">
-            ماذا يقدم <span className="font-bold text-[#007A55]">البرنامج العربي للحلال</span> لك؟
-          </h1>
-          <p className="text-xl md:text-2xl leading-relaxed text-gray-600">
-            يعمل البرنامج على ضمان <strong className="text-gray-900">حماية المستهلك المسلم</strong> في جميع أنحاء العالم من <strong className="text-gray-900">الشهادات والعلامات المزورة</strong>. 
-            نحن نضع أسس <strong className="text-gray-900">منظومة اعتراف متعدد الأطراف</strong> لضمان <strong className="text-gray-900 border-b-2 border-[#EEB422]/40 pb-1">تسهيل التبادل التجاري</strong> بين الدول العربية، مع التأكد من مطابقة المنتجات العالمية <strong className="text-gray-900">للمتطلبات الفنية والمواصفات القياسية العربية</strong>.
-          </p>
-        </div>
-      </section>
-
-      {/* Three Cards Section */}
-      <section className="py-20 px-6 md:px-12 relative z-10">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
-          
-          {/* Card 1 */}
-          {/* UI EXPERT NOTE: Replaced standard border with a top border hover effect using the Gold accent */}
-          <div className="bg-white/80 backdrop-blur-sm p-10 lg:p-12 flex flex-col h-full border border-stone-100 border-t-4 border-t-transparent hover:border-t-[#EEB422] rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-2xl transition-all duration-500 group">
-            <h2 className="text-2xl font-bold mb-6 text-emerald-900 group-hover:text-[#007A55] transition-colors">ما هو البرنامج؟</h2>
-            <p className="text-lg text-gray-600 mb-10 flex-grow">
-              استكشف منظومتنا المتكاملة للاعتراف المتبادل، والتي تم وضع بنودها لتتوافق مع <strong className="text-gray-900">مواصفات تقييم المطابقة الدولية ISO/IEC</strong> ، بهدف تأسيس <strong className="text-gray-900">مرجعية فنية موحدة</strong> لجميع المنتجات المشمولة في البرنامج.
-            </p>
-            {/* UI EXPERT NOTE: Gold used for the underline, creating a highly polished interaction */}
-            <a href="#" className="inline-block text-sm font-black uppercase tracking-widest text-[#007A55] border-b-2 border-[#EEB422] pb-1 hover:text-[#EEB422] transition-colors w-fit">
-              تعرف على أهداف البرنامج
-            </a>
-          </div>
-
-          {/* Card 2 */}
-          <div className="bg-white/80 backdrop-blur-sm p-10 lg:p-12 flex flex-col h-full border border-stone-100 border-t-4 border-t-transparent hover:border-t-[#EEB422] rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-2xl transition-all duration-500 group">
-            <h2 className="text-2xl font-bold mb-6 text-emerald-900 group-hover:text-[#007A55] transition-colors">هل تبحث عن الاعتماد؟</h2>
-            <p className="text-lg text-gray-600 mb-10 flex-grow">
-              سواء كنت <strong className="text-gray-900">جهة تعيين حكومية</strong> تسعى للانضمام أو <strong className="text-gray-900">مورداً</strong> يرغب في الحصول على <strong className="text-gray-900 bg-[#EEB422]/10 px-1 rounded">ترخيص استخدام علامة الحلال</strong> ، نوفر لك المسار القانوني والمهني.
-            </p>
-            <a href="#" className="inline-block text-sm font-black uppercase tracking-widest text-[#007A55] border-b-2 border-[#EEB422] pb-1 hover:text-[#EEB422] transition-colors w-fit">
-              ابدأ طلب الانضمام
-            </a>
-          </div>
-
-          {/* Card 3 */}
-          <div className="bg-white/80 backdrop-blur-sm p-10 lg:p-12 flex flex-col h-full border border-stone-100 border-t-4 border-t-transparent hover:border-t-[#EEB422] rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-2xl transition-all duration-500 group">
-            <h2 className="text-2xl font-bold mb-6 text-emerald-900 group-hover:text-[#007A55] transition-colors">تحقق من الشهادة</h2>
-            <p className="text-lg text-gray-600 mb-10 flex-grow">
-              تأكد من <strong className="text-gray-900">حالة اعتماد الشركات</strong> ومنتجاتها عبر <strong className="text-gray-900">محرك البحث المتطور</strong>. يتيح لك النظام التحقق الفوري من رقم الترخيص وصلاحية شهادات الحلال.
-            </p>
-            <a href="#" className="inline-block text-sm font-black uppercase tracking-widest text-[#007A55] border-b-2 border-[#EEB422] pb-1 hover:text-[#EEB422] transition-colors w-fit">
-              انتقل إلى سجل المعتمدين
-            </a>
-          </div>
-
-        </div>
-      </section>
-    </div>
-  );
-};
