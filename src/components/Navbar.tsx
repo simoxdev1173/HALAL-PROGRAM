@@ -328,13 +328,21 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                 </div>
 
                 {/* Contact Card */}
-                <div className="md:col-span-2 bg-[#004D36] rounded-2xl p-10 flex flex-col justify-center relative overflow-hidden group">
-                  <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-[#EEB422] rounded-full group-hover:scale-110 transition-transform duration-500"></div>
-                  <div className="absolute right-4 bottom-4 w-24 h-24 bg-white rounded-full mix-blend-overlay opacity-20"></div>
+                <div className="md:col-span-2 relative rounded-2xl p-10 flex flex-col justify-center overflow-hidden group border border-stone-100">
+                  {/* Background Image & Overlay */}
+                  <div className="absolute inset-0 bg-slate-900">
+                    <img 
+                      src="/header-nav.png" 
+                      alt="Contact Background"
+                      className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-1000 ease-out"
+                    />
+                    {/* Brand gradient overlay for depth and legibility */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#004D36]/95 via-[#004D36]/60 to-transparent" />
+                  </div>
                   
                   <div className="relative z-10">
                     <h4 className="font-black text-white text-3xl mb-4">{d.mega.contact.title}</h4>
-                    <p className="text-white/80 text-base font-medium leading-relaxed max-md">
+                    <p className="text-white/80 text-base font-medium leading-relaxed max-w-md">
                       {d.mega.contact.desc}
                     </p>
                   </div>
@@ -344,7 +352,10 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                     className="relative z-10 mt-8 self-start bg-white text-[#004D36] px-8 py-4 rounded-xl font-black text-sm hover:-translate-y-1 hover:shadow-xl transition-all duration-300 flex items-center gap-3"
                   >
                     {d.mega.contact.btn}
-                   
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
                   </a>
                 </div>
 

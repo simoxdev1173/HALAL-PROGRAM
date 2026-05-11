@@ -7,6 +7,7 @@ import ExploreSectors from "./components/PrioritySection";
 import CompanySearch from "./components/CompanySearch";
 import AccreditationWorkflow from "./components/AccreditationWorkflow";
 import OfficialMarkAndDocuments from "./components/OfficialMarkAndDocuments";
+import InternationalRecognition from "./components/InternationalRecognition";
 import FAQSection from "./components/FaqSection";
 import { Hero } from "./components/Hero";
 import IntroAnimation from "./components/IntroAnimation";
@@ -43,6 +44,7 @@ const Home = () => (
     </section>
     <ExploreSectors />
     <CompanySearch />
+    <InternationalRecognition />
     <section id="directory">
        <OfficialMarkAndDocuments />
     </section>
