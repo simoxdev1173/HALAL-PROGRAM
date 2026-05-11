@@ -70,7 +70,7 @@ const ExploreSectors = () => {
       {/* Background Image & Overlay */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="/prioritySection.png" 
+          src="/section-1-bg.jpeg" 
           alt="Global Logistics Background" 
           className="w-full h-full object-cover object-center opacity-20"
         />

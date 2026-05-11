@@ -129,7 +129,7 @@ export const Hero = () => {
         {/* Background Image & Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/bg-hero-updated.png" 
+            src="/hero-photo.png" 
             alt="Global Islamic Trade" 
             className="w-full h-full object-cover object-center"
           />

@@ -34,7 +34,7 @@ const IntroAnimation: React.FC<IntroAnimationProps> = ({ onComplete }) => {
           {/* Background Image with Deep Overlay */}
           <div className="absolute inset-0 z-0">
             <img 
-              src="/hero-image-3.png" 
+              src="/hero-photo.png" 
               alt="Background" 
               className="w-full h-full object-cover object-center opacity-30 scale-110"
             />

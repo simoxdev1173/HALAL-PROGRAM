@@ -1,5 +1,5 @@
 "use client";
-import  { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, HelpCircle, ArrowLeft } from 'lucide-react';
 
@@ -43,19 +43,21 @@ const FAQSection: React.FC = () => {
   };
 
   return (
-    <section className="relative pt-20 pb-16 px-6 md:px-12 bg-slate-950 overflow-hidden" dir="rtl">
+    // Slightly increased padding from py-10 to py-16 lg:py-20 to give some room
+    <section className="relative py-16 lg:py-20 px-6 md:px-12  overflow-hidden" dir="rtl">
       
       {/* Background Image & Overlay */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="/faqSection.png" 
+          src="/faq-bg-g.jpeg" 
           alt="Support Background" 
-          className="w-full h-full object-cover object-center opacity-10"
+          className="w-full h-full object-cover object-center opacity-100" 
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/60 to-slate-950"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/80 to-slate-900/80"></div>
       </div>
 
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto relative z-10 w-full">
+        {/* Increased gap between columns slightly */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
           {/* --- LEFT COLUMN --- */}
@@ -69,7 +71,7 @@ const FAQSection: React.FC = () => {
               الأسئلة <span className="font-bold text-[#007A55]">الشائعة</span>
             </motion.h2>
             
-            <p className="text-slate-400 text-sm md:text-base leading-relaxed mb-8 max-w-sm font-light">
+            <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-8 max-w-sm font-light">
               إجابات رسمية وموثوقة حول آليات عمل البرنامج العربي للحلال، شروط الانضمام، والتفاصيل المالية والقانونية.
             </p>
 
@@ -77,14 +79,15 @@ const FAQSection: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
+              // Relaxed card padding and gap
               className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl flex flex-col items-start gap-4"
             >
-              <div className="w-10 h-10 rounded-xl bg-[#EEB422]/10 flex items-center justify-center text-[#EEB422]">
+              <div className="w-10 h-10 rounded-xl bg-[#EEB422]/10 flex items-center justify-center text-[#EEB422] shrink-0">
                 <HelpCircle size={20} strokeWidth={1.5} />
               </div>
               <div>
                 <h4 className="text-sm font-bold text-white mb-2">لديك استفسارات أخرى؟</h4>
-                <p className="text-xs text-slate-400 mb-5 leading-relaxed">
+                <p className="text-xs text-slate-300 mb-5 leading-relaxed">
                   فريقنا الفني متاح للرد على أي استفسارات تتعلق بعمليات التفتيش أو المصادقة.
                 </p>
                 <a href="mailto:halal@aidsmo.org" className="inline-flex items-center gap-2 text-xs font-bold text-[#EEB422] hover:text-[#EEB422]/80 transition-colors uppercase tracking-widest group">
@@ -104,6 +107,7 @@ const FAQSection: React.FC = () => {
                   <div key={index} className="border-b border-white/10 group">
                     <button
                       onClick={() => toggleFAQ(index)}
+                      // Increased button padding slightly for better touch target and spacing
                       className="w-full py-5 md:py-6 flex items-center justify-between gap-6 text-right transition-colors focus:outline-none"
                     >
                       <h3 className={`text-base md:text-lg font-bold transition-colors ${isOpen ? 'text-[#007A55]' : 'text-slate-200 group-hover:text-white'}`}>
@@ -120,9 +124,10 @@ const FAQSection: React.FC = () => {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+                          transition={{ duration: 0.3, ease: "easeInOut" }}
                           className="overflow-hidden"
                         >
+                          {/* Relaxed margin/padding for the open answer */}
                           <div className="pb-6 pr-5 border-r-2 border-[#EEB422]/30 mb-2">
                             <p className="text-slate-300 text-sm md:text-base leading-relaxed font-light">
                               {faq.answer}

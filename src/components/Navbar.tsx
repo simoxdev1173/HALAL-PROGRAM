@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Lang = "ar" | "en";
@@ -10,6 +11,104 @@ interface NavbarProps {
   setLang: (lang: Lang) => void;
 }
 
+interface MegaLink {
+  text: string;
+  href: string;
+}
+
+interface FaqItem {
+  q: string;
+  a: string;
+}
+
+interface MenuContent {
+  links: { name: string; href: string; isExternal?: boolean }[];
+  mega: {
+    links: { title: string; items: MegaLink[] };
+    faq: { title: string; items: FaqItem[] };
+    contact: { title: string; desc: string; email: string; btn: string };
+  };
+  searchPlaceholder: string;
+  searchModalTitle: string;
+  searchSuggestions: string[];
+  menuBtn: string;
+}
+
+const menuData: Record<Lang, MenuContent> = {
+  ar: {
+    links: [
+      { name: "عن البرنامج", href: "/about-us" },
+      { name: "التحقق من شهادة", href: "/#standards" },
+      { name: "الانضمام للبرنامج", href: "/#join" },
+      { name: "النماذج والوثائق", href: "/#directory" },
+    ],
+    mega: {
+      links: {
+        title: "روابط هامة",
+        items: [
+          { text: "آلية الانضمام للبرنامج", href: "#" },
+          { text: "تكاليف الحصول على الشهادة", href: "#" },
+          { text: "شروط استخدام العلامة", href: "#" },
+          { text: "محرك البحث والتحقق", href: "#" }
+        ]
+      },
+      faq: {
+        title: "أسئلة شائعة",
+        items: [
+          { q: "من يحق له الانضمام؟", a: "جهات التعيين الحكومية في الدول العربية." },
+          { q: "ما هي مدة صلاحية الترخيص؟", a: "ثلاث سنوات مع إمكانية التجديد." }
+        ]
+      },
+      contact: {
+        title: "تواصل معنا",
+        desc: "لأي استفسارات إضافية تتعلق بعمليات الحصول على الشهادة، يرجى التواصل معنا.",
+        email: "halal@aidsmo.org",
+        btn: "إرسال رسالة"
+      }
+    },
+    searchPlaceholder: "ابحث في البرنامج...",
+    searchModalTitle: "البحث السريع",
+    searchSuggestions: ["كيفية الانضمام", "التراخيص", "الوثائق المطلوبة"],
+    menuBtn: "القائمة"
+  },
+  en: {
+    links: [
+      { name: "About Us", href: "/about-us" },
+      { name: "Verification", href: "/#standards" },
+      { name: "Accreditation", href: "/#join" },
+      { name: "Directory", href: "/#directory" },
+    ],
+    mega: {
+      links: {
+        title: "Important Links",
+        items: [
+          { text: "How to Join", href: "#" },
+          { text: "Certification Costs", href: "#" },
+          { text: "Label Usage Terms", href: "#" },
+          { text: "Verification Engine", href: "#" }
+        ]
+      },
+      faq: {
+        title: "FAQ",
+        items: [
+          { q: "Who can join?", a: "Governmental accreditation bodies in Arab countries." },
+          { q: "License validity?", a: "Three years, subject to renewal." }
+        ]
+      },
+      contact: {
+        title: "Contact Us",
+        desc: "For any additional inquiries regarding certification, please contact us.",
+        email: "halal@aidsmo.org",
+        btn: "Send Message"
+      }
+    },
+    searchPlaceholder: "Search program...",
+    searchModalTitle: "Quick Search",
+    searchSuggestions: ["How to join", "Licenses", "Required Documents"],
+    menuBtn: "Menu"
+  }
+};
+
 export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
   const [isMegaMenuOpen, setMegaMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -17,6 +116,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
 
   // Solid, pronounced shadow on scroll
   useEffect(() => {
@@ -34,81 +134,6 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const menuData = {
-    ar: {
-      links: [
-        { name: "عن البرنامج", id: "about" },
-        { name: "التحقق من شهادة", id: "standards" },
-        { name: "الانضمام للبرنامج", id: "join" },
-        { name: "النماذج والوثائق", id: "directory" },
-      ],
-      mega: {
-        links: {
-          title: "روابط هامة",
-          items: [
-            { text: "آلية الانضمام للبرنامج", href: "#" },
-            { text: "تكاليف الحصول على الشهادة", href: "#" },
-            { text: "شروط استخدام العلامة", href: "#" },
-            { text: "محرك البحث والتحقق", href: "#" }
-          ]
-        },
-        faq: {
-          title: "أسئلة شائعة",
-          items: [
-            { q: "من يحق له الانضمام؟", a: "جهات التعيين الحكومية في الدول العربية." },
-            { q: "ما هي مدة صلاحية الترخيص؟", a: "ثلاث سنوات مع إمكانية التجديد." }
-          ]
-        },
-        contact: {
-          title: "تواصل معنا",
-          desc: "لأي استفسارات إضافية تتعلق بعمليات الحصول على الشهادة، يرجى التواصل معنا.",
-          email: "halal@aidsmo.org",
-          btn: "إرسال رسالة"
-        }
-      },
-      searchPlaceholder: "ابحث في البرنامج...",
-      searchModalTitle: "البحث السريع",
-      searchSuggestions: ["كيفية الانضمام", "التراخيص", "الوثائق المطلوبة"],
-      menuBtn: "القائمة"
-    },
-    en: {
-      links: [
-        { name: "About", id: "about" },
-        { name: "Verification", id: "standards" },
-        { name: "Accreditation", id: "join" },
-        { name: "Directory", id: "directory" },
-      ],
-      mega: {
-        links: {
-          title: "Important Links",
-          items: [
-            { text: "How to Join", href: "#" },
-            { text: "Certification Costs", href: "#" },
-            { text: "Label Usage Terms", href: "#" },
-            { text: "Verification Engine", href: "#" }
-          ]
-        },
-        faq: {
-          title: "FAQ",
-          items: [
-            { q: "Who can join?", a: "Governmental accreditation bodies in Arab countries." },
-            { q: "License validity?", a: "Three years, subject to renewal." }
-          ]
-        },
-        contact: {
-          title: "Contact Us",
-          desc: "For any additional inquiries regarding certification, please contact us.",
-          email: "halal@aidsmo.org",
-          btn: "Send Message"
-        }
-      },
-      searchPlaceholder: "Search program...",
-      searchModalTitle: "Quick Search",
-      searchSuggestions: ["How to join", "Licenses", "Required Documents"],
-      menuBtn: "Menu"
-    }
-  };
-
   const d = menuData[lang];
   const isRtl = lang === "ar";
 
@@ -118,7 +143,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
   ];
 
   // Snappy, clean animation curve
-  const customEase = [0.25, 1, 0.5, 1];
+  const customEase: [number, number, number, number] = [0.25, 1, 0.5, 1];
 
   return (
     <>
@@ -128,7 +153,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             ? "shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border-b border-stone-100 py-0" 
             : "border-b-2 border-[#007A55]/10 py-2"
         }`}
-        dir={isRtl ? "rtl" : "ltr"}
+        dir={(isRtl ? "rtl" : "ltr") as "rtl" | "ltr"}
         onMouseLeave={() => {
           setMegaMenuOpen(false);
           setIsLangOpen(false);
@@ -138,11 +163,13 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           
           {/* Logo & Desktop Links Grouped to fix spacing */}
           <div className="flex items-center gap-10 lg:gap-14 h-full z-20">
-            <img 
-              src="/logo.svg" 
-              alt="Logo" 
-              className="h-19 w-auto object-contain shrink-0"
-            />
+            <Link to="/">
+              <img 
+                src="/logo.svg" 
+                alt="Logo" 
+                className="h-19 w-auto object-contain shrink-0"
+              />
+            </Link>
 
             {/* Desktop Links */}
             <div 
@@ -152,12 +179,12 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
               <ul className="flex items-center gap-1.5 h-full">
                 {d.links.map((link, i) => (
                   <li key={i} className="h-full flex items-center">
-                    <a 
-                      href={`#${link.id}`}
+                    <Link 
+                      to={link.href}
                       className="relative px-5 py-2.5 rounded-xl text-[12px] font-bold text-stone-600 hover:text-white hover:bg-[#007A55] transition-all duration-300 uppercase tracking-widest cursor-pointer whitespace-nowrap"
                     >
                       {link.name}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -307,7 +334,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                   
                   <div className="relative z-10">
                     <h4 className="font-black text-white text-3xl mb-4">{d.mega.contact.title}</h4>
-                    <p className="text-white/80 text-base font-medium leading-relaxed max-w-md">
+                    <p className="text-white/80 text-base font-medium leading-relaxed max-md">
                       {d.mega.contact.desc}
                     </p>
                   </div>
@@ -330,7 +357,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
       {/* --- STYLISH SEARCH OVERLAY (Command Palette) --- */}
       <AnimatePresence>
         {isSearchOpen && (
-          <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] px-4" dir={isRtl ? "rtl" : "ltr"}>
+          <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] px-4" dir={(isRtl ? "rtl" : "ltr") as "rtl" | "ltr"}>
             {/* Backdrop */}
             <motion.div 
               initial={{ opacity: 0 }}
@@ -401,7 +428,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             exit={{ opacity: 0, x: isRtl ? "-100%" : "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed inset-0 z-[100] bg-stone-50 lg:hidden flex flex-col"
-            dir={isRtl ? "rtl" : "ltr"}
+            dir={(isRtl ? "rtl" : "ltr") as "rtl" | "ltr"}
           >
             {/* Mobile Header */}
             <div className="h-24 px-6 flex items-center justify-between bg-white border-b-2 border-stone-200">
@@ -427,8 +454,8 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1, ease: customEase }}
                   >
-                    <a 
-                      href={`#${link.id}`}
+                    <Link 
+                      to={link.href}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="bg-white p-6 rounded-2xl text-xl font-black text-stone-800 hover:text-white hover:bg-[#007A55] transition-colors block border border-stone-100 shadow-sm flex justify-between items-center"
                     >
@@ -436,7 +463,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={isRtl ? "rotate-180" : ""}>
                         <polyline points="9 18 15 12 9 6"></polyline>
                       </svg>
-                    </a>
+                    </Link>
                   </motion.li>
                 ))}
               </ul>
@@ -465,4 +492,5 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
     </>
   );
 };
+
 export default Navbar;

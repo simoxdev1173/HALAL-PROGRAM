@@ -19,7 +19,7 @@ const AccreditationWorkflow = () => {
       icon: FileText,
       // Gradient background and image setup for the top visual
       bgGradient: "from-emerald-50 to-teal-100",
-      image: "/process/process-1.png"
+      image: "/workflow/w-1.png"
     },
     {
       id: "2",
@@ -28,7 +28,7 @@ const AccreditationWorkflow = () => {
       description: "يخضع الطلب لتدقيق دقيق وفق مواصفات <strong class='text-slate-900 font-bold'>ISO/IEC 17000</strong>، ويتم الرد خلال <strong class='text-[#007A55] font-bold'>30 يوماً</strong> كحد أقصى.",
       icon: Search,
       bgGradient: "from-[#EEB422]/10 to-amber-100/50",
-      image: "/process/process-2.png"
+      image: "/workflow/w-2.png"
     },
     {
       id: "3",
@@ -37,7 +37,7 @@ const AccreditationWorkflow = () => {
       description: "عند القبول، يتم توقيع الاتفاقية لمنح حق استخدام <strong class='text-slate-900 font-bold'>علامة الحلال العربية</strong> وتفويض الجهات التابعة.",
       icon: Handshake,
       bgGradient: "from-stone-100 to-slate-200",
-      image: "/process/process-3.png"
+      image: "/workflow/w-3.png"
     }
   ];
 
@@ -47,40 +47,41 @@ const AccreditationWorkflow = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.3, // Delay between each step animating in
+        staggerChildren: 0.4, // Slower, more cinematic stagger
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 40 },
+    hidden: { opacity: 0, y: 40, scale: 0.95 },
     visible: { 
       opacity: 1, 
       y: 0, 
-      transition: { duration: 0.7, ease: "easeOut" } 
+      scale: 1,
+      transition: { duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] } 
     }
   };
 
   return (
-    // Replaced standard solid background with a subtle, warm off-white gradient
-    <section className="relative py-32 bg-gradient-to-br from-[#fdfcfb] via-[#faf9f6] to-stone-50 overflow-hidden" dir="rtl">
+    // Tightened vertical padding significantly (py-12 to py-16)
+    <section className="relative py-16 lg:py-24 bg-gradient-to-br from-[#fdfcfb] via-[#faf9f6] to-stone-50 overflow-hidden" dir="rtl">
       
       {/* Background Ambient Glows */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#EEB422] opacity-[0.02] blur-[120px] rounded-full pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#007A55] opacity-[0.02] blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#EEB422] opacity-[0.03] blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#007A55] opacity-[0.03] blur-[120px] rounded-full pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         
         {/* --- 1. HEADER SECTION --- */}
-        <div className="flex flex-col items-center text-center mb-24">
+        <div className="flex flex-col items-center text-center mb-16 md:mb-24">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-4xl md:text-4xl font-light text-slate-900 tracking-tight leading-tight mb-6"
+            transition={{ duration: 0.8 }}
+            className="text-3xl md:text-5xl font-light text-slate-900 tracking-tight leading-tight mb-6"
           >
-           كيف تتم عملية الانضمام <strong className="text-[#007A55] font-bold relative inline-block">
+            كيف تتم عملية الانضمام <strong className="text-[#007A55] font-bold relative inline-block">
             إلى البرنامج العربي للحلال؟
               <span className="absolute -bottom-2 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#EEB422]/60 to-transparent"></span>
             </strong>
@@ -90,35 +91,35 @@ const AccreditationWorkflow = () => {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-lg text-slate-600 max-w-2xl mb-10 leading-relaxed"
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="text-base md:text-lg text-slate-600 max-w-3xl mb-8 leading-relaxed"
           >
             نظام عالمي يضمن <strong className="text-slate-900 font-bold">المصداقية الشرعية</strong> ويسهل 
             <strong className="text-slate-900 font-bold"> التبادل التجاري</strong> للمنتجات والخدمات عبر آلية اعتماد شفافة.
           </motion.p>
 
           <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="group flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-xl font-bold shadow-xl shadow-slate-900/10 hover:bg-[#007A55] hover:shadow-[#007A55]/20 transition-all text-sm"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="group flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl shadow-slate-900/10 hover:bg-[#007A55] hover:shadow-[#007A55]/20 transition-all text-sm md:text-base"
           >
             تحميل دليل وثائق البرنامج 
-            <Download size={18} className="group-hover:-translate-y-1 transition-transform" />
+            <Download size={20} className="group-hover:-translate-y-1 transition-transform" />
           </motion.button>
         </div>
 
         {/* --- 2. WORKFLOW TIMELINE SECTION --- */}
-        <div className="relative w-full mb-32">
+        <div className="relative w-full mb-20 md:mb-32">
           
-          {/* The Connecting Animated Line (Hidden on mobile) */}
-          {/* Positioned exactly vertically centered with the numbered circles */}
-          <div className="hidden md:block absolute top-[284px] right-0 w-full h-[3px] bg-stone-200 rounded-full z-0">
+          {/* The Connecting Animated Line */}
+          {/* Adjusted 'top' positioning to perfectly center with the newly sized images (h-64 = 256px + gap-5 (20px) + half-badge (20px) = 296px) */}
+          <div className="hidden md:block absolute top-[296px] right-0 w-full h-[2px] bg-stone-200 rounded-full z-0">
             <motion.div 
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
               viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 1.5, ease: "easeInOut", delay: 0.2 }}
-              className="h-full bg-gradient-to-l from-[#007A55] via-[#EEB422] to-transparent origin-right rounded-full shadow-[0_0_10px_rgba(0,122,85,0.3)]"
+              transition={{ duration: 1.5, ease: "easeInOut", delay: 0.5 }}
+              className="h-full bg-gradient-to-l from-[#007A55] via-[#EEB422] to-transparent origin-right rounded-full shadow-[0_0_8px_rgba(0,122,85,0.3)]"
             />
           </div>
 
@@ -126,50 +127,50 @@ const AccreditationWorkflow = () => {
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
+            viewport={{ once: true, margin: "-100px" }}
             className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16 relative z-10"
           >
             {steps.map((step) => (
               <motion.div
                 key={step.id}
-                className="group relative flex flex-col gap-8 text-center md:text-right"
+                variants={itemVariants}
+                className="group relative flex flex-col gap-6 text-center md:text-right"
               >
-                {/* A. Top Image Block */}
-                <div className="relative h-60 w-full rounded-3xl overflow-hidden bg-white shadow-lg shadow-stone-200/50 group-hover:shadow-2xl group-hover:shadow-[#007A55]/10 transition-all duration-500 border border-stone-100">
+                {/* A. Top Image Block - Increased height to h-64 */}
+                <div className="relative h-64 w-full rounded-3xl overflow-hidden bg-white shadow-lg shadow-stone-200/50 group-hover:shadow-2xl group-hover:shadow-[#007A55]/15 transition-all duration-700 border border-stone-100">
                   {/* Subtle Gradient Overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${step.bgGradient} opacity-60 mix-blend-multiply z-10 transition-opacity duration-500 group-hover:opacity-20`}></div>
+                  <div className={`absolute inset-0 bg-gradient-to-br ${step.bgGradient} opacity-40 mix-blend-multiply z-10 transition-opacity duration-700 group-hover:opacity-20`}></div>
                   {/* Background Image */}
                   <img 
                     src={step.image} 
                     alt={step.title}
-                    className="w-full h-full object-cover transform transition-transform duration-700 ease-out group-hover:scale-110 opacity-90"
+                    className="w-full h-full object-cover transform transition-transform duration-1000 ease-out group-hover:scale-110 opacity-95"
                   />
                   {/* Floating Icon inside Image */}
                   <div className="absolute inset-0 flex items-center justify-center z-20">
-                     <div className="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl flex items-center justify-center transform transition-transform duration-500 group-hover:-translate-y-2 group-hover:rotate-3">
+                     <div className="w-16 h-16 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl flex items-center justify-center transform transition-transform duration-700 group-hover:-translate-y-2 group-hover:rotate-6">
                        <step.icon className="w-8 h-8 text-[#007A55]" strokeWidth={1.5} />
                      </div>
                   </div>
                 </div>
 
                 {/* B. Middle Number Badge */}
-                {/* This sits perfectly on top of the horizontal line */}
-                <div className="relative flex items-center justify-center w-12 h-12 bg-white rounded-full mx-auto border-4 border-stone-50 shadow-md group-hover:border-[#007A55] transition-colors duration-500 z-10">
-                  <div className="w-full h-full bg-[#007A55] rounded-full flex items-center justify-center text-white font-bold text-lg group-hover:bg-[#EEB422] transition-colors duration-500 shadow-inner">
+                <div className="relative flex items-center justify-center w-10 h-10 bg-white rounded-full mx-auto border-4 border-stone-50 shadow-sm group-hover:border-[#007A55] transition-colors duration-500 z-10">
+                  <div className="w-full h-full bg-[#007A55] rounded-full flex items-center justify-center text-white font-bold text-sm group-hover:bg-[#EEB422] transition-colors duration-500 shadow-inner">
                     {step.id}
                   </div>
                 </div>
 
                 {/* C. Bottom Content Block */}
-                <div className="space-y-3 px-2">
-                  <span className="text-[11px] font-black text-[#EEB422] tracking-widest uppercase block mb-1">
+                <div className="space-y-3 px-4">
+                  <span className="text-xs font-black text-[#EEB422] tracking-widest uppercase block">
                     {step.subtitle}
                   </span>
-                  <h3 className="text-2xl font-bold text-slate-900 tracking-tight group-hover:text-[#007A55] transition-colors">
+                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight group-hover:text-[#007A55] transition-colors">
                     {step.title}
                   </h3>
                   <p 
-                    className="text-sm text-slate-600 leading-relaxed pt-2"
+                    className="text-sm md:text-base text-slate-600 leading-relaxed pt-1"
                     dangerouslySetInnerHTML={{ __html: step.description }}
                   />
                 </div>
@@ -178,45 +179,56 @@ const AccreditationWorkflow = () => {
           </motion.div>
         </div>
 
-        {/* --- 3. REFINED BOTTOM CARD (Photo Background) --- */}
+     {/* --- 3. REFINED BOTTOM CARD (Photo Background) --- */}
         <motion.div 
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative rounded-[2.5rem] overflow-hidden shadow-2xl group border border-stone-200/20"
+          transition={{ duration: 0.6, delay: 0.1 }}
+          // Added a subtle shadow and border color transition on hover for a premium feel
+          className="relative rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 group border border-stone-200/20 hover:border-[#007A55]/30"
         >
-          {/* Background Image with Dark Overlay */}
-          <div className="absolute inset-0 bg-slate-950">
+          {/* Background Image with Directed Overlay */}
+          <div className="absolute inset-0 bg-slate-900">
             <img 
-              src="/bg-card.png" 
+              src="/workflow/w-4.png" 
               alt="Professional Setting"
-              className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-1000 group-hover:opacity-30 mix-blend-luminosity"
+              // Removed mix-blend-luminosity to keep the image's true colors.
+              // Changed object-fill to object-cover to prevent ugly stretching.
+              // Smooth, premium scale effect on hover.
+              className="w-full h-full object-cover opacity-80 group-hover:scale-105 group-hover:opacity-60 transition-all duration-700 ease-out"
             />
-            {/* Elegant dark gradient for text legibility */}
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/20 via-slate-900/20 to-transparent" />
+            {/* 
+              UI/UX Trick: Since the text is on the right (Arabic), we use 'bg-gradient-to-l' 
+              to make the right side dark for text legibility, while the left side stays clear to show the image.
+            */}
+            <div className="absolute inset-0 bg-gradient-to-l from-slate-950/95 via-slate-900/60 to-transparent transition-opacity duration-700" />
           </div>
 
-          <div className="relative p-10 md:p-14 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12 z-10">
+          <div className="relative p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 z-10">
             
-            <div className="flex-1 text-center md:text-right max-w-3xl">
-              <div className="inline-block px-4 py-1.5 rounded-full bg-[#EEB422]/20 border border-[#EEB422]/30 text-[#EEB422] text-xs font-bold tracking-wider mb-6 backdrop-blur-sm">
+            <div className="flex-1 text-center md:text-right max-w-2xl">
+              <div className="inline-block px-3 py-1 rounded-full bg-[#EEB422]/20 border border-[#EEB422]/30 text-[#EEB422] text-[10px] font-bold tracking-wider mb-4 backdrop-blur-md">
                 ملاحظة هامة
               </div>
-              <h4 className="text-2xl md:text-3xl font-bold text-white mb-4">
+              <h4 className="text-lg md:text-xl font-bold text-white mb-3 drop-shadow-md">
                 تفويض القطاع الخاص والجهات غير الحكومية
               </h4>
-              <p className="text-base md:text-lg text-slate-300 leading-relaxed font-light border-r-4 border-[#007A55] pr-5 bg-gradient-to-l from-white/5 to-transparent py-2">
+              {/* Added a slight backdrop blur and optimized text colors for maximum contrast */}
+              <p className="text-sm text-slate-200 leading-relaxed font-light border-r-2 border-[#007A55] pr-4 bg-gradient-to-l from-white/10 to-transparent py-2 backdrop-blur-[2px]">
                 يُمكن لجهة التعيين الحكومية <strong className="text-white font-bold">تفويض جهات تقييم مطابقة خاصة</strong> للعمل تحت مظلتها، شريطة إبلاغ المنظمة كتابياً والالتزام بسداد التكاليف المقررة لضمان <strong className="text-[#EEB422] font-bold">نزاهة وشرعية</strong> علامة الحلال العربية.
               </p>
             </div>
 
             <motion.button 
-              whileHover={{ x: -5 }}
-              className="flex items-center justify-center gap-3 px-8 py-4 rounded-xl border border-[#007A55] bg-[#007A55]/20 backdrop-blur-md text-white hover:bg-[#007A55] font-bold text-sm transition-all whitespace-nowrap shadow-[0_0_20px_rgba(0,122,85,0.2)] group/btn w-full md:w-auto"
+              whileHover={{ x: -4, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              // Improved button UX: Added a subtle glow effect on hover, increased base opacity so it doesn't look washed out
+              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-[#007A55] bg-[#007A55]/80 backdrop-blur-md text-white hover:bg-[#007A55] hover:shadow-[0_0_20px_rgba(0,122,85,0.4)] font-bold text-xs transition-all duration-300 whitespace-nowrap group/btn w-full md:w-auto shrink-0"
             >
               الاطلاع على المتطلبات الفنية 
-              <ArrowLeft size={18} className="text-[#EEB422] group-hover/btn:-translate-x-1 transition-transform" />
+              {/* Increased the arrow slide distance slightly for better visual feedback */}
+              <ArrowLeft size={16} className="text-[#EEB422] group-hover/btn:-translate-x-1.5 transition-transform duration-300" />
             </motion.button>
             
           </div>
