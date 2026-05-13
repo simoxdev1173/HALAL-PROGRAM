@@ -48,12 +48,12 @@ export function ActionCards() {
     <section className="py-20 relative z-10 bg-gradient-to-br from-stone-100 via-[#faf9f6] to-stone-50" dir="rtl">
       
       {/* Subtle background ambient glow using the gold color */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#EEB422] opacity-[0.03] blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#CA8A04] opacity-[0.03] blur-[120px] rounded-full pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="flex items-center gap-3 mb-10">
           {/* UI EXPERT NOTE: Used Gold as the structural accent line instead of green */}
-          <div className="w-2 h-8 bg-[#EEB422] rounded-full shadow-[0_0_10px_rgba(238,180,34,0.3)]"></div>
+          <div className="w-2 h-8 bg-[#CA8A04] rounded-full shadow-[0_0_10px_rgba(202,138,4,0.3)]"></div>
           <h2 className="text-3xl font-bold text-slate-900">خدمات المنظومة</h2>
         </div>
 
@@ -65,7 +65,7 @@ export function ActionCards() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: card.delay, duration: 0.6, ease: "easeOut" }}
-              className={`group relative flex flex-col bg-white rounded-2xl overflow-hidden shadow-lg shadow-stone-200/50 hover:shadow-2xl transition-all duration-500 border ${
+              className={`group relative flex flex-col bg-white rounded-2xl overflow-hidden shadow-lg shadow-stone-200/50 hover:shadow-2xl transition-all duration-500 border cursor-pointer ${
                 card.secondary ? "border-slate-800" : "border-stone-100"
               }`}
             >
@@ -81,7 +81,7 @@ export function ActionCards() {
                 <div className="absolute bottom-4 right-6 z-20">
                   {/* UI EXPERT NOTE: Added gold border to the tags for a premium finish */}
                   <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider text-white rounded-md shadow-sm border ${
-                    card.secondary ? "bg-slate-800 border-[#EEB422]/50" : "bg-[#007A55] border-[#007A55]"
+                    card.secondary ? "bg-slate-800 border-[#CA8A04]/50" : "bg-[#007A55] border-[#007A55]"
                   }`}>
                     {card.tag}
                   </span>
@@ -92,7 +92,7 @@ export function ActionCards() {
               <div className={`p-8 flex flex-col flex-grow ${card.secondary ? "bg-slate-900 text-white" : "bg-white"}`}>
                 <div className="flex items-center gap-4 mb-4">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-colors duration-300 ${
-                    card.secondary ? "bg-[#EEB422]/10 text-[#EEB422]" : "bg-emerald-50 text-[#007A55] group-hover:bg-[#EEB422]/10 group-hover:text-[#EEB422]"
+                    card.secondary ? "bg-[#CA8A04]/10 text-[#CA8A04]" : "bg-emerald-50 text-[#007A55] group-hover:bg-[#CA8A04]/10 group-hover:text-[#CA8A04]"
                   }`}>
                     <card.icon size={24} />
                   </div>
@@ -106,8 +106,8 @@ export function ActionCards() {
                 </p>
 
                 {/* UI EXPERT NOTE: Hover state changes arrow and text to Gold for interactivity */}
-                <button className={`flex items-center gap-2 font-bold text-sm mt-auto w-fit group/btn transition-colors ${
-                  card.secondary ? "text-white hover:text-[#EEB422]" : "text-slate-900 hover:text-[#EEB422]"
+                <button className={`flex items-center gap-2 font-bold text-sm mt-auto w-fit group/btn transition-colors cursor-pointer ${
+                  card.secondary ? "text-white hover:text-[#CA8A04]" : "text-slate-900 hover:text-[#CA8A04]"
                 }`}>
                   {card.linkText}
                   <ArrowLeft size={16} className="group-hover/btn:-translate-x-2 transition-transform duration-300" />
@@ -153,7 +153,7 @@ export const Hero = () => {
             </h1>
             
             {/* UI EXPERT NOTE: Gold accent border instead of green to break up the color blocking */}
-            <p className="text-lg md:text-xl text-slate-200 leading-relaxed font-light max-w-2xl border-r-4 border-[#EEB422] pr-5 bg-gradient-to-l from-white/5 to-transparent py-2">
+            <p className="text-lg md:text-xl text-slate-200 leading-relaxed font-light max-w-2xl border-r-4 border-[#CA8A04] pr-5 bg-gradient-to-l from-white/5 to-transparent py-2">
               منظومة اعتراف متعدد الأطراف تربط <strong className="font-bold text-white">جهات التعيين الحكومية العربية</strong> بمعايير <strong className="font-bold text-white">دولية معتمدة</strong> — لضمان مصداقية شهادات الحلال وحماية المستهلك المسلم في كل الأسواق، من الدول العربية إلى كل دول العالم.
             </p>
             
@@ -163,21 +163,21 @@ export const Hero = () => {
               {/* Primary Button: Governmental Entities (Now Main) */}
               <div className="flex flex-col gap-2 w-full md:w-auto">
                 {/* Micro-copy acting as a filter */}
-                <span className="text-[#EEB422] text-sm font-semibold tracking-wide px-1 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#EEB422]"></span>
+                <span className="text-[#CA8A04] text-sm font-semibold tracking-wide px-1 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#CA8A04]"></span>
                   خاص بالجهات الحكومية المخولة وهيئات منح الشهادات
                 </span>
                 
-                <button className="bg-[#007A55] hover:bg-[#006042] text-white px-8 py-4 rounded-lg font-bold transition-all shadow-lg shadow-[#007A55]/30 flex items-center justify-center gap-3 group border border-transparent hover:border-[#EEB422]/50 w-full md:w-auto h-[60px]">
+                <button className="bg-[#007A55] hover:bg-[#006042] text-white px-8 py-4 rounded-lg font-bold transition-all shadow-lg shadow-[#007A55]/30 flex items-center justify-center gap-3 group border border-transparent hover:border-[#CA8A04]/50 w-full md:w-auto h-[60px] cursor-pointer">
                   انضم كجهة تعيين حكومية
-                  <ArrowLeft size={18} className="group-hover:text-[#EEB422] transition-colors" />
+                  <ArrowLeft size={18} className="group-hover:text-[#CA8A04] transition-colors" />
                 </button>
               </div>
 
               {/* Secondary Button: Suppliers & Business Sector */}
-              <button className="bg-slate-900/40 backdrop-blur-sm hover:bg-[#EEB422]/10 text-white border-2 border-[#EEB422] px-8 py-4 rounded-lg font-bold transition-all shadow-[0_0_15px_rgba(238,180,34,0.15)] hover:shadow-[0_0_25px_rgba(238,180,34,0.3)] flex items-center justify-center gap-3 group w-full md:w-auto h-[60px] md:mt-[26px]">
+              <button className="bg-slate-900/40 backdrop-blur-sm hover:bg-[#CA8A04]/10 text-white border-2 border-[#CA8A04] px-8 py-4 rounded-lg font-bold transition-all shadow-[0_0_15px_rgba(202,138,4,0.15)] hover:shadow-[0_0_25px_rgba(202,138,4,0.3)] flex items-center justify-center gap-3 group w-full md:w-auto h-[60px] md:mt-[26px] cursor-pointer">
                 طلب ترخيص العلامة للموردين
-                <ArrowLeft size={18} className="text-[#EEB422] group-hover:-translate-x-1 transition-transform" />
+                <ArrowLeft size={18} className="text-[#CA8A04] group-hover:-translate-x-1 transition-transform" />
               </button>
 
             </div>
@@ -208,7 +208,7 @@ export const Hero = () => {
               شهادات وعلامات الحلال المزورة
             </strong>
             ، بل أيضاً من الشهادات والعلامات التي تمنحها جهات لا تتوفر فيها{" "}
-            <strong className="text-black/80  font-bold underline decoration-[#EEB422]/40 underline-offset-4">
+            <strong className="text-black/80  font-bold underline decoration-[#CA8A04]/40 underline-offset-4">
               شروط المهنية والشرعية والمصداقية
             </strong>{" "}
             اللازمة لمثل هذا المجال. نحن نضع أسس{" "}
@@ -218,7 +218,7 @@ export const Hero = () => {
             لضمان{" "}
             <strong className="relative text-black/80 font-bold inline-block">
               تسهيل التبادل التجاري
-              <span className="absolute -bottom-1 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#EEB422]/50 to-transparent"></span>
+              <span className="absolute -bottom-1 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#CA8A04]/50 to-transparent"></span>
             </strong>{" "}
             بين الدول العربية، مع التأكد من مطابقة المنتجات العالمية{" "}
             <strong className="text-black/80 font-bold">

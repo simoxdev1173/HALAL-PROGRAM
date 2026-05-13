@@ -105,7 +105,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="max-w-6xl mx-auto rounded-3xl sm:rounded-[2.5rem] bg-gradient-to-br from-[#004D36] via-[#003827] to-[#001f15] p-6 lg:p-10 shadow-2xl overflow-hidden relative border border-[#EEB422]/20"
+          className="max-w-6xl mx-auto rounded-3xl sm:rounded-[2.5rem] bg-gradient-to-br from-[#004D36] via-[#003827] to-[#001f15] p-6 lg:p-10 shadow-2xl overflow-hidden relative border border-[#CA8A04]/20"
         >
           {/* Subtle UAE-Style Pattern Overlay */}
           <div className="absolute inset-0 z-0 opacity-20 mix-blend-overlay">
@@ -117,15 +117,15 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
           </div>
           
           {/* Premium Glow */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#EEB422] opacity-[0.08] blur-[80px] rounded-full pointer-events-none z-0"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#CA8A04] opacity-[0.08] blur-[80px] rounded-full pointer-events-none z-0"></div>
 
           <div className="relative z-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
             
             {/* Text Content (Now on the Right in RTL) */}
             <div className="flex-grow text-center lg:text-right order-2 lg:order-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#EEB422]/30 bg-[#EEB422]/10 backdrop-blur-md mb-4">
-                <Sparkles size={12} className="text-[#EEB422]" />
-                <span className="text-[#EEB422] text-[9px] font-black uppercase tracking-[0.2em]">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#CA8A04]/30 bg-[#CA8A04]/10 backdrop-blur-md mb-4">
+                <Sparkles size={12} className="text-[#CA8A04]" />
+                <span className="text-[#CA8A04] text-[9px] font-black uppercase tracking-[0.2em]">
                   {d.cta.badge}
                 </span>
               </div>
@@ -133,14 +133,14 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
               <h2 className="text-xl md:text-2xl font-black text-white mb-3 leading-tight tracking-tight">
                 {d.cta.title}
               </h2>
-              <p className="text-white/70 text-sm md:text-base font-light leading-relaxed mb-6 max-w-lg lg:ml-0 lg:mr-0 mx-auto border-r-2 border-[#EEB422] pr-4">
+              <p className="text-white/70 text-sm md:text-base font-light leading-relaxed mb-6 max-w-lg lg:ml-0 lg:mr-0 mx-auto border-r-2 border-[#CA8A04] pr-4">
                 {d.cta.desc}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <button 
                   onClick={onChatOpen}
-                  className="relative bg-[#EEB422] text-[#004D36] px-6 py-3 rounded-full text-sm font-black hover:bg-white transition-all shadow-[0_15px_30px_-5px_rgba(238,180,34,0.3)] flex items-center justify-center gap-2 group overflow-hidden"
+                  className="relative bg-[#CA8A04] text-[#004D36] px-6 py-3 rounded-full text-sm font-black hover:bg-white transition-all shadow-[0_15px_30px_-5px_rgba(238,180,34,0.3)] flex items-center justify-center gap-2 group overflow-hidden"
                 >
                   <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent z-0"></div>
                   <div className="relative z-10 flex items-center gap-2">
@@ -195,14 +195,14 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
 
           {/* Navigation Groups */}
           <div className="lg:col-span-3">
-            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#004D36] mb-4 border-r-2 border-[#EEB422] pr-2">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#004D36] mb-4 border-r-2 border-[#CA8A04] pr-2">
               {d.links.title}
             </h4>
             <ul className="space-y-2">
               {d.links.items.map((link, i) => (
                 <li key={i}>
-                  <Link to={link.href} className="text-stone-500 hover:text-[#EEB422] text-sm font-bold transition-colors flex items-center gap-2 group">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#EEB422] opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                  <Link to={link.href} className="text-stone-500 hover:text-[#CA8A04] text-sm font-bold transition-colors flex items-center gap-2 group">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#CA8A04] opacity-0 group-hover:opacity-100 transition-opacity"></span>
                     {link.name}
                   </Link>
                 </li>
@@ -212,24 +212,24 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
 
           {/* Contact Details */}
           <div className="lg:col-span-3">
-            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#004D36] mb-4 border-r-2 border-[#EEB422] pr-2">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#004D36] mb-4 border-r-2 border-[#CA8A04] pr-2">
               {d.contact.title}
             </h4>
             <div className="space-y-4">
               <div className="group flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center shadow-sm group-hover:border-[#EEB422] transition-colors shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center shadow-sm group-hover:border-[#CA8A04] transition-colors shrink-0">
                   <Mail size={14} className="text-[#004D36]" />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[9px] font-bold text-stone-400 uppercase tracking-wider">Email</span>
-                  <a href={`mailto:${d.contact.email}`} className="text-sm font-bold text-[#004D36] hover:text-[#EEB422] transition-colors" dir="ltr">
+                  <a href={`mailto:${d.contact.email}`} className="text-sm font-bold text-[#004D36] hover:text-[#CA8A04] transition-colors" dir="ltr">
                     {d.contact.email}
                   </a>
                 </div>
               </div>
 
               <div className="group flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center shadow-sm group-hover:border-[#EEB422] transition-colors shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center shadow-sm group-hover:border-[#CA8A04] transition-colors shrink-0">
                   <Phone size={14} className="text-[#004D36]" />
                 </div>
                 <div className="flex flex-col">
@@ -239,7 +239,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
               </div>
 
               <div className="group flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center shadow-sm group-hover:border-[#EEB422] transition-colors shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center shadow-sm group-hover:border-[#CA8A04] transition-colors shrink-0">
                   <MapPin size={14} className="text-[#004D36]" />
                 </div>
                 <div className="flex flex-col">
@@ -254,7 +254,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
 
           {/* Support Form */}
           <div className="lg:col-span-3 bg-white/50 backdrop-blur-sm p-5 rounded-2xl border border-stone-200 shadow-sm">
-            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#004D36] mb-4 border-r-2 border-[#EEB422] pr-2">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#004D36] mb-4 border-r-2 border-[#CA8A04] pr-2">
               {d.support.title}
             </h4>
             <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
@@ -262,21 +262,21 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
                 <input 
                   type="text" 
                   placeholder={d.support.name}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-200 focus:border-[#EEB422] focus:ring-1 focus:ring-[#EEB422] outline-none transition-all bg-white text-xs"
+                  className="w-full px-3 py-2 rounded-lg border border-stone-200 focus:border-[#CA8A04] focus:ring-1 focus:ring-[#CA8A04] outline-none transition-all bg-white text-xs"
                 />
               </div>
               <div>
                 <input 
                   type="email" 
                   placeholder={d.support.email}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-200 focus:border-[#EEB422] focus:ring-1 focus:ring-[#EEB422] outline-none transition-all bg-white text-xs"
+                  className="w-full px-3 py-2 rounded-lg border border-stone-200 focus:border-[#CA8A04] focus:ring-1 focus:ring-[#CA8A04] outline-none transition-all bg-white text-xs"
                 />
               </div>
               <div>
                 <textarea 
                   placeholder={d.support.message}
                   rows={2}
-                  className="w-full px-3 py-2 rounded-lg border border-stone-200 focus:border-[#EEB422] focus:ring-1 focus:ring-[#EEB422] outline-none transition-all bg-white text-xs resize-none"
+                  className="w-full px-3 py-2 rounded-lg border border-stone-200 focus:border-[#CA8A04] focus:ring-1 focus:ring-[#CA8A04] outline-none transition-all bg-white text-xs resize-none"
                 ></textarea>
               </div>
               <button className="w-full bg-[#004D36] text-white py-2 rounded-lg font-bold text-xs hover:bg-[#003827] transition-all shadow-md shadow-emerald-900/10">

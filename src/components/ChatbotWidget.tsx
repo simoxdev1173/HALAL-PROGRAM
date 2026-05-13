@@ -153,7 +153,7 @@ export const ChatbotWidget = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpe
                   <div className="relative">
                     <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white/20 shadow-inner bg-white/10 p-0.5">
                       <img 
-                        src="/ai.png" 
+                        src="/ai-l.png" 
                         alt="AI Avatar" 
                         className="w-full h-full object-cover rounded-full bg-white"
                       />

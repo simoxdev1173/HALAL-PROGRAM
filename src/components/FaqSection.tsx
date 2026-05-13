@@ -82,7 +82,7 @@ const FAQSection: React.FC = () => {
               // Relaxed card padding and gap
               className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl flex flex-col items-start gap-4"
             >
-              <div className="w-10 h-10 rounded-xl bg-[#EEB422]/10 flex items-center justify-center text-[#EEB422] shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#CA8A04]/10 flex items-center justify-center text-[#CA8A04] shrink-0">
                 <HelpCircle size={20} strokeWidth={1.5} />
               </div>
               <div>
@@ -90,7 +90,7 @@ const FAQSection: React.FC = () => {
                 <p className="text-xs text-slate-300 mb-5 leading-relaxed">
                   فريقنا الفني متاح للرد على أي استفسارات تتعلق بعمليات التفتيش أو المصادقة.
                 </p>
-                <a href="mailto:halal@aidsmo.org" className="inline-flex items-center gap-2 text-xs font-bold text-[#EEB422] hover:text-[#EEB422]/80 transition-colors uppercase tracking-widest group">
+                <a href="mailto:halal@aidsmo.org" className="inline-flex items-center gap-2 text-xs font-bold text-[#CA8A04] hover:text-[#CA8A04]/80 transition-colors uppercase tracking-widest group cursor-pointer">
                   راسلنا عبر البريد 
                   <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
                 </a>
@@ -108,12 +108,12 @@ const FAQSection: React.FC = () => {
                     <button
                       onClick={() => toggleFAQ(index)}
                       // Increased button padding slightly for better touch target and spacing
-                      className="w-full py-5 md:py-6 flex items-center justify-between gap-6 text-right transition-colors focus:outline-none"
+                      className="w-full py-5 md:py-6 flex items-center justify-between gap-6 text-right transition-colors focus:outline-none cursor-pointer"
                     >
                       <h3 className={`text-base md:text-lg font-bold transition-colors ${isOpen ? 'text-[#007A55]' : 'text-slate-200 group-hover:text-white'}`}>
                         {faq.question}
                       </h3>
-                      <div className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${isOpen ? 'border-[#EEB422] bg-[#EEB422] text-slate-900' : 'border-white/20 text-white group-hover:border-[#EEB422] group-hover:text-[#EEB422]'}`}>
+                      <div className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${isOpen ? 'border-[#CA8A04] bg-[#CA8A04] text-slate-900' : 'border-white/20 text-white group-hover:border-[#CA8A04] group-hover:text-[#CA8A04]'}`}>
                         {isOpen ? <Minus size={14} /> : <Plus size={14} />}
                       </div>
                     </button>
@@ -128,7 +128,7 @@ const FAQSection: React.FC = () => {
                           className="overflow-hidden"
                         >
                           {/* Relaxed margin/padding for the open answer */}
-                          <div className="pb-6 pr-5 border-r-2 border-[#EEB422]/30 mb-2">
+                          <div className="pb-6 pr-5 border-r-2 border-[#CA8A04]/30 mb-2">
                             <p className="text-slate-300 text-sm md:text-base leading-relaxed font-light">
                               {faq.answer}
                             </p>

@@ -27,7 +27,7 @@ const AccreditationWorkflow = () => {
       subtitle: "المراجعة الفنية",
       description: "يخضع الطلب لتدقيق دقيق وفق مواصفات <strong class='text-slate-900 font-bold'>ISO/IEC 17000</strong>، ويتم الرد خلال <strong class='text-[#007A55] font-bold'>30 يوماً</strong> كحد أقصى.",
       icon: Search,
-      bgGradient: "from-[#EEB422]/10 to-amber-100/50",
+      bgGradient: "from-[#CA8A04]/10 to-amber-100/50",
       image: "/workflow/w-2.png"
     },
     {
@@ -67,7 +67,7 @@ const AccreditationWorkflow = () => {
     <section className="relative py-16 lg:py-24 bg-gradient-to-br from-[#fdfcfb] via-[#faf9f6] to-stone-50 overflow-hidden" dir="rtl">
       
       {/* Background Ambient Glows */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#EEB422] opacity-[0.03] blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#CA8A04] opacity-[0.03] blur-[120px] rounded-full pointer-events-none"></div>
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#007A55] opacity-[0.03] blur-[120px] rounded-full pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
@@ -83,7 +83,7 @@ const AccreditationWorkflow = () => {
           >
             كيف تتم عملية الانضمام <strong className="text-[#007A55] font-bold relative inline-block">
             إلى البرنامج العربي للحلال؟
-              <span className="absolute -bottom-2 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#EEB422]/60 to-transparent"></span>
+              <span className="absolute -bottom-2 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#CA8A04]/60 to-transparent"></span>
             </strong>
           </motion.h2>
           
@@ -101,7 +101,7 @@ const AccreditationWorkflow = () => {
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="group flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl shadow-slate-900/10 hover:bg-[#007A55] hover:shadow-[#007A55]/20 transition-all text-sm md:text-base"
+            className="group flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl shadow-slate-900/10 hover:bg-[#007A55] hover:shadow-[#007A55]/20 transition-all text-sm md:text-base cursor-pointer"
           >
             تحميل دليل وثائق البرنامج 
             <Download size={20} className="group-hover:-translate-y-1 transition-transform" />
@@ -119,7 +119,7 @@ const AccreditationWorkflow = () => {
               whileInView={{ scaleX: 1 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 1.5, ease: "easeInOut", delay: 0.5 }}
-              className="h-full bg-gradient-to-l from-[#007A55] via-[#EEB422] to-transparent origin-right rounded-full shadow-[0_0_8px_rgba(0,122,85,0.3)]"
+              className="h-full bg-gradient-to-l from-[#007A55] via-[#CA8A04] to-transparent origin-right rounded-full shadow-[0_0_8px_rgba(0,122,85,0.3)]"
             />
           </div>
 
@@ -156,14 +156,14 @@ const AccreditationWorkflow = () => {
 
                 {/* B. Middle Number Badge */}
                 <div className="relative flex items-center justify-center w-10 h-10 bg-white rounded-full mx-auto border-4 border-stone-50 shadow-sm group-hover:border-[#007A55] transition-colors duration-500 z-10">
-                  <div className="w-full h-full bg-[#007A55] rounded-full flex items-center justify-center text-white font-bold text-sm group-hover:bg-[#EEB422] transition-colors duration-500 shadow-inner">
+                  <div className="w-full h-full bg-[#007A55] rounded-full flex items-center justify-center text-white font-bold text-sm group-hover:bg-[#CA8A04] transition-colors duration-500 shadow-inner">
                     {step.id}
                   </div>
                 </div>
 
                 {/* C. Bottom Content Block */}
                 <div className="space-y-3 px-4">
-                  <span className="text-xs font-black text-[#EEB422] tracking-widest uppercase block">
+                  <span className="text-xs font-black text-[#CA8A04] tracking-widest uppercase block">
                     {step.subtitle}
                   </span>
                   <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight group-hover:text-[#007A55] transition-colors">
@@ -186,7 +186,7 @@ const AccreditationWorkflow = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
           // Added a subtle shadow and border color transition on hover for a premium feel
-          className="relative rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 group border border-stone-200/20 hover:border-[#007A55]/30"
+          className="relative rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 group border border-stone-200/20 hover:border-[#007A55]/30 cursor-pointer"
         >
           {/* Background Image with Directed Overlay */}
           <div className="absolute inset-0 bg-slate-900">
@@ -208,7 +208,7 @@ const AccreditationWorkflow = () => {
           <div className="relative p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 z-10">
             
             <div className="flex-1 text-center md:text-right max-w-2xl">
-              <div className="inline-block px-3 py-1 rounded-full bg-[#EEB422]/20 border border-[#EEB422]/30 text-[#EEB422] text-[10px] font-bold tracking-wider mb-4 backdrop-blur-md">
+              <div className="inline-block px-3 py-1 rounded-full bg-[#CA8A04]/20 border border-[#CA8A04]/30 text-[#CA8A04] text-[10px] font-bold tracking-wider mb-4 backdrop-blur-md">
                 ملاحظة هامة
               </div>
               <h4 className="text-lg md:text-xl font-bold text-white mb-3 drop-shadow-md">
@@ -216,7 +216,7 @@ const AccreditationWorkflow = () => {
               </h4>
               {/* Added a slight backdrop blur and optimized text colors for maximum contrast */}
               <p className="text-sm text-slate-200 leading-relaxed font-light border-r-2 border-[#007A55] pr-4 bg-gradient-to-l from-white/10 to-transparent py-2 backdrop-blur-[2px]">
-                يُمكن لجهة التعيين الحكومية <strong className="text-white font-bold">تفويض جهات تقييم مطابقة خاصة</strong> للعمل تحت مظلتها، شريطة إبلاغ المنظمة كتابياً والالتزام بسداد التكاليف المقررة لضمان <strong className="text-[#EEB422] font-bold">نزاهة وشرعية</strong> علامة الحلال العربية.
+                يُمكن لجهة التعيين الحكومية <strong className="text-white font-bold">تفويض جهات تقييم مطابقة خاصة</strong> للعمل تحت مظلتها، شريطة إبلاغ المنظمة كتابياً والالتزام بسداد التكاليف المقررة لضمان <strong className="text-[#CA8A04] font-bold">نزاهة وشرعية</strong> علامة الحلال العربية.
               </p>
             </div>
 
@@ -224,11 +224,11 @@ const AccreditationWorkflow = () => {
               whileHover={{ x: -4, scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               // Improved button UX: Added a subtle glow effect on hover, increased base opacity so it doesn't look washed out
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-[#007A55] bg-[#007A55]/80 backdrop-blur-md text-white hover:bg-[#007A55] hover:shadow-[0_0_20px_rgba(0,122,85,0.4)] font-bold text-xs transition-all duration-300 whitespace-nowrap group/btn w-full md:w-auto shrink-0"
+              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-[#007A55] bg-[#007A55]/80 backdrop-blur-md text-white hover:bg-[#007A55] hover:shadow-[0_0_20px_rgba(0,122,85,0.4)] font-bold text-xs transition-all duration-300 whitespace-nowrap group/btn w-full md:w-auto shrink-0 cursor-pointer"
             >
               الاطلاع على المتطلبات الفنية 
               {/* Increased the arrow slide distance slightly for better visual feedback */}
-              <ArrowLeft size={16} className="text-[#EEB422] group-hover/btn:-translate-x-1.5 transition-transform duration-300" />
+              <ArrowLeft size={16} className="text-[#CA8A04] group-hover/btn:-translate-x-1.5 transition-transform duration-300" />
             </motion.button>
             
           </div>

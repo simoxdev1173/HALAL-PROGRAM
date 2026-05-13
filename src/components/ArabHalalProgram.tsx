@@ -58,7 +58,7 @@ const ArabHalalProgram = () => {
             {" "}
             {/* Reduced gap */}
             {/* Card 1 */}
-            <div className="bg-white/5 backdrop-blur-md p-8 flex flex-col rounded-2xl border border-white/10 border-t-4 border-t-transparent hover:border-t-[#EEB422] shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:shadow-2xl hover:shadow-[#EEB422]/5 hover:-translate-y-1 transition-all duration-500 group">
+            <div className="bg-white/5 backdrop-blur-md p-8 flex flex-col rounded-2xl border border-white/10 border-t-4 border-t-transparent hover:border-t-[#CA8A04] shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:shadow-2xl hover:shadow-[#CA8A04]/5 hover:-translate-y-1 transition-all duration-500 group">
               {" "}
               {/* Reduced padding */}
               <h3 className="text-2xl font-bold mb-4 text-[#007A55] group-hover:text-white transition-colors leading-relaxed">
@@ -78,7 +78,7 @@ const ArabHalalProgram = () => {
               </p>
               <a
                 href="#"
-                className="mt-8 flex items-center gap-3 text-sm font-black tracking-wide text-white border-b-2 border-[#EEB422]/40 pb-1 hover:text-[#EEB422] hover:border-[#EEB422] transition-all w-fit leading-relaxed group/cta"
+                className="mt-8 flex items-center gap-3 text-sm font-black tracking-wide text-white border-b-2 border-[#CA8A04]/40 pb-1 hover:text-[#CA8A04] hover:border-[#CA8A04] transition-all w-fit leading-relaxed group/cta"
               >
                 {" "}
                 {/* Updated styling to be more prominent with arrow */}
@@ -87,7 +87,7 @@ const ArabHalalProgram = () => {
               </a>
             </div>
             {/* Card 2 */}
-            <div className="bg-white/5 backdrop-blur-md p-8 flex flex-col rounded-2xl border border-white/10 border-t-4 border-t-transparent hover:border-t-[#EEB422] shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:shadow-2xl hover:shadow-[#EEB422]/5 hover:-translate-y-1 transition-all duration-500 group">
+            <div className="bg-white/5 backdrop-blur-md p-8 flex flex-col rounded-2xl border border-white/10 border-t-4 border-t-transparent hover:border-t-[#CA8A04] shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:shadow-2xl hover:shadow-[#CA8A04]/5 hover:-translate-y-1 transition-all duration-500 group">
               {" "}
               {/* Reduced padding */}
               <h3 className="text-2xl font-bold mb-4 text-[#007A55] group-hover:text-white transition-colors leading-relaxed">
@@ -107,7 +107,7 @@ const ArabHalalProgram = () => {
               </p>
               <a
                 href="#"
-                className="mt-8 flex items-center gap-3 text-sm font-black tracking-wide text-white border-b-2 border-[#EEB422]/40 pb-1 hover:text-[#EEB422] hover:border-[#EEB422] transition-all w-fit leading-relaxed group/cta"
+                className="mt-8 flex items-center gap-3 text-sm font-black tracking-wide text-white border-b-2 border-[#CA8A04]/40 pb-1 hover:text-[#CA8A04] hover:border-[#CA8A04] transition-all w-fit leading-relaxed group/cta"
               >
                 {" "}
                 {/* Updated styling to be more prominent with arrow */}
@@ -116,7 +116,7 @@ const ArabHalalProgram = () => {
               </a>
             </div>
             {/* Card 3 */}
-            <div className="bg-white/5 backdrop-blur-md p-8 flex flex-col rounded-2xl border border-white/10 border-t-4 border-t-transparent hover:border-t-[#EEB422] shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:shadow-2xl hover:shadow-[#EEB422]/5 hover:-translate-y-1 transition-all duration-500 group">
+            <div className="bg-white/5 backdrop-blur-md p-8 flex flex-col rounded-2xl border border-white/10 border-t-4 border-t-transparent hover:border-t-[#CA8A04] shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:shadow-2xl hover:shadow-[#CA8A04]/5 hover:-translate-y-1 transition-all duration-500 group">
               {" "}
               {/* Reduced padding */}
               <h3 className="text-2xl font-bold mb-4 text-[#007A55] group-hover:text-white transition-colors leading-relaxed">
@@ -144,7 +144,7 @@ const ArabHalalProgram = () => {
                 {/* Reduced gap and margin */}
                 <a
                   href="#"
-                  className="flex items-center gap-3 text-sm font-black tracking-wide text-white border-b-2 border-[#EEB422]/40 pb-1 hover:text-[#EEB422] hover:border-[#EEB422] transition-all w-fit leading-relaxed group/cta"
+                  className="flex items-center gap-3 text-sm font-black tracking-wide text-white border-b-2 border-[#CA8A04]/40 pb-1 hover:text-[#CA8A04] hover:border-[#CA8A04] transition-all w-fit leading-relaxed group/cta"
                 >
                   {" "}
                   {/* Updated styling */}
@@ -153,7 +153,7 @@ const ArabHalalProgram = () => {
                 </a>
                 <a
                   href="#"
-                  className="flex items-center gap-3 text-sm font-black tracking-wide text-slate-300 border-b border-white/20 pb-1 hover:text-white hover:border-[#EEB422]/50 transition-all w-fit leading-relaxed group/cta"
+                  className="flex items-center gap-3 text-sm font-black tracking-wide text-slate-300 border-b border-white/20 pb-1 hover:text-white hover:border-[#CA8A04]/50 transition-all w-fit leading-relaxed group/cta"
                 >
                   {" "}
                   {/* Updated styling to have similar arrow effect */}

@@ -197,7 +197,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             {/* Search Placeholder Button (Triggers Modal - ⌘K removed) */}
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className="hidden sm:flex items-center gap-3 px-5 py-3 bg-stone-50 border border-stone-200 text-stone-500 rounded-xl hover:bg-stone-100 hover:border-stone-300 transition-all group"
+              className="hidden sm:flex items-center gap-3 px-5 py-3 bg-stone-50 border border-stone-200 text-stone-500 rounded-xl hover:bg-stone-100 hover:border-stone-300 transition-all group cursor-pointer"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:text-[#007A55] transition-colors">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -211,7 +211,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             {/* Mobile Search Button */}
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className="sm:hidden p-3 bg-stone-50 text-stone-600 rounded-xl hover:bg-stone-100 hover:text-[#007A55] transition-colors"
+              className="sm:hidden p-3 bg-stone-50 text-stone-600 rounded-xl hover:bg-stone-100 hover:text-[#007A55] transition-colors cursor-pointer"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -223,7 +223,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             <div className="relative hidden sm:block">
               <button 
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className={`w-16 h-[46px] transition-colors rounded-xl flex items-center justify-center gap-1.5 font-bold text-[12px] tracking-wider ${isLangOpen ? 'bg-[#004D36] text-white' : 'bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-[#004D36]'}`}
+                className={`w-16 h-[46px] transition-all rounded-xl flex items-center justify-center gap-1.5 font-bold text-[12px] tracking-wider cursor-pointer ${isLangOpen ? 'bg-[#004D36] text-white' : 'bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-[#004D36]'}`}
               >
                 {lang.toUpperCase()}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={isLangOpen ? "rotate-180 transition-transform" : "transition-transform"}>
@@ -244,7 +244,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                       <button
                         key={l.code}
                         onClick={() => { setLang(l.code); setIsLangOpen(false); }}
-                        className={`w-full px-4 py-3 text-sm flex items-center justify-between rounded-lg transition-all duration-200 ${lang === l.code ? 'bg-[#007A55] text-white font-black' : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900 font-bold'}`}
+                        className={`w-full px-4 py-3 text-sm flex items-center justify-between rounded-lg transition-all duration-200 cursor-pointer ${lang === l.code ? 'bg-[#007A55] text-white font-black' : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900 font-bold'}`}
                       >
                         {l.name}
                         {lang === l.code && <span className="w-2 h-2 bg-white rounded-full"></span>}
@@ -284,7 +284,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                 {/* Links */}
                 <div>
                   <div className="flex items-center gap-3 mb-6 border-b-2 border-stone-100 pb-4">
-                    <div className="w-8 h-8 rounded-lg bg-[#EEB422]/20 flex items-center justify-center text-[#EEB422]">
+                    <div className="w-8 h-8 rounded-lg bg-[#CA8A04]/20 flex items-center justify-center text-[#CA8A04]">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                     </div>
                     <h4 className="text-[14px] font-black text-stone-800 uppercase tracking-widest">

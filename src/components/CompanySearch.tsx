@@ -54,7 +54,7 @@ const CompanySearch = () => {
               <span className="text-transparent bg-clip-text bg-gradient-to-l from-[#007A55] to-[#004f37] relative inline-block mt-2 whitespace-nowrap">
                 شهادة الحلال العربية
                 {/* خط زخرفي أنيق تحت الكلمة */}
-                <svg className="absolute w-full h-3 -bottom-1 left-0 text-[#EEB422]/40" viewBox="0 0 100 10" preserveAspectRatio="none">
+                <svg className="absolute w-full h-3 -bottom-1 left-0 text-[#CA8A04]/40" viewBox="0 0 100 10" preserveAspectRatio="none">
                   <path d="M0 5 Q 50 10 100 5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
                 </svg>
               </span>
@@ -81,7 +81,7 @@ const CompanySearch = () => {
                       key={tab.id}
                       type="button"
                       onClick={() => { setSearchType(tab.id as any); setQuery(""); }}
-                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-colors duration-300 relative z-10 ${
+                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-colors duration-300 relative z-10 cursor-pointer ${
                         isActive ? "text-[#007A55]" : "text-slate-400 hover:text-slate-600"
                       }`}
                     >
@@ -117,7 +117,7 @@ const CompanySearch = () => {
                 <button
                   type="submit"
                   disabled={isSearchDisabled}
-                  className="absolute left-1.5 w-12 h-12 bg-[#007A55] text-white rounded-[14px] flex items-center justify-center hover:bg-[#006344] hover:scale-[1.02] active:scale-95 disabled:opacity-40 disabled:hover:scale-100 transition-all shadow-md shadow-[#007A55]/20 group"
+                  className="absolute left-1.5 w-12 h-12 bg-[#007A55] text-white rounded-[14px] flex items-center justify-center hover:bg-[#006344] hover:scale-[1.02] active:scale-95 disabled:opacity-40 disabled:hover:scale-100 transition-all shadow-md shadow-[#007A55]/20 group cursor-pointer"
                 >
                   {isSearching ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -152,7 +152,7 @@ const CompanySearch = () => {
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               className="absolute top-8 right-8 md:top-12 md:right-12 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center gap-4 text-white shadow-lg"
             >
-              <div className="w-12 h-12 bg-[#EEB422] rounded-full flex items-center justify-center shadow-inner">
+              <div className="w-12 h-12 bg-[#CA8A04] rounded-full flex items-center justify-center shadow-inner">
                 <ShieldCheck size={24} className="text-slate-900" />
               </div>
               <div>

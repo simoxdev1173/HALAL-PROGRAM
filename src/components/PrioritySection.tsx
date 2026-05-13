@@ -106,9 +106,9 @@ const ExploreSectors = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.4 }}
             href="#" 
-            className="mt-6 inline-flex items-center gap-3 px-6 py-3 bg-white/5 backdrop-blur-sm border border-white/10 text-white rounded-full font-bold hover:bg-[#007A55] hover:border-[#007A55] hover:shadow-[0_0_20px_rgba(0,122,85,0.3)] transition-all duration-500 text-sm md:text-base"
+            className="mt-6 inline-flex items-center gap-3 px-6 py-3 bg-white/5 backdrop-blur-sm border border-white/10 text-white rounded-full font-bold hover:bg-[#007A55] hover:border-[#007A55] hover:shadow-[0_0_20px_rgba(0,122,85,0.3)] transition-all duration-500 text-sm md:text-base cursor-pointer"
           >
-            <FileText size={18} className="text-[#EEB422]" />
+            <FileText size={18} className="text-[#CA8A04]" />
             <span dir="ltr" className="tracking-wide">AIDSMO 3042-2019 (GSO 2055-2)</span>
           </motion.a>
         </div>
@@ -125,7 +125,7 @@ const ExploreSectors = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.05 }}
                 href="#"
-                className="group relative flex flex-col items-center justify-center p-6 text-center min-h-[160px] overflow-hidden rounded-2xl border border-white/10 transition-all duration-500"
+                className="group relative flex flex-col items-center justify-center p-6 text-center min-h-[160px] overflow-hidden rounded-2xl border border-white/10 transition-all duration-500 cursor-pointer"
               >
                 {/* Sector Background Image */}
                 <div className="absolute inset-0 z-0">

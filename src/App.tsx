@@ -89,10 +89,37 @@ function App() {
             <ChatbotWidget isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
 
             <style>{`
-              @import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;600;700&family=Inter:wght@400;700&display=swap');
-              .font-arabic { font-family: 'Readex Pro', sans-serif; }
-              .font-sans { font-family: 'Inter', sans-serif; }
-              button { border-radius: 0 !important; }
+              @import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700&display=swap');
+              
+              :root {
+                font-family: 'Readex Pro', sans-serif;
+              }
+
+              .font-arabic, .font-sans { 
+                font-family: 'Readex Pro', sans-serif; 
+              }
+              
+              h1, h2, h3, h4, h5, h6 {
+                font-family: 'Readex Pro', sans-serif;
+                font-weight: 700;
+              }
+              
+              /* Professional transitions */
+              a, button, [role="button"] {
+                transition: all 0.2s ease-out;
+              }
+              
+              @media (prefers-reduced-motion: reduce) {
+                *, ::before, ::after {
+                  animation-delay: -1ms !important;
+                  animation-duration: 1ms !important;
+                  animation-iteration-count: 1 !important;
+                  background-attachment: initial !important;
+                  scroll-behavior: auto !important;
+                  transition-duration: 0s !important;
+                  transition-delay: 0s !important;
+                }
+              }
             `}</style>
           </motion.div>
         )}

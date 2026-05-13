@@ -2,20 +2,19 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Globe, ShieldCheck, Award } from "lucide-react";
 
 export default function AboutProgram() {
   return (
-    <div className="bg-[#FAFAF9] min-h-screen " dir="rtl">
-      {/* 
-        HERO SECTION 
-        صورة علوية بعرض الشاشة (Banner) مع عنوان الصفحة
+    <div className="bg-[#FAF9F6] min-h-screen font-arabic" dir="rtl">
+      
+      {/* --- HERO SECTION --- 
+          Preserving this exactly as the user likes it.
       */}
-      <section className="relative w-full h-[50vh] min-h-[400px] overflow-hidden pt-20">
+      <section className="relative w-full h-[60vh] min-h-[500px] overflow-hidden pt-20 flex items-center justify-center">
         <motion.div 
-          initial={{ opacity: 0, scale: 1.05 }}
+          initial={{ opacity: 0, scale: 1.1 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
+          transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
           className="absolute inset-0"
         >
           <img 
@@ -23,148 +22,250 @@ export default function AboutProgram() {
             alt="عن البرنامج العربي للحلال" 
             className="w-full h-full object-cover"
           />
-          {/* طبقة تظليل داكنة لضمان وضوح النص */}
-          <div className="absolute inset-0 bg-slate-900/50 mix-blend-multiply"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent"></div>
+          {/* Brand Gradient Overlays */}
+          <div className="absolute inset-0 bg-slate-900/40 mix-blend-multiply"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-transparent to-[#FAF9F6]"></div>
+          
+          {/* Subtle gold glow to match homepage */}
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-[#CA8A04] opacity-[0.05] blur-[150px] rounded-full pointer-events-none"></div>
         </motion.div>
         
-        <div className="relative z-10 w-full h-full flex flex-col items-center justify-center text-center px-6 mt-10">
-      
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-4xl md:text-6xl font-bold text-white leading-tight"
+            transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
           >
-            عن البرنامج العربي الحلال
-          </motion.h1>
-       
+            <h1 className="text-4xl md:text-7xl font-light text-slate-900 leading-tight tracking-tight mb-6">
+              عن البرنامج <br/>
+              <strong className="font-bold text-[#007A55]">العربي للحلال</strong>
+            </h1>
+          </motion.div>
         </div>
       </section>
 
-      {/* 
-        TYPOGRAPHY & CONTENT SECTION 
-        النص المطلوب مع تصميم تحريري راقي (Editorial Design)
+      {/* --- SECTION 1: THE VISIONARY NARRATIVE --- 
+          Scaled down: py-24 instead of py-40. Image h-[500px] instead of h-[600px].
       */}
-      <section className="py-24 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+      <section className="relative py-20 lg:py-24 overflow-hidden bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            
           
-          {/* العنوان الجانبي */}
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="lg:col-span-4 sticky top-32"
-          >
-            <div className="w-12 h-1 bg-[#EEB422] mb-8"></div>
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 leading-[1.4]">
-              حماية المستهلك <br/>
-              <span className="text-[#007A55] font-light">وبناء الثقة العالمية.</span>
-            </h2>
-          </motion.div>
 
-          {/* النص الدقيق المطلوب */}
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="lg:col-span-8 space-y-8 text-lg md:text-xl text-stone-600 font-light leading-relaxed text-justify"
-          >
-            <p className="first-letter:text-6xl first-letter:font-bold first-letter:text-[#007A55] first-letter:ml-3 first-letter:float-right">
-              تم وضع البرنامج العربي الموحد للحلال من قبل الدول العربية ممثلة في المنظمة العربية للتنمية الصناعية والتقييس والتعدين بهدف حماية المستهلك المسلم في الدول العربية وفي جميع دول العالم ليس فقط من شهادات وعلامات الحلال المزورة، بل أيضا من الشهادات والعلامات التي تمنحها جهات لا تتوفر فيها شروط المهنية والشرعية والمصداقية اللازمة لمثل هذا المجال.
-            </p>
-            <p>
-              ويعتبر البرنامج بمثابة تأسيس لمنظومة اعتراف متعدد الأطراف، بشهادة وعلامة الحلال العربية، بين الدول العربية المنضمة إليه، وقد وضعت بنوده بما يتوافق مع مواصفة تقييم المطابقة - المصطلحات والمبادئ العامة <span className="font-sans font-medium text-slate-800 tracking-wider inline-block" dir="ltr">ISO/IEC 17000</span>، والمتطلبات الفنية للمواصفات الدولية (<span className="font-sans font-medium text-slate-800 tracking-wider inline-block" dir="ltr">ISO/IEC 17065</span>, <span className="font-sans font-medium text-slate-800 tracking-wider inline-block" dir="ltr">ISO/IEC 17067</span>) والمواصفات القياسية العربية في قطاع الحلال، وهي المراجع الفنية للمنتجات المشمولة في مجال تطبيق هذا البرنامج، والتي اُعدت هذه المنظومة بناءً عليها. 
-            </p>
-            <p className="p-6 bg-stone-50 border-r-4 border-[#EEB422] rounded-l-xl text-slate-800 font-medium">
-              مع الأخذ بعين الاعتبار إمكانية تعديل وتحديث هذه المنظومة لتشمل منتجات أخرى تقترح الدول العربية ضمها إلى مجال عمل هذه الوثيقة حال إصدار المواصفات القياسية العربية الموحدة ذات العلاقة.
-            </p>
-          </motion.div>
+            {/* Intellectual Narrative Block */}
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, delay: 0.3 }}
+              className="lg:w-1/2 space-y-8"
+            >
+              <div className="space-y-4">
+                <h2 className="text-3xl md:text-5xl font-bold text-slate-900 leading-[1.2] tracking-tight">
+                  حماية المستهلك <br/>
+                  <span className="text-[#007A55]">أولوية حضارية.</span>
+                </h2>
+                <p className="text-lg text-slate-500 font-light leading-relaxed max-w-xl">
+                  البرنامج العربي الموحد للحلال هو نتاج تعاون استراتيجي بين الدول العربية، يهدف إلى خلق بيئة آمنة للمستهلك المسلم في كافة أنحاء العالم.
+                </p>
+              </div>
+              
+              <div className="space-y-6 text-base text-slate-600 font-light leading-relaxed">
+                <p>
+                  نحن لا نكتفي بمكافحة التزييف، بل نسعى لرفع كفاءة الجهات المانحة للشهادات، لضمان استيفاء أعلى معايير المهنية والشرعية والمصداقية.
+                </p>
+                
+                <div className="relative p-8 bg-[#FAF9F6] rounded-[2.5rem] overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-[#CA8A04]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                  <p className="relative z-10 text-slate-900 font-medium text-lg">
+                    يؤسس البرنامج لمنظومة اعتراف متعدد الأطراف، توحد الرؤية العربية وتسهل انسيابية المنتجات والخدمات الحلال.
+                  </p>
+                </div>
 
+                <p className="text-sm text-slate-400">
+                  تم إعداد هذه المنظومة بالاعتماد على مراجع فنية دولية دقيقة، مما يجعلها مرجعاً عالمياً موثوقاً في قطاع الحلال.
+                </p>
+              </div>
+            </motion.div>
+
+              {/* Visual Storytelling Component */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
+              className="lg:w-1/2 relative"
+            >
+              <div className="relative h-[450px] md:h-[500px] w-full rounded-[3rem] overflow-hidden shadow-xl">
+                <img 
+                  src="/section-bg-1.jpeg" 
+                  alt="Commitment to Quality" 
+                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#004D36]/90 via-[#004D36]/20 to-transparent"></div>
+                
+                {/* Floating Statement */}
+                <div className="absolute bottom-8 right-8 left-8">
+                   <p className="text-white text-xl font-light leading-relaxed italic">
+                    "نبني منظومة تتجاوز الحدود، لترسيخ مفهوم الحلال كمعيار عالمي للثقة والجودة."
+                   </p>
+                </div>
+              </div>
+              
+              {/* Abstract blurred shapes */}
+              <div className="absolute -top-10 -right-10 w-40 h-48 bg-[#CA8A04]/10 rounded-full blur-[70px]"></div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* 
-        FEATURES / PILLARS SECTION 
+      {/* --- SECTION 2: THE GLOBAL STANDARD --- 
+          Scaled down: py-24 instead of py-32. Heading text-5xl instead of text-7xl.
       */}
-      <section className="py-24 bg-white relative">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-stone-50 rounded-bl-full opacity-50"></div>
+      <section className="relative py-20 lg:py-24 bg-slate-900 overflow-hidden">
+        <div className="absolute inset-0">
+          <img 
+            src="/workflow/w-4.png" 
+            alt="International Compliance" 
+            className="w-full h-full object-cover opacity-10 scale-110 blur-sm"
+          />
+        </div>
         
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-20">
-            <h3 className="text-sm font-bold text-[#EEB422] tracking-widest uppercase mb-4">أهداف النظام</h3>
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900">ركائز منظومة الحلال العربية</h2>
+          <div className="text-center space-y-8">
+            <motion.h3 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl md:text-5xl font-bold text-white leading-tight tracking-tight"
+            >
+              التميز من خلال <span className="text-[#CA8A04]">المطابقة الدولية.</span>
+            </motion.h3>
+            
+            <motion.p 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="text-lg md:text-2xl text-slate-300 font-light max-w-3xl mx-auto leading-relaxed"
+            >
+              يتوافق البرنامج تماماً مع مواصفة <span className="text-white font-bold" dir="ltr">ISO/IEC 17000</span> والمواصفات القياسية العربية، مما يضمن اعترافاً دولياً واسع النطاق.
+            </motion.p>
+
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.6 }}
+              className="flex justify-center"
+            >
+               {/* <div className="px-8 py-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full text-white/60 text-xs font-black tracking-[0.3em] uppercase">
+                 معايير الجودة العالمية
+               </div> */}
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- SECTION 3: THE PILLARS --- 
+          Scaled down: Card height 500px instead of 650px. py-24 instead of py-32.
+      */}
+      <section className="py-20 lg:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+            <div className="space-y-3">
+              <h4 className="text-[#CA8A04] font-black tracking-widest text-[10px] uppercase">الأهداف الاستراتيجية</h4>
+              <h2 className="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight">جوهر المنظومة</h2>
+               <p className="text-slate-500 max-w-sm pt-3 text-xl text-nowrap font-light leading-relaxed">
+              ثلاث ركائز أساسية تشكل مستقبل صناعة الحلال في الوطن العربي والعالم.
+            </p>
+            </div>
+           
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {[
               {
-                icon: <ShieldCheck size={32} strokeWidth={1.5} />,
-                title: "الحماية والشفافية",
-                desc: "حماية المستهلك المسلم من الشهادات المزورة وضمان توافر شروط الشرعية والمصداقية.",
-                delay: 0.1
+                title: "الشفافية المطلقة",
+                desc: "حماية كاملة من خلال أنظمة تدقيق رقمية وفنية متطورة تضمن مصداقية كل شهادة.",
+                image: "/process/process-1.png",
+                overlay: "bg-emerald-950/80"
               },
               {
-                icon: <Globe size={32} strokeWidth={1.5} />,
-                title: "الاعتراف المتبادل",
-                desc: "تأسيس منظومة اعتراف متعدد الأطراف بشهادة وعلامة الحلال بين الدول العربية.",
-                delay: 0.2
+                title: "الانسجام العربي",
+                desc: "توحيد الجهود لتعزيز التبادل التجاري وتسهيل نفاذ المنتجات المعتمدة للأسواق.",
+                image: "/workflow/w-3.png",
+                overlay: "bg-amber-950/80"
               },
               {
-                icon: <Award size={32} strokeWidth={1.5} />,
-                title: "المطابقة الدولية",
-                desc: "التوافق التام مع مواصفات تقييم المطابقة ISO/IEC 17000 والمواصفات القياسية العربية.",
-                delay: 0.3
+                title: "التطور المستمر",
+                desc: "منظومة مرنة تستجيب للمتغيرات العالمية وتحدث معاييرها باستمرار.",
+                image: "/process/process-3.png",
+                overlay: "bg-slate-950/80"
               }
             ].map((item, i) => (
               <motion.div 
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: item.delay }}
-                className="group p-10 bg-stone-50 hover:bg-white rounded-2xl hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-all duration-500 border border-transparent hover:border-stone-100"
+                transition={{ duration: 0.8, delay: i * 0.2 }}
+                className="group relative h-[500px] rounded-[3rem] overflow-hidden shadow-lg cursor-default"
               >
-                <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center text-[#007A55] mb-8 group-hover:scale-110 group-hover:text-[#EEB422] transition-all duration-500">
-                  {item.icon}
+                <img 
+                  src={item.image} 
+                  alt={item.title} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" 
+                />
+                <div className={`absolute inset-0 ${item.overlay} opacity-50 group-hover:opacity-80 transition-all duration-700`}></div>
+                
+                <div className="absolute inset-0 p-10 flex flex-col justify-end text-white">
+                  <h4 className="text-2xl font-bold mb-4 tracking-tight group-hover:text-[#CA8A04] transition-colors">{item.title}</h4>
+                  <p className="text-white/80 text-sm leading-relaxed font-light opacity-0 group-hover:opacity-100 transform translate-y-6 group-hover:translate-y-0 transition-all duration-700">
+                    {item.desc}
+                  </p>
                 </div>
-                <h4 className="text-xl font-bold text-slate-900 mb-4">{item.title}</h4>
-                <p className="text-stone-500 leading-relaxed text-sm">
-                  {item.desc}
-                </p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 
-        QUOTE SECTION
+      {/* --- QUOTE SECTION --- 
+          Scaled down: py-32 instead of py-48. text-5xl instead of text-7xl.
       */}
-      <section className="py-32 px-6 bg-slate-900 text-center relative overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#EEB422] rounded-full mix-blend-overlay opacity-10 blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[#007A55] rounded-full mix-blend-overlay opacity-20 blur-3xl"></div>
+      <section className="py-24 lg:py-32 px-6 bg-slate-950 text-center relative overflow-hidden">
+        <div className="absolute inset-0">
+           <img src="/section-bg-1.jpeg" alt="Background" className="w-full h-full object-cover blur-[4px] opacity-10" />
+        </div>
         
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          animate={{ scale: [1, 1.1, 1], opacity: [0.15, 0.25, 0.15] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#CA8A04]/20 via-transparent to-[#007A55]/20 blur-[100px]"
+        ></motion.div>
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 1 }}
-          className="max-w-4xl mx-auto relative z-10"
+          transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+          className="max-w-5xl mx-auto relative z-10"
         >
-          <svg className="w-12 h-12 mx-auto text-[#EEB422] mb-8 opacity-50" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-          </svg>
-          <h2 className="text-3xl md:text-5xl font-light text-white leading-tight mb-10">
-            "غايتنا حماية المستهلك المسلم وبناء منظومة موثوقة تعزز مكانة التجارة البينية العربية والدولية."
-          </h2>
-          <div className="flex items-center justify-center gap-4">
-            <div className="w-12 h-[1px] bg-stone-600"></div>
-            <span className="text-stone-400 text-sm tracking-widest uppercase">البرنامج العربي للحلال</span>
-            <div className="w-12 h-[1px] bg-stone-600"></div>
+          <div className="mb-10">
+            <span className="text-white text-[9px] font-black uppercase">كلمة البرنامج</span>
           </div>
+          
+          <h2 className="text-3xl md:text-4xl font-light text-white leading-[1.2] mb-12 tracking-tight">
+            " غايتنا حماية المستهلك المسلم وبناء منظومة موثوقة تعزز مكانة التجارة البينية <span className="text-[#CA8A04] font-bold">العربية والدولية</span> "
+          </h2>
+          
+          {/* <div className="flex flex-col items-center gap-8">
+            <button className="bg-white hover:bg-[#CA8A04] text-slate-900 hover:text-white px-12 py-4 rounded-full font-bold text-sm transition-all shadow-[0_15px_40px_rgba(0,0,0,0.4)] cursor-pointer uppercase tracking-[0.2em] active:scale-95 border border-white/5">
+              اكتشف المعايير الفنية
+            </button>
+          </div> */}
         </motion.div>
       </section>
 

@@ -43,8 +43,8 @@ const OfficialMarkAndDocuments: React.FC = () => {
   };
 
   const brandColors = [
-    { name: "الأخضر الرسمي", hex: "#1F5D3A", cmyk: "C87 M43 Y91 K47" },
-    { name: "الذهبي الرسمي", hex: "#EEB422", cmyk: "C8 M29 Y94 K1" },
+    { name: "الأخضر الرسمي", hex: "#1C4C2A", cmyk: "C87 M43 Y91 K47" },
+    { name: "الذهبي الرسمي", hex: "#CA8A04", cmyk: "C8 M29 Y94 K1" },
   ];
 
   const documents: DocumentItem[] = [
@@ -78,7 +78,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
             viewport={{ once: true }}
             className="text-2xl md:text-4xl text-center font-light text-slate-900 tracking-tight leading-tight mb-4"
           >
-            الهوية البصرية <span className="font-bold text-emerald-900">والنماذج الرسمية</span>
+            الهوية البصرية <span className="font-bold text-[#007A55]">والنماذج الرسمية</span>
           </motion.h2>
         </div>
 
@@ -94,7 +94,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
              </div>
 
              <div className="relative z-10 flex-grow text-center md:text-right flex flex-col md:block items-center">
-               <div className="flex items-center gap-1.5 mb-3 text-emerald-800 bg-emerald-50 w-fit px-3 py-1 text-[9px] font-bold uppercase tracking-widest rounded-full">
+               <div className="flex items-center gap-1.5 mb-3 text-[#007A55] bg-emerald-50 w-fit px-3 py-1 text-[9px] font-bold uppercase tracking-widest rounded-full">
                  <ShieldCheck size={12} /> علامة رسمية مسجلة
                </div>
                <h3 className="text-xl font-bold text-slate-900 mb-2">علامة الحلال العربية</h3>
@@ -150,7 +150,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
               transition={{ delay: idx * 0.1 }}
               whileHover={{ y: -4 }}
               onClick={() => setSelectedDoc(doc)}
-              className="group cursor-pointer bg-white border border-slate-200 overflow-hidden flex flex-row items-stretch transition-all duration-300 hover:shadow-xl hover:border-emerald-900/30 rounded-sm h-36 md:h-44"
+              className="group cursor-pointer bg-white border border-slate-200 overflow-hidden flex flex-row items-stretch transition-all duration-300 hover:shadow-xl hover:border-[#007A55]/30 rounded-sm h-36 md:h-44"
             >
               {/* Left Side: Image Preview */}
               <div className="w-1/3 md:w-2/5 bg-slate-50 relative flex items-center justify-center p-4 overflow-hidden border-l border-slate-100 shrink-0">
@@ -159,22 +159,22 @@ const OfficialMarkAndDocuments: React.FC = () => {
                   alt={doc.title} 
                   className="w-full h-full object-contain shadow-lg group-hover:scale-[1.05] transition-transform duration-700 bg-white" 
                 />
-                <div className="absolute inset-0 bg-emerald-900/0 group-hover:bg-emerald-900/5 transition-colors duration-500" />
+                <div className="absolute inset-0 bg-[#007A55]/0 group-hover:bg-[#007A55]/5 transition-colors duration-500" />
                 
                 <div className="absolute bottom-3 left-3 w-8 h-8 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 shadow-md border border-slate-100">
-                  <Search size={14} className="text-emerald-900" />
+                  <Search size={14} className="text-[#007A55]" />
                 </div>
               </div>
 
               {/* Right Side: Content Area */}
               <div className="p-5 flex flex-col flex-grow relative justify-center">
                 
-                <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-1.5 block">{doc.subtitle}</span>
+                <span className="text-[10px] font-bold text-[#007A55] uppercase tracking-widest mb-1.5 block">{doc.subtitle}</span>
                 <h3 className="text-base md:text-lg font-bold text-slate-900 mb-2 group-hover:text-emerald-700 transition-colors leading-tight">{doc.title}</h3>
                 <p className="text-slate-500 text-xs leading-relaxed mb-4 font-light italic line-clamp-2">
                   {doc.description}
                 </p>
-                <div className="mt-auto flex items-center gap-2 text-xs font-bold text-emerald-900 group-hover:gap-3 transition-all duration-300">
+                <div className="mt-auto flex items-center gap-2 text-xs font-bold text-[#007A55] group-hover:gap-3 transition-all duration-300">
                   <span>فتح للتحقق</span>
                   <ArrowLeft size={14} />
                 </div>
@@ -252,7 +252,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
                 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
                 className="p-4 border-t border-slate-200 bg-white"
               >
-                <button className="w-full bg-slate-900 text-white py-4 rounded-sm font-bold text-xs uppercase tracking-[0.1em] flex items-center justify-center gap-2 hover:bg-emerald-800 transition-all group shadow-md hover:shadow-lg">
+                <button className="w-full bg-slate-900 text-white py-4 rounded-sm font-bold text-xs uppercase tracking-[0.1em] flex items-center justify-center gap-2 hover:bg-[#007A55] transition-all group shadow-md hover:shadow-lg">
                   <Download size={16} className="group-hover:-translate-y-0.5 transition-transform" /> تحميل النموذج المعتمد
                 </button>
               </motion.div>

@@ -1,1 +1,51 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Brand Colors */
+  --color-primary: #007A55;
+  --color-primary-dark: #004D36;
+  --color-primary-light: #F0FDF4;
+  
+  --color-gold: #CA8A04;
+  --color-gold-light: #FEF9C3;
+  
+  --color-text-main: #0C4A6E;
+  --color-text-muted: #475569;
+  
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+@layer base {
+  body {
+    @apply text-slate-900 antialiased;
+    background-color: #fff;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-[var(--color-primary)] text-white px-8 py-4 rounded-lg font-bold transition-all shadow-lg shadow-[rgba(0,122,85,0.3)] hover:bg-[var(--color-primary-dark)] active:scale-95 flex items-center justify-center gap-3 cursor-pointer;
+  }
+  
+  .btn-gold {
+    @apply bg-transparent border-2 border-[var(--color-gold)] text-[var(--color-gold)] px-8 py-4 rounded-lg font-bold transition-all hover:bg-[var(--color-gold)] hover:text-white active:scale-95 flex items-center justify-center gap-3 cursor-pointer;
+  }
+}
