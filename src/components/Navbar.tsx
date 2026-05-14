@@ -38,8 +38,8 @@ const menuData: Record<Lang, MenuContent> = {
   ar: {
     links: [
       { name: "عن البرنامج", href: "/about-us" },
-      { name: "التحقق من شهادة", href: "/#standards" },
-      { name: "الانضمام للبرنامج", href: "/#join" },
+      { name: "التحقق من شهادة", href: "/certificate-verification" },
+      { name: "الانضمام للبرنامج", href: "/join-program" },
       { name: "النماذج والوثائق", href: "/#directory" },
     ],
     mega: {
@@ -49,7 +49,7 @@ const menuData: Record<Lang, MenuContent> = {
           { text: "آلية الانضمام للبرنامج", href: "#" },
           { text: "تكاليف الحصول على الشهادة", href: "#" },
           { text: "شروط استخدام العلامة", href: "#" },
-          { text: "محرك البحث والتحقق", href: "#" }
+          { text: "محرك البحث والتحقق", href: "/certificate-verification" }
         ]
       },
       faq: {
@@ -74,8 +74,8 @@ const menuData: Record<Lang, MenuContent> = {
   en: {
     links: [
       { name: "About Us", href: "/about-us" },
-      { name: "Verification", href: "/#standards" },
-      { name: "Accreditation", href: "/#join" },
+      { name: "Verification", href: "/certificate-verification" },
+      { name: "Accreditation", href: "/join-program" },
       { name: "Directory", href: "/#directory" },
     ],
     mega: {
@@ -85,7 +85,7 @@ const menuData: Record<Lang, MenuContent> = {
           { text: "How to Join", href: "#" },
           { text: "Certification Costs", href: "#" },
           { text: "Label Usage Terms", href: "#" },
-          { text: "Verification Engine", href: "#" }
+          { text: "Verification Engine", href: "/certificate-verification" }
         ]
       },
       faq: {
@@ -294,10 +294,14 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                   <ul className="space-y-3">
                     {d.mega.links.items.map((item, i) => (
                       <li key={i}>
-                        <a href={item.href} className="flex items-center gap-3 text-stone-500 hover:text-[#007A55] hover:bg-[#007A55]/5 p-2 rounded-lg text-[14px] font-bold transition-all group">
+                        <Link 
+                          to={item.href} 
+                          className="flex items-center gap-3 text-stone-500 hover:text-[#007A55] hover:bg-[#007A55]/5 p-2 rounded-lg text-[14px] font-bold transition-all group"
+                          onClick={() => setMegaMenuOpen(false)}
+                        >
                           <span className="w-1.5 h-1.5 rounded-sm bg-stone-300 group-hover:bg-[#007A55] transition-colors"></span>
                           {item.text}
-                        </a>
+                        </Link>
                       </li>
                     ))}
                   </ul>

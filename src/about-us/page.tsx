@@ -18,7 +18,7 @@ export default function AboutProgram() {
           className="absolute inset-0"
         >
           <img 
-            src="/hero-photo.png" 
+            src="/about-us-bg.png" 
             alt="عن البرنامج العربي للحلال" 
             className="w-full h-full object-cover"
           />
@@ -36,9 +36,8 @@ export default function AboutProgram() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
           >
-            <h1 className="text-4xl md:text-7xl font-light text-slate-900 leading-tight tracking-tight mb-6">
-              عن البرنامج <br/>
-              <strong className="font-bold text-[#007A55]">العربي للحلال</strong>
+            <h1 className="text-4xl md:text-7xl font-light text-[#FFFFFF] leading-tight tracking-tight mb-6 whitespace-nowrap">
+              عن البرنامج <strong className="font-bold text-[#007A55]">العربي للحلال</strong>
             </h1>
           </motion.div>
         </div>
@@ -62,10 +61,9 @@ export default function AboutProgram() {
               className="lg:w-1/2 space-y-8"
             >
               <div className="space-y-4">
-                <h2 className="text-3xl md:text-5xl font-bold text-slate-900 leading-[1.2] tracking-tight">
-                  حماية المستهلك <br/>
-                  <span className="text-[#007A55]">أولوية حضارية.</span>
-                </h2>
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 leading-[1.2] tracking-tight whitespace-nowrap">
+                                  حماية المستهلك <span className="text-[#007A55]">أولوية حضارية.</span>
+                                </h2>
                 <p className="text-lg text-slate-500 font-light leading-relaxed max-w-xl">
                   البرنامج العربي الموحد للحلال هو نتاج تعاون استراتيجي بين الدول العربية، يهدف إلى خلق بيئة آمنة للمستهلك المسلم في كافة أنحاء العالم.
                 </p>
@@ -104,7 +102,6 @@ export default function AboutProgram() {
                   className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#004D36]/90 via-[#004D36]/20 to-transparent"></div>
-                
                 {/* Floating Statement */}
                 <div className="absolute bottom-8 right-8 left-8">
                    <p className="text-white text-xl font-light leading-relaxed italic">

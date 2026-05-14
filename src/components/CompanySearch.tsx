@@ -18,7 +18,7 @@ const CompanySearch = () => {
       type: searchType,
       q: query.trim()
     });
-    window.location.href = `/search-results?${searchParams.toString()}`;
+    window.location.href = `/certificate-verification?${searchParams.toString()}`;
   };
 
   const isSearchDisabled = !query || (searchType === "company" && query.trim().length < 4) || isSearching;

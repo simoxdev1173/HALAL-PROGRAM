@@ -36,7 +36,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
         items: [
           { name: "عن البرنامج", href: "/about-us" },
           { name: "التحقق من شهادة", href: "/#standards" },
-          { name: "الانضمام للبرنامج", href: "/#join" },
+          { name: "الانضمام للبرنامج", href: "/join-program" },
           { name: "النماذج والوثائق", href: "/#directory" },
         ]
       },

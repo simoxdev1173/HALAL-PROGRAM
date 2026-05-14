@@ -14,6 +14,8 @@ import IntroAnimation from "./components/IntroAnimation";
 import Footer from "./components/Footer";
 import { ChatbotWidget } from "./components/ChatbotWidget";
 import AboutProgram from "./about-us/page";
+import CertificateVerification from "./pages/CertificateVerification";
+import JoinProgram from "./pages/JoinProgram";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ScrollToHash = () => {
@@ -82,6 +84,8 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/about-us" element={<AboutProgram />} />
+              <Route path="/certificate-verification" element={<CertificateVerification />} />
+              <Route path="/join-program" element={<JoinProgram />} />
             </Routes>
 
             <Footer lang={lang} onChatOpen={() => setIsChatOpen(true)} />
