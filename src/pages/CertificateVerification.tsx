@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Search, ShieldCheck, MapPin, Hash, CheckCircle2, 
+  Search, ShieldCheck, MapPin, CheckCircle2, 
   ShieldAlert, Info, SlidersHorizontal, ArrowLeft, Download, Award, Mail, Phone
 } from "lucide-react";
 

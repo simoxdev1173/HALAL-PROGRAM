@@ -8,8 +8,7 @@ import {
   Building2, 
   FileCheck2, 
   Search, 
-  ArrowLeft, 
-  ShieldCheck 
+  ArrowLeft,  
 } from "lucide-react";
 
 /* ---------- DATA ---------- */

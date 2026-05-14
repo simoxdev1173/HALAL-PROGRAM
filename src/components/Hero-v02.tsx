@@ -6,7 +6,6 @@ import {
   FileCheck2, 
   Search, 
   ArrowLeft,
-  Globe2
 } from "lucide-react";
 
 /* ---------- DATA ---------- */
