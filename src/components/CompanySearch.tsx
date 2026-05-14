@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, FileText, Building, ShieldCheck, Globe2, ArrowLeft } from "lucide-react";
+import { FileText, Building, ShieldCheck, Globe2, ArrowLeft } from "lucide-react";
 
 const CompanySearch = () => {
   const [searchType, setSearchType] = useState<"license" | "company">("license");

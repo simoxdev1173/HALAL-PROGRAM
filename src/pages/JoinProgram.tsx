@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Building2, Globe, Mail, Phone, UploadCloud, 
-  CheckCircle2, Landmark, ShieldCheck, Send, Info,
-  ChevronRight, ChevronLeft, FileText, User, Calendar, MapPin, Award, FileSignature
+   Mail, Phone, UploadCloud, 
+  CheckCircle2, ShieldCheck, Send, Info,
+  ChevronRight, ChevronLeft,  User, Calendar, Award, FileSignature
 } from "lucide-react";
 
 const STEPS = [
@@ -99,27 +99,27 @@ const JoinProgram = () => {
   };
 
   // Animation variants
-  const variants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 30 : -30,
-      opacity: 0,
-      scale: 0.98
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.4, ease: "easeOut" }
-    },
-    exit: (direction: number) => ({
-      zIndex: 0,
-      x: direction < 0 ? 30 : -30,
-      opacity: 0,
-      scale: 0.98,
-      transition: { duration: 0.3, ease: "easeIn" }
-    })
-  };
+  // const variants = {
+  //   enter: (direction: number) => ({
+  //     x: direction > 0 ? 30 : -30,
+  //     opacity: 0,
+  //     scale: 0.98
+  //   }),
+  //   center: {
+  //     zIndex: 1,
+  //     x: 0,
+  //     opacity: 1,
+  //     scale: 1,
+  //     transition: { duration: 0.4, ease: "easeOut" }
+  //   },
+  //   exit: (direction: number) => ({
+  //     zIndex: 0,
+  //     x: direction < 0 ? 30 : -30,
+  //     opacity: 0,
+  //     scale: 0.98,
+  //     transition: { duration: 0.3, ease: "easeIn" }
+  //   })
+  // };
 
   return (
     <div className="bg-[#FAF9F6] min-h-screen font-arabic" dir="rtl">
@@ -234,7 +234,7 @@ const JoinProgram = () => {
             {!isSuccess && (
               <div className="mb-10 pb-8 border-b border-slate-100 relative">
                 <div className="flex justify-between items-center relative z-10">
-                  {STEPS.map((step, idx) => {
+                  {STEPS.map((step) => {
                     const isActive = step.id === currentStep;
                     const isPassed = step.id < currentStep;
                     return (
