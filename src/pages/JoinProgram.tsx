@@ -291,7 +291,6 @@ const JoinProgram = () => {
                   <motion.form 
                     key={currentStep}
                     custom={direction}
-                    variants={variants}
                     initial="enter"
                     animate="center"
                     exit="exit"
