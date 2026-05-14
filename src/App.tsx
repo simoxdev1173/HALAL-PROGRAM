@@ -16,7 +16,7 @@ import { ChatbotWidget } from "./components/ChatbotWidget";
 import AboutProgram from "./about-us/page";
 import CertificateVerification from "./pages/CertificateVerification";
 import JoinProgram from "./pages/JoinProgram";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 const ScrollToHash = () => {
   const { hash } = useLocation();
