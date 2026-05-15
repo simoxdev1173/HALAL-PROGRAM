@@ -1,19 +1,19 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-   Mail, Phone, UploadCloud, 
-  CheckCircle2, ShieldCheck, Send, Info,
-  ChevronRight, ChevronLeft,  User, Calendar, Award, FileSignature
+  Mail,  UploadCloud, 
+  CheckCircle2, ShieldCheck,  Info,
+  ChevronRight, ChevronLeft, User,  Award, FileSignature,
+  Building2, Globe, MapPin, ClipboardCheck
 } from "lucide-react";
 
 const STEPS = [
-  { id: 1, title: "البيانات الإدارية" },
-  { id: 2, title: "معلومات عامة" },
-  { id: 3, title: "الإدارة والاتصال" },
-  { id: 4, title: "المرفقات" },
-  { id: 5, title: "شهادات الحلال" },
-  { id: 6, title: "شهادات أخرى" },
-  { id: 7, title: "التوقيع والاعتماد" },
+  { id: 1, title: "معلومات عامة", icon: Building2 },
+  { id: 2, title: "الإدارة والاتصال", icon: User },
+  { id: 3, title: "المرفقات الرسمية", icon: UploadCloud },
+  { id: 4, title: "شهادات الحلال", icon: Award },
+  { id: 5, title: "شهادات أخرى", icon: ClipboardCheck },
+  { id: 6, title: "التوقيع والاعتماد", icon: FileSignature },
 ];
 
 const JoinProgram = () => {
@@ -22,11 +22,8 @@ const JoinProgram = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Form State
   const [formData, setFormData] = useState({
-    // Step 1
-    orderNumber: "",
-    orderDate: "",
-    // Step 2
     arabicName: "",
     englishName: "",
     arabicAddress: "",
@@ -36,30 +33,25 @@ const JoinProgram = () => {
     fax: "",
     website: "",
     email: "",
-    // Step 3
     managerName: "",
     managerEmail: "",
     managerPhone: "",
     contactName: "",
     contactEmail: "",
     contactPhone: "",
-    // Step 4
     accreditationCopies: false,
     assignmentCopy: false,
     otherDocs: false,
     otherDocsDetails: "",
-    // Step 5
     issuesNationalHalal: "",
     referenceStandard: "",
     coveredProducts: "",
     otherEntitiesIssue: "",
     otherEntitiesNames: "",
-    // Step 6
     issuesOtherCerts: "",
     whatAreThey: "",
     otherReferenceStandard: "",
     otherCoveredProducts: "",
-    // Step 7
     managerNameSign: "",
     dateSign: "",
     notes: "",
@@ -95,36 +87,32 @@ const JoinProgram = () => {
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSuccess(true);
-    }, 2000);
+    }, 2500);
   };
 
-  // Animation variants
-  // const variants = {
-  //   enter: (direction: number) => ({
-  //     x: direction > 0 ? 30 : -30,
-  //     opacity: 0,
-  //     scale: 0.98
-  //   }),
-  //   center: {
-  //     zIndex: 1,
-  //     x: 0,
-  //     opacity: 1,
-  //     scale: 1,
-  //     transition: { duration: 0.4, ease: "easeOut" }
-  //   },
-  //   exit: (direction: number) => ({
-  //     zIndex: 0,
-  //     x: direction < 0 ? 30 : -30,
-  //     opacity: 0,
-  //     scale: 0.98,
-  //     transition: { duration: 0.3, ease: "easeIn" }
-  //   })
-  // };
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 20 : -20,
+      opacity: 0,
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+      transition: { duration: 0.3, ease: "easeOut" }
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 20 : -20,
+      opacity: 0,
+      transition: { duration: 0.2, ease: "easeIn" }
+    })
+  };
 
   return (
     <div className="bg-[#FAF9F6] min-h-screen font-arabic" dir="rtl">
       
-      {/* --- HERO SECTION --- */}
+      {/* --- HERO SECTION (REVERTED) --- */}
       <section className="relative w-full h-[60vh] min-h-[500px] overflow-hidden pt-20 flex items-center justify-center">
         <motion.div 
           initial={{ opacity: 0, scale: 1.1 }}
@@ -150,13 +138,13 @@ const JoinProgram = () => {
           >  
             <h1 className="text-4xl md:text-7xl font-light text-[#FFFFFF] leading-tight mb-6 whitespace-nowrap">
               الانضمام{" "}
-              <strong className="font-bold text-[#007A55]">للبرنامج</strong>
+              <strong className="font-bold text-[#FFFFFF]">للبرنامج</strong>
             </h1>
           </motion.div>
         </div>
       </section>
 
-      {/* --- SECTION 1: ELIGIBILITY & PROCESS --- */}
+      {/* --- INTRODUCTION SECTION (REVERTED) --- */}
       <section className="relative py-20 lg:py-24 overflow-hidden bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
@@ -168,10 +156,16 @@ const JoinProgram = () => {
               className="lg:w-1/2 space-y-8"
             >
               <div className="space-y-4">
-                <h2 className="text-3xl md:text-5xl font-bold text-slate-900 leading-[1.2] tracking-tight">
-                  من له الحق <br/>
-                  <span className="text-[#007A55]">في الانضمام؟</span>
+                <div className="flex">
+                  <h2 className="text-3xl md:text-5xl font-bold text-slate-900 leading-[1.2] tracking-tight">
+                  من له الحق   
+
+
+                 
                 </h2>
+                 <span className="text-[#007A55] pr-2 text-3xl md:text-5xl font-bold leading-[1.2] tracking-tight">في الانضمام؟</span>
+                </div>
+                
                 <p className="text-lg text-slate-500 font-light leading-relaxed max-w-xl">
                   الجهات التي لها الحق في الانضمام إلى البرنامج هي جهات التعيين الحلال في الدول العربية الأعضاء الراغبة في تطبيق هذا البرنامج وتفويضها لمنح علامة الحلال العربية.
                 </p>
@@ -218,423 +212,193 @@ const JoinProgram = () => {
         </div>
       </section>
 
-      {/* --- SECTION 2: MULTI-STEP WIZARD FORM --- */}
-      <section className="relative py-20 lg:py-24 bg-[#FAF9F6]">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight mb-4">
-              نموذج طلب <span className="text-[#007A55]">الانضمام</span>
-            </h2>
-            <p className="text-lg text-slate-500 font-light">يرجى تعبئة النموذج عبر الخطوات التالية ليتم مراجعته بدقة.</p>
-          </div>
-
-          <div className="bg-white rounded-[3rem] p-8 md:p-12 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden relative">
+      {/* --- FORM SECTION (NEW DESIGN) --- */}
+      <section className="relative py-24 bg-[#FAF9F6] border-t border-slate-100">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex flex-col lg:flex-row gap-12 items-start">
             
-            {/* Steps Progress Header */}
-            {!isSuccess && (
-              <div className="mb-10 pb-8 border-b border-slate-100 relative">
-                <div className="flex justify-between items-center relative z-10">
-                  {STEPS.map((step) => {
-                    const isActive = step.id === currentStep;
-                    const isPassed = step.id < currentStep;
-                    return (
-                      <div key={step.id} className="flex flex-col items-center gap-3 relative z-10 flex-1">
-                        <div 
-                          className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-500 ${
-                            isActive ? 'bg-[#007A55] text-white shadow-lg shadow-[#007A55]/30 scale-110' : 
-                            isPassed ? 'bg-emerald-100 text-[#007A55]' : 
-                            'bg-slate-100 text-slate-400'
-                          }`}
-                        >
-                          {isPassed ? <CheckCircle2 size={18} /> : step.id}
+            {/* Sidebar Navigation */}
+            <div className="lg:w-[320px] lg:sticky lg:top-32 space-y-6">
+              <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200/60">
+                 <h3 className="text-lg font-bold text-slate-900 mb-8 border-b border-slate-50 pb-4">مراحل التقديم</h3>
+                 <div className="space-y-4">
+                    {STEPS.map((step) => {
+                      const isActive = step.id === currentStep;
+                      const isPassed = step.id < currentStep;
+                      return (
+                        <div key={step.id} className="flex items-center gap-4 transition-all duration-300">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all border ${
+                            isActive ? 'bg-[#007A55] text-white border-[#007A55] shadow-lg shadow-[#007A55]/20 scale-105' : 
+                            isPassed ? 'bg-emerald-50 text-[#007A55] border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100'
+                          }`}>
+                            {isPassed ? <CheckCircle2 size={18} /> : step.id}
+                          </div>
+                          <span className={`text-sm font-bold transition-colors ${isActive ? 'text-slate-900' : 'text-slate-400'}`}>{step.title}</span>
                         </div>
-                        <span className={`text-[10px] sm:text-xs font-bold text-center transition-colors hidden sm:block ${
-                          isActive ? 'text-[#007A55]' : isPassed ? 'text-slate-700' : 'text-slate-400'
-                        }`}>
-                          {step.title}
-                        </span>
+                      );
+                    })}
+                 </div>
+                 
+                 {!isSuccess && (
+                   <div className="mt-10 pt-6 border-t border-slate-50">
+                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${(currentStep / STEPS.length) * 100}%` }}
+                          className="h-full bg-[#007A55]"
+                        />
                       </div>
-                    );
-                  })}
-                </div>
-                {/* Progress Bar Background */}
-                <div className="absolute top-5 left-10 right-10 h-1 bg-slate-100 -z-0 rounded-full">
-                  <motion.div 
-                    className="h-full bg-[#007A55] rounded-full"
-                    initial={{ width: '0%' }}
-                    animate={{ width: `${((currentStep - 1) / (STEPS.length - 1)) * 100}%` }}
-                    transition={{ duration: 0.5, ease: "easeInOut" }}
-                  />
-                </div>
+                      <p className="text-[11px] font-black text-slate-400 uppercase mt-3 tracking-widest text-center">إنجاز الطلب {Math.round((currentStep / STEPS.length) * 100)}%</p>
+                   </div>
+                 )}
               </div>
-            )}
-
-            {/* Form Body with Animations */}
-            <div className="min-h-[400px]">
-              <AnimatePresence mode="wait" custom={direction}>
-                {isSuccess ? (
-                  <motion.div 
-                    key="success"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex flex-col items-center justify-center py-20 text-center"
-                  >
-                    <div className="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mb-6">
-                      <CheckCircle2 size={48} />
-                    </div>
-                    <h3 className="text-3xl font-black text-slate-900 mb-4">تم استلام طلبكم بنجاح</h3>
-                    <p className="text-slate-500 font-medium max-w-md">
-                      شكراً لاهتمامكم بالانضمام للبرنامج العربي للحلال. سيقوم فريقنا بمراجعة الطلب والتواصل معكم خلال فترة لا تتجاوز شهراً واحداً.
-                    </p>
-                  </motion.div>
-                ) : (
-                  <motion.form 
-                    key={currentStep}
-                    custom={direction}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    onSubmit={currentStep === STEPS.length ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }}
-                    className="space-y-8"
-                  >
-                    
-                    {/* --- STEP 1: Admin Data --- */}
-                    {currentStep === 1 && (
-                      <div className="space-y-6">
-                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex gap-4 items-start mb-8">
-                          <Info className="text-blue-500 shrink-0 mt-1" size={24} />
-                          <div>
-                            <h4 className="font-bold text-slate-900 mb-2">تعليمات إدارية هامة</h4>
-                            <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                              هذه المعلومات للاستخدام الداخلي للمنظمة. يجب تعبئة هذا النموذج بالكامل وإرسال النسخة الموقعة إلكترونياً إلى العناوين التالية: <br/>
-                              <strong className="text-[#007A55]">smc@aidsmo.org</strong> و <strong className="text-[#007A55]">aidsmo@aidsmo.org</strong>
-                            </p>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700">رقم الطلب (إن وجد)</label>
-                            <input type="text" name="orderNumber" value={formData.orderNumber} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-xl py-4 px-4 font-medium focus:border-[#007A55] focus:ring-4 focus:ring-[#007A55]/10 outline-none transition-all" placeholder="يترك فارغاً للطلبات الجديدة" />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700">تاريخ الاستلام</label>
-                            <div className="relative">
-                              <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                              <input type="date" name="orderDate" value={formData.orderDate} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-xl py-4 pr-12 pl-4 font-medium focus:border-[#007A55] outline-none transition-all" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* --- STEP 2: General Info --- */}
-                    {currentStep === 2 && (
-                      <div className="space-y-6">
-                        <h3 className="text-xl font-bold text-slate-900 mb-6">معلومات عامة عن الجهة</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700">الاسم المسجل (عربي) <span className="text-rose-500">*</span></label>
-                            <input required type="text" name="arabicName" value={formData.arabicName} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 outline-none focus:border-[#007A55]" />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700">Registered Name (English) <span className="text-rose-500">*</span></label>
-                            <input required type="text" name="englishName" value={formData.englishName} onChange={handleChange} dir="ltr" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 outline-none focus:border-[#007A55] text-left" />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700">العنوان البريدي (عربي)</label>
-                            <input type="text" name="arabicAddress" value={formData.arabicAddress} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 outline-none focus:border-[#007A55]" />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700">Registered Address (English)</label>
-                            <input type="text" name="englishAddress" value={formData.englishAddress} onChange={handleChange} dir="ltr" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 outline-none focus:border-[#007A55] text-left" />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700">الدولة</label>
-                            <select name="country" value={formData.country} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 outline-none focus:border-[#007A55]">
-                              <option value="">اختر الدولة...</option>
-                              <option value="SA">المملكة العربية السعودية</option>
-                              <option value="AE">الإمارات العربية المتحدة</option>
-                              <option value="MA">المملكة المغربية</option>
-                              <option value="EG">مصر</option>
-                              <option value="OTHER">أخرى</option>
-                            </select>
-                          </div>
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700">الموقع الإلكتروني</label>
-                            <input type="url" name="website" value={formData.website} onChange={handleChange} dir="ltr" placeholder="https://..." className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 outline-none focus:border-[#007A55] text-left" />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* --- STEP 3: Management & Contact --- */}
-                    {currentStep === 3 && (
-                      <div className="space-y-8">
-                        <div>
-                          <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><User className="text-[#007A55]" size={20}/> الإدارة العليا</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                              <label className="block text-xs font-bold text-slate-500 uppercase">اسم رئيس الجهة</label>
-                              <input type="text" name="managerName" value={formData.managerName} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-[#007A55]" />
-                            </div>
-                            <div className="space-y-2">
-                              <label className="block text-xs font-bold text-slate-500 uppercase">البريد الإلكتروني</label>
-                              <input type="email" name="managerEmail" value={formData.managerEmail} onChange={handleChange} dir="ltr" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-[#007A55] text-left" />
-                            </div>
-                            <div className="space-y-2">
-                              <label className="block text-xs font-bold text-slate-500 uppercase">رقم الجوال</label>
-                              <input type="tel" name="managerPhone" value={formData.managerPhone} onChange={handleChange} dir="ltr" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-[#007A55] text-left" />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="pt-6 border-t border-slate-100">
-                          <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2"><Phone className="text-[#CA8A04]" size={20}/> ضابط الاتصال (للتواصل المباشر)</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                              <label className="block text-xs font-bold text-slate-500 uppercase">اسم ضابط الاتصال</label>
-                              <input type="text" name="contactName" value={formData.contactName} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-[#007A55]" />
-                            </div>
-                            <div className="space-y-2">
-                              <label className="block text-xs font-bold text-slate-500 uppercase">البريد الإلكتروني</label>
-                              <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} dir="ltr" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-[#007A55] text-left" />
-                            </div>
-                            <div className="space-y-2">
-                              <label className="block text-xs font-bold text-slate-500 uppercase">رقم الجوال</label>
-                              <input type="tel" name="contactPhone" value={formData.contactPhone} onChange={handleChange} dir="ltr" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-[#007A55] text-left" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* --- STEP 4: Attachments --- */}
-                    {currentStep === 4 && (
-                      <div className="space-y-6">
-                        <div className="bg-[#007A55]/5 border border-[#007A55]/20 rounded-2xl p-6 mb-6">
-                          <p className="text-sm text-slate-700 font-medium leading-relaxed">
-                            <strong className="text-[#007A55]">للطلبات الجديدة:</strong> يرجى إرفاق تقرير شامل يوضح (الهيكل التنظيمي، الإمكانات الفنية والبشرية، قائمة المفتشين، إجراءات إصدار الشهادات، سجل الشهادات السابقة، وقائمة أسماء وعناوين الموردين).
-                          </p>
-                        </div>
-
-                        <div className="w-full border-2 border-dashed border-slate-200 hover:border-[#007A55]/50 bg-slate-50 rounded-3xl p-10 flex flex-col items-center justify-center transition-colors cursor-pointer group">
-                          <UploadCloud className="text-slate-400 group-hover:text-[#007A55] mb-3 transition-colors" size={32} />
-                          <span className="text-slate-700 font-bold mb-1">رفع التقرير الشامل والوثائق</span>
-                          <span className="text-slate-400 text-xs">PDF, DOCX, ZIP (Max 20MB)</span>
-                          <input type="file" className="hidden" multiple accept=".pdf,.zip,.doc,.docx" />
-                        </div>
-
-                        <div className="pt-6">
-                          <h4 className="font-bold text-slate-900 mb-4">تأكيد المرفقات الإضافية:</h4>
-                          <div className="space-y-3">
-                            <label className="flex items-center gap-3 cursor-pointer">
-                              <input type="checkbox" name="accreditationCopies" checked={formData.accreditationCopies} onChange={handleChange} className="w-5 h-5 accent-[#007A55] rounded" />
-                              <span className="text-sm font-medium text-slate-700">نسخة عن شهادات الاعتماد (إن وجدت)</span>
-                            </label>
-                            <label className="flex items-center gap-3 cursor-pointer">
-                              <input type="checkbox" name="assignmentCopy" checked={formData.assignmentCopy} onChange={handleChange} className="w-5 h-5 accent-[#007A55] rounded" />
-                              <span className="text-sm font-medium text-slate-700">نسخة عن التكليف بالتعيين الرسمي</span>
-                            </label>
-                            <label className="flex items-center gap-3 cursor-pointer">
-                              <input type="checkbox" name="otherDocs" checked={formData.otherDocs} onChange={handleChange} className="w-5 h-5 accent-[#007A55] rounded" />
-                              <span className="text-sm font-medium text-slate-700">أخرى (برجاء التوضيح)</span>
-                            </label>
-                          </div>
-                          
-                          <AnimatePresence>
-                            {formData.otherDocs && (
-                              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mt-4 overflow-hidden">
-                                <input type="text" name="otherDocsDetails" value={formData.otherDocsDetails} onChange={handleChange} placeholder="اكتب تفاصيل الوثائق الأخرى هنا..." className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-[#007A55] text-sm" />
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* --- STEP 5: National Halal Logic --- */}
-                    {currentStep === 5 && (
-                      <div className="space-y-8">
-                        <div className="space-y-4">
-                          <h3 className="text-xl font-bold text-slate-900">هل تمنح الجهة شهادة حلال وطنية؟</h3>
-                          <div className="flex gap-6">
-                            <label className="flex items-center gap-2 cursor-pointer p-4 border border-slate-200 rounded-xl hover:border-[#007A55] transition-colors flex-1 bg-slate-50">
-                              <input type="radio" name="issuesNationalHalal" value="yes" checked={formData.issuesNationalHalal === "yes"} onChange={handleChange} className="w-5 h-5 accent-[#007A55]" />
-                              <span className="font-bold text-slate-700">نعم، نمنح شهادات وطنية</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer p-4 border border-slate-200 rounded-xl hover:border-[#007A55] transition-colors flex-1 bg-slate-50">
-                              <input type="radio" name="issuesNationalHalal" value="no" checked={formData.issuesNationalHalal === "no"} onChange={handleChange} className="w-5 h-5 accent-[#007A55]" />
-                              <span className="font-bold text-slate-700">لا نمنح</span>
-                            </label>
-                          </div>
-                        </div>
-
-                        <AnimatePresence mode="wait">
-                          {formData.issuesNationalHalal === "yes" && (
-                            <motion.div key="yes" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                              <div className="space-y-2">
-                                <label className="block text-sm font-bold text-slate-700">ما هي المواصفة المرجعية لها؟</label>
-                                <input type="text" name="referenceStandard" value={formData.referenceStandard} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-[#007A55]" />
-                              </div>
-                              <div className="space-y-2">
-                                <label className="block text-sm font-bold text-slate-700">تصنيف المنتجات المغطاة في مجال المنح</label>
-                                <input type="text" name="coveredProducts" value={formData.coveredProducts} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-[#007A55]" placeholder="مثال: لحوم، ألبان، مستحضرات تجميل..." />
-                              </div>
-                            </motion.div>
-                          )}
-                          
-                          {formData.issuesNationalHalal === "no" && (
-                            <motion.div key="no" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                              <label className="block text-sm font-bold text-slate-700">هل توجد جهات معينة تقوم بمنح شهادة الحلال الوطنية في دولتكم؟</label>
-                              <div className="flex gap-6 mb-4">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                  <input type="radio" name="otherEntitiesIssue" value="yes" checked={formData.otherEntitiesIssue === "yes"} onChange={handleChange} className="w-4 h-4 accent-[#007A55]" />
-                                  <span className="font-medium text-slate-700">نعم</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                  <input type="radio" name="otherEntitiesIssue" value="no" checked={formData.otherEntitiesIssue === "no"} onChange={handleChange} className="w-4 h-4 accent-[#007A55]" />
-                                  <span className="font-medium text-slate-700">لا</span>
-                                </label>
-                              </div>
-                              
-                              <AnimatePresence>
-                                {formData.otherEntitiesIssue === "yes" && (
-                                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                                    <label className="block text-sm font-bold text-slate-700 mb-2">الرجاء ذكر أسماء هذه الجهات:</label>
-                                    <textarea name="otherEntitiesNames" value={formData.otherEntitiesNames} onChange={handleChange} rows={2} className="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-[#007A55] resize-none" />
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    )}
-
-                    {/* --- STEP 6: Other Certificates Logic --- */}
-                    {currentStep === 6 && (
-                      <div className="space-y-8">
-                        <div className="space-y-4">
-                          <h3 className="text-xl font-bold text-slate-900">هل تمنح الجهة شهادات أخرى؟</h3>
-                          <p className="text-sm text-slate-500 font-medium">مثل أنظمة الإدارة، الجودة، السلامة الغذائية، أو غيرها.</p>
-                          <div className="flex gap-6">
-                            <label className="flex items-center gap-2 cursor-pointer p-4 border border-slate-200 rounded-xl hover:border-[#007A55] transition-colors flex-1 bg-slate-50">
-                              <input type="radio" name="issuesOtherCerts" value="yes" checked={formData.issuesOtherCerts === "yes"} onChange={handleChange} className="w-5 h-5 accent-[#007A55]" />
-                              <span className="font-bold text-slate-700">نعم</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer p-4 border border-slate-200 rounded-xl hover:border-[#007A55] transition-colors flex-1 bg-slate-50">
-                              <input type="radio" name="issuesOtherCerts" value="no" checked={formData.issuesOtherCerts === "no"} onChange={handleChange} className="w-5 h-5 accent-[#007A55]" />
-                              <span className="font-bold text-slate-700">لا</span>
-                            </label>
-                          </div>
-                        </div>
-
-                        <AnimatePresence>
-                          {formData.issuesOtherCerts === "yes" && (
-                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                              <div className="space-y-2">
-                                <label className="block text-sm font-bold text-slate-700">ما هي هذه الشهادات؟</label>
-                                <input type="text" name="whatAreThey" value={formData.whatAreThey} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-[#007A55]" placeholder="مثال: ISO 9001, HACCP..." />
-                              </div>
-                              <div className="space-y-2">
-                                <label className="block text-sm font-bold text-slate-700">ما هي المواصفة المرجعية لها؟</label>
-                                <input type="text" name="otherReferenceStandard" value={formData.otherReferenceStandard} onChange={handleChange} className="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-[#007A55]" />
-                              </div>
-                              <div className="space-y-2">
-                                <label className="block text-sm font-bold text-slate-700">مجال منح هذه الشهادات</label>
-                                <textarea name="otherCoveredProducts" value={formData.otherCoveredProducts} onChange={handleChange} rows={2} className="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 outline-none focus:border-[#007A55] resize-none" />
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    )}
-
-                    {/* --- STEP 7: Terms & Signatures --- */}
-                    {currentStep === 7 && (
-                      <div className="space-y-8">
-                        <div className="bg-slate-900 rounded-2xl p-8 text-white">
-                          <h3 className="text-xl font-bold mb-4 text-[#CA8A04] flex items-center gap-2">
-                            <ShieldCheck size={24} />
-                            شروط وتوضيحات هامة
-                          </h3>
-                          <ul className="space-y-3 text-sm font-medium leading-relaxed text-white/80 list-disc list-inside">
-                            <li>تقوم المنظمة بمراجعة الطلب والرد خلال فترة لا تتجاوز شهراً واحداً.</li>
-                            <li>تلتزم المنظمة بالسرية التامة والمطلقة لجميع البيانات والوثائق المقدمة.</li>
-                            <li>تلتزم الجهة المتقدمة بتنفيذ كافة المتطلبات والشروط الواردة في البرنامج العربي للحلال.</li>
-                            <li>في حال القبول، يتم الالتزام بتوقيع وثيقة التعاون الفني الملحق (5) واعتمادها رسمياً.</li>
-                          </ul>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700">اسم وتوقيع رئيس الجهة المعتمد</label>
-                            <div className="relative">
-                              <FileSignature className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                              <input required type="text" name="managerNameSign" value={formData.managerNameSign} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pr-12 pl-4 font-bold focus:border-[#007A55] outline-none transition-all" placeholder="الاسم الكامل للرئيس" />
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <label className="block text-sm font-bold text-slate-700">تاريخ التقديم</label>
-                            <div className="relative">
-                              <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                              <input required type="date" name="dateSign" value={formData.dateSign} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pr-12 pl-4 font-medium focus:border-[#007A55] outline-none transition-all" />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="block text-sm font-bold text-slate-700">ملاحظات إضافية (اختياري)</label>
-                          <textarea name="notes" value={formData.notes} onChange={handleChange} rows={3} className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 font-medium focus:border-[#007A55] outline-none transition-all resize-none" />
-                        </div>
-
-                        <div className="flex gap-4">
-                          <div className="flex-1 border-2 border-dashed border-slate-200 hover:border-[#007A55]/50 bg-slate-50 rounded-2xl p-6 flex flex-col items-center justify-center transition-colors cursor-pointer group">
-                            <UploadCloud className="text-slate-400 group-hover:text-[#007A55] mb-2" size={24} />
-                            <span className="text-sm font-bold text-slate-700">رفع التوقيع الرقمي</span>
-                          </div>
-                          <div className="flex-1 border-2 border-dashed border-slate-200 hover:border-[#007A55]/50 bg-slate-50 rounded-2xl p-6 flex flex-col items-center justify-center transition-colors cursor-pointer group">
-                            <Award className="text-slate-400 group-hover:text-[#007A55] mb-2" size={24} />
-                            <span className="text-sm font-bold text-slate-700">رفع الختم الرسمي</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* --- Navigation Buttons --- */}
-                    <div className="pt-8 border-t border-slate-100 flex items-center justify-between gap-4">
-                      {currentStep > 1 ? (
-                        <button type="button" onClick={handleBack} className="px-6 py-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors flex items-center gap-2">
-                          <ChevronRight size={20} />
-                          السابق
-                        </button>
-                      ) : (
-                        <div /> // Spacer
-                      )}
-
-                      {currentStep < STEPS.length ? (
-                        <button type="button" onClick={handleNext} className="px-8 py-4 rounded-xl font-bold text-white bg-slate-900 hover:bg-[#007A55] transition-colors flex items-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
-                          التالي
-                          <ChevronLeft size={20} />
-                        </button>
-                      ) : (
-                        <button type="submit" disabled={isSubmitting} className={`px-10 py-4 rounded-xl font-bold text-white flex items-center gap-2 shadow-lg transition-all ${isSubmitting ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#007A55] hover:bg-[#006344] hover:shadow-xl hover:-translate-y-0.5'}`}>
-                          {isSubmitting ? (
-                            <><div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" /> جاري التقديم...</>
-                          ) : (
-                            <><Send size={20} className="rotate-180" /> تأكيد وإرسال الطلب</>
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  </motion.form>
-                )}
-              </AnimatePresence>
+              
+              <div className="bg-[#0F172A] rounded-[2rem] p-8 text-white relative overflow-hidden">
+                <ShieldCheck className="text-[#CA8A04] mb-4" size={24} />
+                <h4 className="text-md font-bold mb-2">سرية المعلومات</h4>
+                <p className="text-white/40 text-xs leading-relaxed font-light">تخضع جميع الوثائق المرفقة لأعلى معايير الحماية والسرية التامة للمنظمة.</p>
+              </div>
             </div>
+
+            {/* Main Form Area (Fixed Size) */}
+            <div className="flex-1 lg:max-w-[800px]">
+              <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/30 border border-slate-200/60 overflow-hidden min-h-[750px] flex flex-col">
+                 
+                 {/* Inner Header */}
+                 <div className="px-10 py-8 bg-[#FAF9F6] border-b border-slate-100 flex justify-between items-center">
+                    <AnimatePresence mode="wait">
+                       <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                          <h2 className="text-2xl font-black text-slate-900 tracking-tight">{isSuccess ? "تم الإرسال" : STEPS[currentStep - 1].title}</h2>
+                          <p className="text-slate-400 text-xs mt-1 font-medium">{isSuccess ? "شكراً لتعاونكم" : "يرجى تعبئة الحقول المطلوبة للانتقال للمرحلة التالية"}</p>
+                       </motion.div>
+                    </AnimatePresence>
+                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center border border-slate-200 text-[#CA8A04] font-black text-lg shadow-sm">
+                      {currentStep}
+                    </div>
+                 </div>
+
+                 {/* Content Area */}
+                 <div className="flex-1 p-10 relative overflow-hidden">
+                    <AnimatePresence mode="wait" custom={direction}>
+                       {isSuccess ? (
+                         <motion.div key="success" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center text-center h-[500px]">
+                            <div className="w-24 h-24 bg-emerald-50 text-[#007A55] rounded-full flex items-center justify-center mb-8 shadow-inner">
+                              <CheckCircle2 size={48} />
+                            </div>
+                            <h3 className="text-4xl font-black text-slate-900 mb-4">تم الإرسال بنجاح</h3>
+                            <p className="text-slate-400 text-lg max-w-md leading-relaxed font-light">تلقينا طلب الانضمام الخاص بكم. سيقوم فريق التدقيق بمراجعة الملفات والرد خلال 15 يوماً عمل.</p>
+                            <button onClick={() => window.location.href = '/'} className="mt-12 px-12 py-5 bg-[#0F172A] text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#007A55] transition-all">العودة للرئيسية</button>
+                         </motion.div>
+                       ) : (
+                         <motion.form 
+                          key={currentStep} 
+                          custom={direction} 
+                          variants={slideVariants} 
+                          initial="enter" 
+                          animate="center" 
+                          exit="exit" 
+                          onSubmit={currentStep === STEPS.length ? handleSubmit : (e) => { e.preventDefault(); handleNext(); }}
+                          className="h-full flex flex-col"
+                         >
+                            <div className="flex-1 space-y-10">
+                               {currentStep === 1 && (
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                     <InputField label="الاسم المسجل (عربي)" name="arabicName" value={formData.arabicName} onChange={handleChange} required icon={<Building2 size={18}/>} />
+                                     <InputField label="Registered Name (English)" name="englishName" value={formData.englishName} onChange={handleChange} required ltr icon={<Globe size={18}/>} />
+                                     <InputField label="العنوان البريدي (عربي)" name="arabicAddress" value={formData.arabicAddress} onChange={handleChange} icon={<MapPin size={18}/>} />
+                                     <InputField label="Registered Address (English)" name="englishAddress" value={formData.englishAddress} onChange={handleChange} ltr />
+                                     <SelectField label="الدولة" name="country" value={formData.country} onChange={handleChange} options={[{value:'SA', label:'السعودية'}, {value:'MA', label:'المغرب'}, {value:'AE', label:'الإمارات'}]} />
+                                     <InputField label="البريد الإلكتروني الرسمي" name="email" value={formData.email} onChange={handleChange} required ltr icon={<Mail size={18}/>} />
+                                  </div>
+                               )}
+                               {currentStep === 2 && (
+                                  <div className="space-y-10">
+                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <InputField label="اسم رئيس الجهة" name="managerName" value={formData.managerName} onChange={handleChange} required />
+                                        <InputField label="البريد الإلكتروني" name="managerEmail" value={formData.managerEmail} onChange={handleChange} ltr />
+                                     </div>
+                                     <div className="pt-10 border-t border-slate-50 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <InputField label="اسم ضابط الاتصال" name="contactName" value={formData.contactName} onChange={handleChange} required />
+                                        <InputField label="رقم الجوال" name="contactPhone" value={formData.contactPhone} onChange={handleChange} ltr />
+                                     </div>
+                                  </div>
+                               )}
+                               {currentStep === 3 && (
+                                  <div className="space-y-8">
+                                     <div className="w-full h-64 border-2 border-dashed border-slate-200 hover:border-[#007A55] hover:bg-[#007A55]/5 rounded-[2.5rem] flex flex-col items-center justify-center transition-all cursor-pointer group">
+                                        <UploadCloud className="text-slate-300 group-hover:text-[#007A55] mb-4" size={48} />
+                                        <span className="text-slate-900 font-bold">اسحب وأفلت الوثائق هنا</span>
+                                        <span className="text-slate-400 text-[10px] mt-2 uppercase tracking-widest font-black">Max 50MB (PDF, ZIP)</span>
+                                     </div>
+                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <CheckboxCard label="شهادات الاعتماد" checked={formData.accreditationCopies} name="accreditationCopies" onChange={handleChange} />
+                                        <CheckboxCard label="التكليف الرسمي" checked={formData.assignmentCopy} name="assignmentCopy" onChange={handleChange} />
+                                        <CheckboxCard label="وثائق إضافية" checked={formData.otherDocs} name="otherDocs" onChange={handleChange} />
+                                     </div>
+                                  </div>
+                               )}
+                               {(currentStep === 4 || currentStep === 5) && (
+                                  <div className="space-y-8">
+                                     <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex gap-4 items-center">
+                                        <Award className="text-[#007A55]" size={28} />
+                                        <p className="text-slate-600 text-sm font-medium">يرجى توضيح الشهادات والمواصفات المرجعية المعتمدة حالياً.</p>
+                                     </div>
+                                     <InputField label="المواصفة المرجعية" name="referenceStandard" value={formData.referenceStandard} onChange={handleChange} placeholder="مثال: SMIIC 1 ..." />
+                                     <TextAreaField label="المنتجات المغطاة" name="coveredProducts" value={formData.coveredProducts} onChange={handleChange} />
+                                  </div>
+                               )}
+                               {currentStep === 6 && (
+                                  <div className="space-y-10">
+                                     <div className="bg-emerald-50/60 p-8 rounded-3xl border border-emerald-100">
+                                        <h4 className="text-[#007A55] font-black text-sm uppercase mb-4 tracking-widest flex items-center gap-2"><CheckCircle2 size={16}/> إقرار بصحة البيانات</h4>
+                                        <p className="text-slate-600 text-sm leading-relaxed font-light">أقر أنا الموقع أدناه بصحة جميع المعلومات الواردة في هذا الطلب، ونلتزم بتنفيذ كافة المتطلبات والشروط الواردة في ميثاق البرنامج العربي للحلال.</p>
+                                     </div>
+                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <InputField label="الاسم الكامل" name="managerNameSign" value={formData.managerNameSign} onChange={handleChange} required />
+                                        <InputField label="تاريخ التوقيع" name="dateSign" type="date" value={formData.dateSign} onChange={handleChange} required />
+                                     </div>
+                                     <div className="border-2 border-dashed border-slate-100 p-10 rounded-[2.5rem] text-center hover:border-[#CA8A04] transition-all cursor-pointer">
+                                        <FileSignature className="mx-auto text-slate-200 mb-3" size={32} />
+                                        <span className="text-slate-900 font-bold block text-sm">رفع الختم والتوقيع الرقمي</span>
+                                     </div>
+                                  </div>
+                               )}
+                            </div>
+
+                            {/* Footer Actions */}
+                            <div className="mt-12 pt-8 border-t border-slate-50 flex items-center justify-between">
+                               {currentStep > 1 ? (
+                                 <button type="button" onClick={handleBack} className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all">
+                                   <ChevronRight size={16} />
+                                   السابق
+                                 </button>
+                               ) : <div />}
+
+                               <div className="flex gap-4">
+                                 {currentStep < STEPS.length ? (
+                                   <button type="button" onClick={handleNext} className="bg-[#0F172A] text-white px-10 py-4 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#007A55] transition-all shadow-lg hover:-translate-y-1 flex items-center gap-4 group">
+                                      المرحلة التالية
+                                      <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                                   </button>
+                                 ) : (
+                                   <button type="submit" disabled={isSubmitting} className={`px-12 py-4 rounded-xl font-bold text-xs uppercase tracking-widest text-white shadow-xl transition-all ${isSubmitting ? 'bg-slate-300' : 'bg-[#007A55] hover:bg-[#006042] hover:-translate-y-1'}`}>
+                                      {isSubmitting ? "جاري الإرسال..." : "تأكيد الطلب"}
+                                   </button>
+                                 )}
+                               </div>
+                            </div>
+                         </motion.form>
+                       )}
+                    </AnimatePresence>
+                 </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* --- SECTION 3: FULL WIDTH FOOTER SEPARATOR --- */}
+      {/* HELP SECTION (REVERTED) */}
       <section className="relative py-24 bg-slate-900 overflow-hidden">
         <div className="absolute inset-0">
           <img src="/workflow/w-4.png" alt="Support" className="w-full h-full object-cover opacity-10 scale-110 blur-sm" />
@@ -657,8 +421,53 @@ const JoinProgram = () => {
         </div>
       </section>
 
+      <style>{`
+        .shadow-premium-md { box-shadow: 0 10px 40px -10px rgba(0,0,0,0.04), 0 8px 16px -4px rgba(0,0,0,0.02); }
+      `}</style>
     </div>
   );
 };
+
+/* --- REFINED UI COMPONENTS --- */
+
+const InputField = ({ label, name, value, onChange, type = "text", required = false, ltr = false, icon = null }: any) => (
+  <div className="space-y-2.5 text-right">
+    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">{label} {required && "*"}</label>
+    <div className="relative group">
+       {icon && <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#007A55] transition-colors">{icon}</div>}
+       <input 
+        required={required} type={type} name={name} value={value} onChange={onChange} dir={ltr ? "ltr" : "rtl"}
+        className={`w-full bg-[#FAF9F6] border border-slate-100 rounded-xl py-4 ${icon ? 'pr-12' : 'px-5'} px-5 font-bold text-slate-900 focus:bg-white focus:border-[#007A55] focus:ring-4 focus:ring-[#007A55]/5 outline-none transition-all duration-300 placeholder-slate-200 text-sm`}
+       />
+    </div>
+  </div>
+);
+
+const SelectField = ({ label, name, value, onChange, options }: any) => (
+  <div className="space-y-2.5 text-right">
+    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">{label}</label>
+    <select name={name} value={value} onChange={onChange} className="w-full bg-[#FAF9F6] border border-slate-100 rounded-xl py-4 px-5 font-bold text-slate-900 focus:bg-white focus:border-[#007A55] outline-none transition-all duration-300 text-sm">
+       <option value="">اختر القائمة...</option>
+       {options.map((opt:any) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+    </select>
+  </div>
+);
+
+const TextAreaField = ({ label, name, value, onChange }: any) => (
+  <div className="space-y-2.5 text-right">
+    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">{label}</label>
+    <textarea name={name} value={value} onChange={onChange} rows={4} className="w-full bg-[#FAF9F6] border border-slate-100 rounded-2xl py-5 px-6 font-bold text-slate-900 focus:bg-white focus:border-[#007A55] outline-none transition-all duration-300 resize-none text-sm" />
+  </div>
+);
+
+const CheckboxCard = ({ label, checked, name, onChange }: any) => (
+  <label className={`flex items-center gap-3 p-4 rounded-2xl border transition-all cursor-pointer ${checked ? 'bg-[#007A55]/5 border-[#007A55]' : 'bg-[#FAF9F6] border-slate-50 hover:border-slate-100'}`}>
+     <div className={`w-5 h-5 rounded-lg flex items-center justify-center border transition-all ${checked ? 'bg-[#007A55] border-[#007A55]' : 'bg-white border-slate-200'}`}>
+        {checked && <CheckCircle2 className="text-white" size={12} />}
+     </div>
+     <span className={`text-[11px] font-bold uppercase tracking-tight ${checked ? 'text-[#007A55]' : 'text-slate-400'}`}>{label}</span>
+     <input type="checkbox" name={name} checked={checked} onChange={onChange} className="hidden" />
+  </label>
+);
 
 export default JoinProgram;

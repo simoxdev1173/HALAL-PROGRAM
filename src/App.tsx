@@ -16,6 +16,7 @@ import { ChatbotWidget } from "./components/ChatbotWidget";
 import AboutProgram from "./about-us/page";
 import CertificateVerification from "./pages/CertificateVerification";
 import JoinProgram from "./pages/JoinProgram";
+import JoinedCountries from "./pages/JoinedCountries";
 import { motion } from "framer-motion";
 
 const ScrollToHash = () => {
@@ -84,6 +85,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/about-us" element={<AboutProgram />} />
+              <Route path="/joined-countries" element={<JoinedCountries lang={lang} />} />
               <Route path="/certificate-verification" element={<CertificateVerification />} />
               <Route path="/join-program" element={<JoinProgram />} />
             </Routes>

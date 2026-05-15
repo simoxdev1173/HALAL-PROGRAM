@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Lang = "ar" | "en";
@@ -37,19 +38,21 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
   const menuData = {
     ar: {
       links: [
-        { name: "عن البرنامج", id: "about" },
-        { name: "التحقق من شهادة", id: "standards" },
-        { name: "الانضمام للبرنامج", id: "join" },
-        { name: "النماذج والوثائق", id: "directory" },
+        { name: "عن البرنامج", path: "/about-us" },
+        { name: "الدول المنضمة", path: "/joined-countries" },
+        { name: "التحقق من شهادة", path: "/certificate-verification" },
+        { name: "الانضمام للبرنامج", path: "/join-program" },
+        { name: "النماذج والوثائق", path: "/#directory" },
       ],
       mega: {
         links: {
           title: "روابط هامة",
           items: [
-            { text: "آلية الانضمام للبرنامج", href: "#" },
-            { text: "تكاليف الحصول على الشهادة", href: "#" },
-            { text: "شروط استخدام العلامة", href: "#" },
-            { text: "محرك البحث والتحقق", href: "#" }
+            { text: "الدول المنضمة للبرنامج", href: "/joined-countries" },
+            { text: "آلية الانضمام للبرنامج", href: "/join-program" },
+            { text: "تكاليف الحصول على الشهادة", href: "/join-program" },
+            { text: "شروط استخدام العلامة", href: "/#directory" },
+            { text: "محرك البحث والتحقق", href: "/certificate-verification" }
           ]
         },
         faq: {
@@ -73,19 +76,21 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
     },
     en: {
       links: [
-        { name: "About", id: "about" },
-        { name: "Verification", id: "standards" },
-        { name: "Accreditation", id: "join" },
-        { name: "Directory", id: "directory" },
+        { name: "About", path: "/about-us" },
+        { name: "Joined Countries", path: "/joined-countries" },
+        { name: "Verification", path: "/certificate-verification" },
+        { name: "Accreditation", path: "/join-program" },
+        { name: "Directory", path: "/#directory" },
       ],
       mega: {
         links: {
           title: "Important Links",
           items: [
-            { text: "How to Join", href: "#" },
-            { text: "Certification Costs", href: "#" },
-            { text: "Label Usage Terms", href: "#" },
-            { text: "Verification Engine", href: "#" }
+            { text: "Joined Countries", href: "/joined-countries" },
+            { text: "How to Join", href: "/join-program" },
+            { text: "Certification Costs", href: "/join-program" },
+            { text: "Label Usage Terms", href: "/#directory" },
+            { text: "Verification Engine", href: "/certificate-verification" }
           ]
         },
         faq: {
@@ -120,6 +125,151 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
   // Snappy, clean animation curve
   const customEase = "easeInOut";
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   return (
     <>
       <nav 
@@ -138,11 +288,13 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           
           {/* Logo & Desktop Links Grouped to fix spacing */}
           <div className="flex items-center gap-10 lg:gap-14 h-full z-20">
-            <img 
-              src="/logo.svg" 
-              alt="Logo" 
-              className="h-19 w-auto object-contain shrink-0"
-            />
+            <Link to="/">
+              <img 
+                src="/logo.svg" 
+                alt="Logo" 
+                className="h-19 w-auto object-contain shrink-0"
+              />
+            </Link>
 
             {/* Desktop Links */}
             <div 
@@ -152,12 +304,21 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
               <ul className="flex items-center gap-1.5 h-full">
                 {d.links.map((link, i) => (
                   <li key={i} className="h-full flex items-center">
-                    <a 
-                      href={`#${link.id}`}
-                      className="relative px-5 py-2.5 rounded-xl text-[12px] font-bold text-stone-600 hover:text-white hover:bg-[#007A55] transition-all duration-300 uppercase tracking-widest cursor-pointer whitespace-nowrap"
-                    >
-                      {link.name}
-                    </a>
+                    {link.path.startsWith("/#") ? (
+                      <a 
+                        href={link.path}
+                        className="relative px-5 py-2.5 rounded-xl text-[12px] font-bold text-stone-600 hover:text-white hover:bg-[#007A55] transition-all duration-300 uppercase tracking-widest cursor-pointer whitespace-nowrap"
+                      >
+                        {link.name}
+                      </a>
+                    ) : (
+                      <Link 
+                        to={link.path}
+                        className="relative px-5 py-2.5 rounded-xl text-[12px] font-bold text-stone-600 hover:text-white hover:bg-[#007A55] transition-all duration-300 uppercase tracking-widest cursor-pointer whitespace-nowrap"
+                      >
+                        {link.name}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -267,10 +428,17 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                   <ul className="space-y-3">
                     {d.mega.links.items.map((item, i) => (
                       <li key={i}>
-                        <a href={item.href} className="flex items-center gap-3 text-stone-500 hover:text-[#007A55] hover:bg-[#007A55]/5 p-2 rounded-lg text-[14px] font-bold transition-all group">
-                          <span className="w-1.5 h-1.5 rounded-sm bg-stone-300 group-hover:bg-[#007A55] transition-colors"></span>
-                          {item.text}
-                        </a>
+                        {item.href.startsWith("/#") || item.href.startsWith("http") ? (
+                          <a href={item.href} className="flex items-center gap-3 text-stone-500 hover:text-[#007A55] hover:bg-[#007A55]/5 p-2 rounded-lg text-[14px] font-bold transition-all group">
+                            <span className="w-1.5 h-1.5 rounded-sm bg-stone-300 group-hover:bg-[#007A55] transition-colors"></span>
+                            {item.text}
+                          </a>
+                        ) : (
+                          <Link to={item.href} className="flex items-center gap-3 text-stone-500 hover:text-[#007A55] hover:bg-[#007A55]/5 p-2 rounded-lg text-[14px] font-bold transition-all group">
+                            <span className="w-1.5 h-1.5 rounded-sm bg-stone-300 group-hover:bg-[#007A55] transition-colors"></span>
+                            {item.text}
+                          </Link>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -301,23 +469,36 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                 </div>
 
                 {/* Contact Card */}
-                <div className="md:col-span-2 bg-[#004D36] rounded-2xl p-10 flex flex-col justify-center relative overflow-hidden group">
-                  <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-[#EEB422] rounded-full group-hover:scale-110 transition-transform duration-500"></div>
-                  <div className="absolute right-4 bottom-4 w-24 h-24 bg-white rounded-full mix-blend-overlay opacity-20"></div>
-                  
-                  <div className="relative z-10">
-                    <h4 className="font-black text-white text-3xl mb-4">{d.mega.contact.title}</h4>
-                    <p className="text-white/80 text-base font-medium leading-relaxed max-w-md">
-                      {d.mega.contact.desc}
-                    </p>
-                  </div>
-                  <a 
-                    href={`mailto:${d.mega.contact.email}`}
-                    className="relative z-10 mt-8 self-start bg-white text-[#004D36] px-8 py-4 rounded-xl font-black text-sm hover:-translate-y-1 hover:shadow-xl transition-all duration-300 flex items-center gap-3"
-                  >
-                    {d.mega.contact.btn}
-                  </a>
+             <div 
+                className="md:col-span-2 rounded-2xl p-10 flex flex-col justify-center relative overflow-hidden group bg-cover bg-center"
+                style={{
+                  backgroundImage: "url('/header-nav.png')",
+                }}
+              >
+                {/* Dark overlay */}
+                <div className="absolute inset-0 bg-[#004D36]/80"></div>
+
+                {/* Decorative circles */}
+                <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-[#EEB422] rounded-full group-hover:scale-110 transition-transform duration-500 z-0"></div>
+                <div className="absolute right-4 bottom-4 w-24 h-24 bg-white rounded-full mix-blend-overlay opacity-20 z-0"></div>
+
+                <div className="relative z-10">
+                  <h4 className="font-black text-white text-3xl mb-4">
+                    {d.mega.contact.title}
+                  </h4>
+
+                  <p className="text-white/80 text-base font-medium leading-relaxed max-w-md">
+                    {d.mega.contact.desc}
+                  </p>
                 </div>
+
+                <a 
+                  href={`mailto:${d.mega.contact.email}`}
+                  className="relative z-10 mt-8 self-start bg-white text-[#004D36] px-8 py-4 rounded-xl font-black text-sm hover:-translate-y-1 hover:shadow-xl transition-all duration-300 flex items-center gap-3"
+                >
+                  {d.mega.contact.btn}
+                </a>
+              </div>
 
               </div>
             </motion.div>
@@ -403,7 +584,9 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           >
             {/* Mobile Header */}
             <div className="h-24 px-6 flex items-center justify-between bg-white border-b-2 border-stone-200">
-              <img src="/logo.svg" alt="Logo" className="h-12 w-auto object-contain" />
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
+                <img src="/logo.svg" alt="Logo" className="h-12 w-auto object-contain" />
+              </Link>
               <button 
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-3 bg-stone-100 text-stone-800 rounded-xl hover:bg-stone-200 transition-colors"
@@ -425,16 +608,29 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1, ease: customEase }}
                   >
-                    <a 
-                      href={`#${link.id}`}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="bg-white p-6 rounded-2xl text-xl font-black text-stone-800 hover:text-white hover:bg-[#007A55] transition-colors block border border-stone-100 shadow-sm flex justify-between items-center"
-                    >
-                      {link.name}
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={isRtl ? "rotate-180" : ""}>
-                        <polyline points="9 18 15 12 9 6"></polyline>
-                      </svg>
-                    </a>
+                    {link.path.startsWith("/#") ? (
+                      <a 
+                        href={link.path}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="bg-white p-6 rounded-2xl text-xl font-black text-stone-800 hover:text-white hover:bg-[#007A55] transition-colors block border border-stone-100 shadow-sm flex justify-between items-center"
+                      >
+                        {link.name}
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={isRtl ? "rotate-180" : ""}>
+                          <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                      </a>
+                    ) : (
+                      <Link 
+                        to={link.path}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="bg-white p-6 rounded-2xl text-xl font-black text-stone-800 hover:text-white hover:bg-[#007A55] transition-colors block border border-stone-100 shadow-sm flex justify-between items-center"
+                      >
+                        {link.name}
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={isRtl ? "rotate-180" : ""}>
+                          <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                      </Link>
+                    )}
                   </motion.li>
                 ))}
               </ul>

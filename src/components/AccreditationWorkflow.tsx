@@ -80,7 +80,7 @@ const AccreditationWorkflow = () => {
             transition={{ duration: 0.8 }}
             className="text-3xl md:text-5xl font-light text-slate-900 tracking-tight leading-tight mb-6"
           >
-            كيف تتم عملية الانضمام <strong className="text-[#007A55] font-bold relative inline-block">
+            كيفية الانضمام <strong className="text-[#007A55] font-bold relative inline-block">
             إلى البرنامج العربي للحلال؟
               <span className="absolute -bottom-2 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#CA8A04]/60 to-transparent"></span>
             </strong>
@@ -91,10 +91,10 @@ const AccreditationWorkflow = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-base md:text-lg text-slate-600 max-w-3xl mb-8 leading-relaxed"
+            className="text-base md:text-lg text-slate-600 text-nowrap max-w-3xl mb-8 leading-relaxed"
           >
             نظام عالمي يضمن <strong className="text-slate-900 font-bold">المصداقية الشرعية</strong> ويسهل 
-            <strong className="text-slate-900 font-bold"> التبادل التجاري</strong> للمنتجات والخدمات عبر آلية اعتماد شفافة.
+            <strong className="text-slate-900  font-bold"> التبادل التجاري</strong> للمنتجات والخدمات عبر آلية اعتماد شفافة.
           </motion.p>
 
           <motion.button 
@@ -213,7 +213,6 @@ const AccreditationWorkflow = () => {
               <h4 className="text-lg md:text-xl font-bold text-white mb-3 drop-shadow-md">
                 تفويض القطاع الخاص والجهات غير الحكومية
               </h4>
-              {/* Added a slight backdrop blur and optimized text colors for maximum contrast */}
               <p className="text-sm text-slate-200 leading-relaxed font-light border-r-2 border-[#007A55] pr-4 bg-gradient-to-l from-white/10 to-transparent py-2 backdrop-blur-[2px]">
                 يُمكن لجهة التعيين الحكومية <strong className="text-white font-bold">تفويض جهات تقييم مطابقة خاصة</strong> للعمل تحت مظلتها، شريطة إبلاغ المنظمة كتابياً والالتزام بسداد التكاليف المقررة لضمان <strong className="text-[#CA8A04] font-bold">نزاهة وشرعية</strong> علامة الحلال العربية.
               </p>
@@ -222,11 +221,11 @@ const AccreditationWorkflow = () => {
             <motion.button 
               whileHover={{ x: -4, scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              // Improved button UX: Added a subtle glow effect on hover, increased base opacity so it doesn't look washed out
+  
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-[#007A55] bg-[#007A55]/80 backdrop-blur-md text-white hover:bg-[#007A55] hover:shadow-[0_0_20px_rgba(0,122,85,0.4)] font-bold text-xs transition-all duration-300 whitespace-nowrap group/btn w-full md:w-auto shrink-0 cursor-pointer"
             >
               الاطلاع على المتطلبات الفنية 
-              {/* Increased the arrow slide distance slightly for better visual feedback */}
+     
               <ArrowLeft size={16} className="text-[#CA8A04] group-hover/btn:-translate-x-1.5 transition-transform duration-300" />
             </motion.button>
             
