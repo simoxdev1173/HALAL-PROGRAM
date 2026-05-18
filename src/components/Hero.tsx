@@ -44,20 +44,18 @@ const CTA_DATA = [
   }
 ];
 
-/* ---------- ACTION CARDS COMPONENT ---------- */
+/* ---------- ACTION CARDS COMPONENT (Industrial Style) ---------- */
 export function ActionCards() {
   return (
-    // UI EXPERT NOTE: Replaced plain slate-50 with a very subtle warm gradient to avoid the "flat grey" look
-    <section className="py-20 relative z-10 bg-gradient-to-br from-stone-100 via-[#faf9f6] to-stone-50" dir="rtl">
+    <section className="py-24 relative z-10 bg-[#FAF9F6] overflow-hidden" dir="rtl">
       
-      {/* Subtle background ambient glow using the gold color */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#CA8A04] opacity-[0.03] blur-[120px] rounded-full pointer-events-none"></div>
+      {/* Industrial noise overlay */}
+      <div className="absolute inset-0 opacity-[0.02] mix-blend-multiply pointer-events-none" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="flex items-center gap-3 mb-10">
-          {/* UI EXPERT NOTE: Used Gold as the structural accent line instead of green */}
-          <div className="w-2 h-8 bg-[#CA8A04] rounded-full shadow-[0_0_10px_rgba(202,138,4,0.3)]"></div>
-          <h2 className="text-3xl font-bold text-slate-900">خدمات المنظومة</h2>
+        <div className="flex items-center gap-4 mb-14 border-b border-stone-200 pb-6 shadow-[0_1px_0_rgba(255,255,255,1)]">
+          <div className="w-3 h-8 bg-[#CA8A04] rounded-sm shadow-[var(--shadow-ind-sharp)]"></div>
+          <h2 className="text-3xl font-black text-stone-800 tracking-tight">خدمات المنظومة</h2>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -67,24 +65,36 @@ export function ActionCards() {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: card.delay, duration: 0.6, ease: "easeOut" }}
-              className={`group relative flex flex-col bg-white rounded-2xl overflow-hidden shadow-lg shadow-stone-200/50 hover:shadow-2xl transition-all duration-500 border cursor-pointer ${
-                card.secondary ? "border-slate-800" : "border-stone-100"
+              transition={{ delay: card.delay, duration: 0.6, ease: [0.175, 0.885, 0.32, 1.275] }}
+              className={`group relative flex flex-col rounded-xl overflow-hidden cursor-pointer ${
+                card.secondary 
+                  ? "bg-stone-800 shadow-[var(--shadow-ind-floating)] border border-stone-700" 
+                  : "bg-white ind-card border border-white/50"
               }`}
             >
+              {/* Screws */}
+              <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
+              <div className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
+
               {/* Card Image Header */}
-              <div className="relative h-48 w-full overflow-hidden">
-                <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-transparent transition-colors duration-500 z-10" />
+              <div className="relative h-48 w-full overflow-hidden ind-recessed rounded-none border-b border-stone-200/20">
+                <div className="absolute inset-0 bg-stone-900/30 group-hover:bg-transparent transition-colors duration-500 z-10" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
                 <img 
                   src={card.image} 
                   alt={card.title} 
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out"
+                  className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out grayscale group-hover:grayscale-0"
                 />
+                
+                {/* Vent Slots */}
+                <div className="absolute top-4 right-1/2 translate-x-1/2 flex gap-1.5 z-20">
+                  <div className="h-1.5 w-8 rounded-full bg-black/40 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]" />
+                  <div className="h-1.5 w-8 rounded-full bg-black/40 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]" />
+                </div>
+
                 <div className="absolute bottom-4 right-6 z-20">
-                  {/* UI EXPERT NOTE: Added gold border to the tags for a premium finish */}
-                  <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider text-white rounded-md shadow-sm border ${
-                    card.secondary ? "bg-slate-800 border-[#CA8A04]/50" : "bg-[#007A55] border-[#007A55]"
+                  <span className={`px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-white rounded shadow-[var(--shadow-ind-sharp)] border ${
+                    card.secondary ? "bg-stone-700 border-[#CA8A04]/50 text-[#CA8A04]" : "bg-[#007A55] border-[#007A55]/80"
                   }`}>
                     {card.tag}
                   </span>
@@ -92,28 +102,29 @@ export function ActionCards() {
               </div>
 
               {/* Card Content */}
-              <div className={`p-8 flex flex-col flex-grow ${card.secondary ? "bg-slate-900 text-white" : "bg-white"}`}>
-                <div className="flex items-center gap-4 mb-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm transition-colors duration-300 ${
-                    card.secondary ? "bg-[#CA8A04]/10 text-[#CA8A04]" : "bg-emerald-50 text-[#007A55] group-hover:bg-[#CA8A04]/10 group-hover:text-[#CA8A04]"
+              <div className="p-8 flex flex-col flex-grow relative">
+                <div className="flex items-center gap-4 mb-5">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ind-recessed transition-all duration-300 ${
+                    card.secondary ? "bg-stone-900 text-[#CA8A04] shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5)]" : "bg-stone-50 text-[#007A55] group-hover:bg-[#007A55] group-hover:text-white group-hover:shadow-[var(--shadow-ind-floating)]"
                   }`}>
                     <card.icon size={24} />
                   </div>
-                  <h3 className="text-xl font-bold">{card.title}</h3>
+                  <h3 className={`text-xl font-black ${card.secondary ? "text-white" : "text-stone-800"}`}>{card.title}</h3>
                 </div>
                 
-                <p className={`text-sm leading-relaxed mb-8 flex-grow ${
-                  card.secondary ? "text-slate-400" : "text-slate-600"
+                <p className={`text-sm leading-relaxed mb-8 flex-grow font-medium ${
+                  card.secondary ? "text-stone-400" : "text-stone-600"
                 }`}>
                   {card.description}
                 </p>
 
-                {/* UI EXPERT NOTE: Hover state changes arrow and text to Gold for interactivity */}
-                <Link to={card.linkPath} className={`flex items-center gap-2 font-bold text-sm mt-auto w-fit group/btn transition-colors cursor-pointer ${
-                  card.secondary ? "text-white hover:text-[#CA8A04]" : "text-slate-900 hover:text-[#CA8A04]"
+                <Link to={card.linkPath} className={`flex items-center gap-3 font-bold text-sm mt-auto w-fit group/btn transition-colors cursor-pointer uppercase tracking-wider ${
+                  card.secondary ? "text-stone-300 hover:text-[#CA8A04]" : "text-stone-700 hover:text-[#007A55]"
                 }`}>
                   {card.linkText}
-                  <ArrowLeft size={16} className="group-hover/btn:-translate-x-2 transition-transform duration-300" />
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center shadow-[var(--shadow-ind-sharp)] ${card.secondary ? "bg-stone-700" : "bg-white border border-stone-200"}`}>
+                    <ArrowLeft size={14} className="group-hover/btn:-translate-x-1 transition-transform duration-300" />
+                  </div>
                 </Link>
               </div>
             </motion.div>
@@ -160,92 +171,95 @@ export const Hero = () => {
               منظومة اعتراف متعدد الأطراف تربط <strong className="font-bold text-white">جهات التعيين الحكومية العربية</strong> بمعايير <strong className="font-bold text-white">دولية معتمدة</strong> — لضمان مصداقية شهادات الحلال وحماية المستهلك المسلم في كل الأسواق، من الدول العربية إلى كل دول العالم.
             </p>
             
-            {/* UI EXPERT NOTE: New Dual Button Layout - Prioritizing Government Entities */}
+            {/* CTA Buttons (Keeping Industrial Style) */}
             <div className="mt-12 flex flex-col md:flex-row items-start gap-6">
               
-              {/* Primary Button: Governmental Entities (Now Main) */}
+              {/* Primary Button: Governmental Entities */}
               <div className="flex flex-col gap-2 w-full md:w-auto">
-                {/* Micro-copy acting as a filter */}
                 <span className="text-[#CA8A04] text-sm font-semibold tracking-wide px-1 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#CA8A04]"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#CA8A04] "></span>
                   خاص بالجهات الحكومية المخولة وهيئات منح الشهادات
                 </span>
                 
-                <button className="bg-[#007A55] hover:bg-[#006042] text-white px-8 py-4 rounded-lg font-bold transition-all shadow-lg shadow-[#007A55]/30 flex items-center justify-center gap-3 group border border-transparent hover:border-[#CA8A04]/50 w-full md:w-auto h-[60px] cursor-pointer">
+                <Link to="/join-program" className="btn-primary w-full md:w-auto h-[60px] text-base group">
                   انضم كجهة تعيين حكومية
-                  <ArrowLeft size={18} className="group-hover:text-[#CA8A04] transition-colors" />
-                </button>
+                  <div className="w-6 h-6 rounded-sm bg-black/20 flex items-center justify-center">
+                    <ArrowLeft size={18} className="group-hover:text-[#CA8A04] transition-colors" />
+                  </div>
+                </Link>
               </div>
 
               {/* Secondary Button: Suppliers & Business Sector */}
-              <button className="bg-slate-900/40 backdrop-blur-sm hover:bg-[#CA8A04]/10 text-white border-2 border-[#CA8A04] px-8 py-4 rounded-lg font-bold transition-all shadow-[0_0_15px_rgba(202,138,4,0.15)] hover:shadow-[0_0_25px_rgba(202,138,4,0.3)] flex items-center justify-center gap-3 group w-full md:w-auto h-[60px] md:mt-[26px] cursor-pointer">
-                طلب ترخيص العلامة للموردين
-                <ArrowLeft size={18} className="text-[#CA8A04] group-hover:-translate-x-1 transition-transform" />
-              </button>
+              <div className="flex flex-col gap-2 w-full md:w-auto md:mt-[26px]">
+                <Link to="/certificate-verification" className="btn-gold w-full md:w-auto h-[60px] text-base group !bg-slate-900/40  !border-2 !border-[#CA8A04] !text-white ">
+                  طلب ترخيص العلامة للموردين
+                  <div className="w-6 h-6 rounded-sm bg-black/30 flex items-center justify-center shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]">
+                    <ArrowLeft size={18} className="text-[#CA8A04] group-hover:-translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              </div>
 
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Intro Section - Keeping editorial structure but with image on visual right and restored highlights */}
-      <section className="relative z-10 py-32 px-6 overflow-hidden bg-white border-t border-stone-100">
-        <div className="max-w-7xl mx-auto">
+      {/* Intro Section - Industrial Styling (User Liked This) */}
+      <section className="relative z-10 py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]">
+        {/* Subtle grid pattern background */}
+        <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             
-            {/* Editorial Image (Visual Right in RTL = First in DOM) */}
+            {/* Image (Visual Left in LTR / Right in RTL) */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="relative"
+              className="relative p-4 bg-white rounded-2xl shadow-[var(--shadow-ind-floating)] border border-stone-200"
             >
-              <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-2xl border border-stone-200">
-                <img src="/about-us-bg.png" alt="Editorial Visual" className="w-full h-auto" />
+              {/* Screws */}
+              <div className="absolute top-3 left-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
+              <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
+              <div className="absolute bottom-3 left-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
+              <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
+
+              <div className="relative z-10 rounded-xl overflow-hidden ind-recessed shadow-[inset_0_4px_10px_rgba(0,0,0,0.1)]">
+                <img src="/about-us-bg.png" alt="Editorial Visual" className="w-full h-auto grayscale-[20%] hover:grayscale-0 transition-all duration-700" />
               </div>
-              
-              <div className="absolute -top-6 -right-6 w-32 h-32 bg-[#007A55]/10 rounded-full blur-3xl"></div>
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-[#CA8A04]/10 rounded-full blur-3xl"></div>
             </motion.div>
 
-            {/* Text Content (Visual Left in RTL = Second in DOM) */}
+            {/* Text Content */}
             <div className="flex flex-col items-start text-right">
-              <h1 className="text-3xl md:text-5xl font-light mb-10 tracking-tight leading-tight text-black">
+            
+
+              <h1 className="text-3xl md:text-4xl font-black mb-8 tracking-tight text-stone-800 leading-tight">
                 ماذا يقدم{" "}
-                <span className="font-bold text-[#007A55]">
+                <span className="text-[#007A55] drop-shadow-[0_1px_1px_rgba(255,255,255,1)]">
                   البرنامج العربي للحلال
                 </span>{" "}
                 لك؟
               </h1>
 
-              <p className="text-lg md:text-xl leading-relaxed text-black/80">
-                يعمل البرنامج على ضمان{" "}
-                <strong className="text-black font-bold">
-                  حماية المستهلك المسلم
-                </strong>{" "}
-                في الدول العربية وفي جميع دول العالم، ليس فقط من{" "}
-                <strong className="text-black font-bold">
-                  شهادات وعلامات الحلال المزورة
-                </strong>
-                ، بل أيضاً من الشهادات والعلامات التي تمنحها جهات لا تتوفر فيها{" "}
-                <strong className="text-black font-bold underline decoration-[#CA8A04]/40 underline-offset-4">
-                  شروط المهنية والشرعية والمصداقية
-                </strong>{" "}
-                اللازمة لمثل هذا المجال. نحن نضع أسس{" "}
-                <strong className="text-black font-bold">
-                  منظومة اعتراف متعدد الأطراف
-                </strong>{" "}
-                لضمان{" "}
-                <strong className="relative text-black font-bold inline-block">
-                  تسهيل التبادل التجاري
-                  <span className="absolute -bottom-1 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#CA8A04]/50 to-transparent"></span>
-                </strong>{" "}
-                بين الدول العربية، مع التأكد من مطابقة المنتجات العالمية{" "}
-                <strong className="text-black font-bold">
-                  للمتطلبات الفنية والمواصفات القياسية العربية
-                </strong>
-                .
-              </p>
+              <div className=" p-8 rounded-xl shadow-[var(--shadow-ind-card)] border border-stone-200 relative">
+                {/* Structural highlight */}
+                
+                
+                <p className="text-lg leading-relaxed text-stone-600 font-medium">
+                  يعمل البرنامج على ضمان{" "}
+                  <strong className="text-stone-900 font-black">حماية المستهلك المسلم</strong>{" "}
+                  في الدول العربية وفي جميع دول العالم، ليس فقط من{" "}
+                  <strong className="text-stone-900 font-black">شهادات وعلامات الحلال المزورة</strong>، بل أيضاً من الشهادات والعلامات التي تمنحها جهات لا تتوفر فيها{" "}
+                  <strong className="text-[#CA8A04] font-black underline decoration-[#CA8A04]/30 underline-offset-4 decoration-2">شروط المهنية والشرعية والمصداقية</strong>{" "}
+                  اللازمة لمثل هذا المجال. نحن نضع أسس{" "}
+                  <strong className="text-stone-900 font-black">منظومة اعتراف متعدد الأطراف</strong>{" "}
+                  لضمان{" "}
+                  <strong className="text-stone-900 font-black border-b-2 border-[#CA8A04]/50 pb-0.5">تسهيل التبادل التجاري</strong>{" "}
+                  بين الدول العربية، مع التأكد من مطابقة المنتجات العالمية{" "}
+                  <strong className="text-stone-900 font-black">للمتطلبات الفنية والمواصفات القياسية العربية</strong>.
+                </p>
+              </div>
             </div>
 
           </div>

@@ -59,7 +59,8 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           title: "أسئلة شائعة",
           items: [
             { q: "من يحق له الانضمام؟", a: "جهات التعيين الحكومية في الدول العربية." },
-            { q: "ما هي مدة صلاحية الترخيص؟", a: "ثلاث سنوات مع إمكانية التجديد." }
+            { q: "ما هي مدة صلاحية الترخيص؟", a: "ثلاث سنوات مع إمكانية التجديد." },
+            { q: "كيف يتم التحقق من الشهادة؟", a: "عن طريق مسح رمز الاستجابة السريعة أو إدخال رقم الشهادة في محرك البحث." }
           ]
         },
         contact: {
@@ -97,7 +98,8 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           title: "FAQ",
           items: [
             { q: "Who can join?", a: "Governmental accreditation bodies in Arab countries." },
-            { q: "License validity?", a: "Three years, subject to renewal." }
+            { q: "License validity?", a: "Three years, subject to renewal." },
+            { q: "How to verify a certificate?", a: "By scanning the QR code or entering the certificate number in the search engine." }
           ]
         },
         contact: {
@@ -122,161 +124,15 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
     { name: "إنجليزي", code: "en" }
   ];
 
-  // Snappy, clean animation curve
-  const customEase = "easeInOut";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  const customEase = [0.175, 0.885, 0.32, 1.275]; // Mechanical easing
 
   return (
     <>
       <nav 
-        className={`fixed top-0 w-full z-40 transition-all duration-300 bg-white ${
+        className={`fixed top-0 w-full z-40 transition-all duration-300 bg-[#FAF9F6] ${
           scrolled 
-            ? "shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border-b border-stone-100 py-0" 
-            : "border-b-2 border-[#007A55]/10 py-2"
+            ? "shadow-[var(--shadow-ind-floating)] border-b border-stone-200 py-0" 
+            : "border-b border-stone-200 py-2 shadow-[var(--shadow-ind-card)]"
         }`}
         dir={isRtl ? "rtl" : "ltr"}
         onMouseLeave={() => {
@@ -287,34 +143,38 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           
           {/* Logo & Desktop Links Grouped to fix spacing */}
-          <div className="flex items-center gap-10 lg:gap-14 h-full z-20">
-            <Link to="/">
-              <img 
-                src="/logo.svg" 
-                alt="Logo" 
-                className="h-19 w-auto object-contain shrink-0"
-              />
+          <div className="flex items-center gap-10 lg:gap-14 h-full z-40">
+            {/* BIG ROUND LOGO */}
+            <Link to="/" className="relative group">
+               <div className="absolute top-[-10px] left-1/2 -translate-x-1/2 w-28 h-28 bg-white rounded-full shadow-[var(--shadow-ind-floating)] border border-stone-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 active:scale-95 z-99 overflow-hidden">
+                  <div className="absolute inset-0 bg-stone-50/50 ind-recessed rounded-full m-1"></div>
+                  <img 
+                    src="/logo.svg" 
+                    alt="Logo" 
+                    className="relative z-99 w-20 h-auto object-contain shrink-0"
+                  />
+               </div>
             </Link>
 
-            {/* Desktop Links */}
+            {/* Desktop Links (Tactile tags) - Added margin to account for the big logo */}
             <div 
-              className="hidden lg:flex items-center h-full"
+              className={`hidden lg:flex items-center h-full ${isRtl ? 'mr-32' : 'ml-32'}`}
               onMouseEnter={() => setMegaMenuOpen(true)}
             >
-              <ul className="flex items-center gap-1.5 h-full">
+              <ul className="flex items-center gap-2 h-full">
                 {d.links.map((link, i) => (
                   <li key={i} className="h-full flex items-center">
                     {link.path.startsWith("/#") ? (
                       <a 
                         href={link.path}
-                        className="relative px-5 py-2.5 rounded-xl text-[12px] font-bold text-stone-600 hover:text-white hover:bg-[#007A55] transition-all duration-300 uppercase tracking-widest cursor-pointer whitespace-nowrap"
+                        className="relative px-5 py-2.5 rounded-md text-[13px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50"
                       >
                         {link.name}
                       </a>
                     ) : (
                       <Link 
                         to={link.path}
-                        className="relative px-5 py-2.5 rounded-xl text-[12px] font-bold text-stone-600 hover:text-white hover:bg-[#007A55] transition-all duration-300 uppercase tracking-widest cursor-pointer whitespace-nowrap"
+                        className="relative px-5 py-2.5 rounded-md text-[13px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50"
                       >
                         {link.name}
                       </Link>
@@ -328,16 +188,16 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           {/* Right Side Actions */}
           <div className="flex items-center gap-3 z-20 shrink-0">
             
-            {/* Search Placeholder Button (Triggers Modal - ⌘K removed) */}
+            {/* Search Placeholder Button (Recessed Well) */}
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className="hidden sm:flex items-center gap-3 px-5 py-3 bg-stone-50 border border-stone-200 text-stone-500 rounded-xl hover:bg-stone-100 hover:border-stone-300 transition-all group"
+              className="hidden sm:flex items-center gap-3 px-5 py-2.5 ind-recessed group cursor-text"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:text-[#007A55] transition-colors">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-400 group-hover:text-[#007A55] transition-colors">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-              <span className="text-xs font-bold tracking-wide w-36 text-start opacity-70 group-hover:opacity-100 transition-opacity">
+              <span className="text-xs font-bold tracking-wide w-36 text-start text-stone-400 font-mono uppercase">
                 {d.searchPlaceholder}
               </span>
             </button>
@@ -345,7 +205,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             {/* Mobile Search Button */}
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className="sm:hidden p-3 bg-stone-50 text-stone-600 rounded-xl hover:bg-stone-100 hover:text-[#007A55] transition-colors"
+              className="sm:hidden p-3 bg-white shadow-[var(--shadow-ind-card)] text-stone-600 rounded-md active:shadow-[var(--shadow-ind-pressed)] active:translate-y-[2px] transition-all"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -353,11 +213,11 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
               </svg>
             </button>
 
-            {/* Language Switcher (Displays AR/EN) */}
+            {/* Language Switcher (Physical Toggle) */}
             <div className="relative hidden sm:block">
               <button 
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className={`w-16 h-[46px] transition-colors rounded-xl flex items-center justify-center gap-1.5 font-bold text-[12px] tracking-wider ${isLangOpen ? 'bg-[#004D36] text-white' : 'bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-[#004D36]'}`}
+                className={`w-16 h-[42px] transition-all rounded-md flex items-center justify-center gap-1.5 font-bold text-[12px] tracking-wider border ${isLangOpen ? 'shadow-[var(--shadow-ind-pressed)] bg-stone-100 text-[#007A55] border-transparent translate-y-[1px]' : 'bg-white text-stone-600 shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] border-white/40 hover:-translate-y-[1px]'}`}
               >
                 {lang.toUpperCase()}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={isLangOpen ? "rotate-180 transition-transform" : "transition-transform"}>
@@ -368,20 +228,20 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
               <AnimatePresence>
                 {isLangOpen && (
                   <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.2, ease: customEase }}
-                    className={`absolute top-full mt-3 ${isRtl ? 'left-0' : 'right-0'} w-36 bg-white rounded-xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.15)] border-2 border-stone-100 p-2 overflow-hidden`}
+                    className={`absolute top-full mt-3 ${isRtl ? 'left-0' : 'right-0'} w-36 bg-[#FAF9F6] rounded-lg shadow-[var(--shadow-ind-floating)] border border-stone-200 p-2 overflow-hidden z-50`}
                   >
                     {languages.map((l) => (
                       <button
                         key={l.code}
                         onClick={() => { setLang(l.code); setIsLangOpen(false); }}
-                        className={`w-full px-4 py-3 text-sm flex items-center justify-between rounded-lg transition-all duration-200 ${lang === l.code ? 'bg-[#007A55] text-white font-black' : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900 font-bold'}`}
+                        className={`w-full px-4 py-2.5 text-sm flex items-center justify-between rounded transition-all duration-150 active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] ${lang === l.code ? 'bg-[#007A55] text-white shadow-[var(--shadow-ind-floating)] font-black' : 'text-stone-600 bg-white shadow-[var(--shadow-ind-card)] hover:-translate-y-[1px] hover:shadow-[var(--shadow-ind-floating)] font-bold mb-2 last:mb-0'}`}
                       >
                         {l.name}
-                        {lang === l.code && <span className="w-2 h-2 bg-white rounded-full"></span>}
+                        {lang === l.code && <div className="w-2 h-2 bg-white rounded-full shadow-[var(--shadow-ind-glow-primary)]"></div>}
                       </button>
                     ))}
                   </motion.div>
@@ -392,7 +252,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             {/* Mobile Hamburger Button */}
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-3 bg-stone-50 text-stone-800 rounded-xl hover:bg-stone-100 transition-colors"
+              className="lg:hidden p-3 bg-white shadow-[var(--shadow-ind-card)] text-stone-600 rounded-md active:shadow-[var(--shadow-ind-pressed)] active:translate-y-[2px] transition-all"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="4" y1="12" x2="20" y2="12"></line>
@@ -403,7 +263,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           </div>
         </div>
 
-        {/* Desktop Mega Menu */}
+        {/* Desktop Mega Menu (Bolted Module) */}
         <AnimatePresence>
           {isMegaMenuOpen && (
             <motion.div 
@@ -411,14 +271,19 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3, ease: customEase }}
-              className="absolute top-full left-0 w-full bg-white border-b-4 border-[#007A55] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)]"
+              className="absolute top-full left-0 w-full bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-floating)] z-30"
             >
-              <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 p-12">
-                
+              <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 p-12 relative">
+                {/* Structural Screws */}
+                <div className="absolute top-6 left-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
+                <div className="absolute top-6 right-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
+                <div className="absolute bottom-6 left-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
+                <div className="absolute bottom-6 right-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
+
                 {/* Links */}
                 <div>
-                  <div className="flex items-center gap-3 mb-6 border-b-2 border-stone-100 pb-4">
-                    <div className="w-8 h-8 rounded-lg bg-[#EEB422]/20 flex items-center justify-center text-[#EEB422]">
+                  <div className="flex items-center gap-3 mb-6 border-b border-stone-300 pb-4 shadow-[0_1px_0_rgba(255,255,255,1)]">
+                    <div className="w-8 h-8 rounded-full bg-[#CA8A04] shadow-[var(--shadow-ind-floating)] flex items-center justify-center text-white">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                     </div>
                     <h4 className="text-[14px] font-black text-stone-800 uppercase tracking-widest">
@@ -429,13 +294,13 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                     {d.mega.links.items.map((item, i) => (
                       <li key={i}>
                         {item.href.startsWith("/#") || item.href.startsWith("http") ? (
-                          <a href={item.href} className="flex items-center gap-3 text-stone-500 hover:text-[#007A55] hover:bg-[#007A55]/5 p-2 rounded-lg text-[14px] font-bold transition-all group">
-                            <span className="w-1.5 h-1.5 rounded-sm bg-stone-300 group-hover:bg-[#007A55] transition-colors"></span>
+                          <a href={item.href} className="flex items-center gap-3 text-stone-600 hover:text-[#007A55] bg-white shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] hover:-translate-y-[1px] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] p-3 rounded-md text-[13px] font-bold transition-all group">
+                            <span className="w-2 h-2 rounded-full bg-stone-300 group-hover:bg-[#007A55] shadow-inner transition-colors"></span>
                             {item.text}
                           </a>
                         ) : (
-                          <Link to={item.href} className="flex items-center gap-3 text-stone-500 hover:text-[#007A55] hover:bg-[#007A55]/5 p-2 rounded-lg text-[14px] font-bold transition-all group">
-                            <span className="w-1.5 h-1.5 rounded-sm bg-stone-300 group-hover:bg-[#007A55] transition-colors"></span>
+                          <Link to={item.href} className="flex items-center gap-3 text-stone-600 hover:text-[#007A55] bg-white shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] hover:-translate-y-[1px] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] p-3 rounded-md text-[13px] font-bold transition-all group">
+                            <span className="w-2 h-2 rounded-full bg-stone-300 group-hover:bg-[#007A55] shadow-inner transition-colors"></span>
                             {item.text}
                           </Link>
                         )}
@@ -446,21 +311,21 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
 
                 {/* FAQ */}
                 <div>
-                  <div className="flex items-center gap-3 mb-6 border-b-2 border-stone-100 pb-4">
-                    <div className="w-8 h-8 rounded-lg bg-[#007A55]/10 flex items-center justify-center text-[#007A55]">
+                  <div className="flex items-center gap-3 mb-6 border-b border-stone-300 pb-4 shadow-[0_1px_0_rgba(255,255,255,1)]">
+                    <div className="w-8 h-8 rounded-full bg-[#007A55] shadow-[var(--shadow-ind-floating)] flex items-center justify-center text-white">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                     </div>
                     <h4 className="text-[14px] font-black text-stone-800 uppercase tracking-widest">
                       {d.mega.faq.title}
                     </h4>
                   </div>
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     {d.mega.faq.items.map((item, i) => (
-                      <div key={i} className="group cursor-default bg-stone-50 p-4 rounded-xl hover:bg-[#007A55] hover:shadow-lg transition-all duration-300">
-                        <h5 className="text-[13px] font-black text-stone-800 group-hover:text-white transition-colors mb-2">
+                      <div key={i} className="group cursor-default bg-white p-4 rounded-md shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] hover:-translate-y-[1px] transition-all duration-300 border border-stone-100">
+                        <h5 className="text-[13px] font-black text-[#007A55] mb-2 font-mono">
                           {item.q}
                         </h5>
-                        <p className="text-[12px] font-medium text-stone-500 group-hover:text-white/80 leading-relaxed transition-colors">
+                        <p className="text-[12px] font-medium text-stone-600 leading-relaxed">
                           {item.a}
                         </p>
                       </div>
@@ -468,36 +333,41 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                   </div>
                 </div>
 
-                {/* Contact Card */}
+                {/* Contact Card (Panel Style with Background Image) */}
              <div 
-                className="md:col-span-2 rounded-2xl p-10 flex flex-col justify-center relative overflow-hidden group bg-cover bg-center"
-                style={{
-                  backgroundImage: "url('/header-nav.png')",
-                }}
+                className="md:col-span-2 rounded-xl p-8 flex flex-col justify-center relative overflow-hidden group border border-stone-300 shadow-[var(--shadow-ind-floating)]"
               >
-                {/* Dark overlay */}
-                <div className="absolute inset-0 bg-[#004D36]/80"></div>
-
-                {/* Decorative circles */}
-                <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-[#EEB422] rounded-full group-hover:scale-110 transition-transform duration-500 z-0"></div>
-                <div className="absolute right-4 bottom-4 w-24 h-24 bg-white rounded-full mix-blend-overlay opacity-20 z-0"></div>
-
-                <div className="relative z-10">
-                  <h4 className="font-black text-white text-3xl mb-4">
-                    {d.mega.contact.title}
-                  </h4>
-
-                  <p className="text-white/80 text-base font-medium leading-relaxed max-w-md">
-                    {d.mega.contact.desc}
-                  </p>
+                {/* Background Image & Overlay */}
+                <div className="absolute inset-0 z-0">
+                  <img src="/header-nav.png" alt="Contact Background" className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700" />
+                  <div className="absolute inset-0 bg-[#004D36]/80 mix-blend-multiply"></div>
                 </div>
 
-                <a 
-                  href={`mailto:${d.mega.contact.email}`}
-                  className="relative z-10 mt-8 self-start bg-white text-[#004D36] px-8 py-4 rounded-xl font-black text-sm hover:-translate-y-1 hover:shadow-xl transition-all duration-300 flex items-center gap-3"
-                >
-                  {d.mega.contact.btn}
-                </a>
+                {/* Scanline overlay for screen effect */}
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none z-10"></div>
+                
+                {/* Tech noise */}
+                <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay z-0" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
+
+                <div className="relative z-20 flex items-start gap-4">
+                  <div className="w-3 h-3 mt-2 rounded-full bg-[#CA8A04] shadow-[var(--shadow-ind-glow-gold)] animate-pulse shrink-0"></div>
+                  <div>
+                    <h4 className="font-mono font-black text-white text-2xl mb-3 uppercase tracking-widest drop-shadow-md">
+                      {d.mega.contact.title}
+                    </h4>
+
+                    <p className="text-white/80 text-sm font-medium leading-relaxed max-w-md mb-8 drop-shadow-sm">
+                      {d.mega.contact.desc}
+                    </p>
+                    
+                    <a 
+                      href={`mailto:${d.mega.contact.email}`}
+                      className="inline-flex btn-primary !bg-white !text-[#007A55] hover:!bg-[#CA8A04] hover:!text-white border-none shadow-[var(--shadow-ind-floating)]"
+                    >
+                      {d.mega.contact.btn}
+                    </a>
+                  </div>
+                </div>
               </div>
 
               </div>
@@ -506,7 +376,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
         </AnimatePresence>
       </nav>
 
-      {/* --- STYLISH SEARCH OVERLAY (Command Palette) --- */}
+      {/* --- SEARCH OVERLAY (Recessed Terminal Style) --- */}
       <AnimatePresence>
         {isSearchOpen && (
           <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] px-4" dir={isRtl ? "rtl" : "ltr"}>
@@ -516,7 +386,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsSearchOpen(false)}
-              className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm"
             ></motion.div>
 
             {/* Modal Body */}
@@ -525,10 +395,10 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.2, ease: customEase }}
-              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] border border-stone-200 overflow-hidden flex flex-col"
+              className="relative w-full max-w-2xl bg-[#FAF9F6] rounded-xl shadow-[var(--shadow-ind-floating)] border border-stone-300 overflow-hidden flex flex-col"
             >
-              {/* Input Area */}
-              <div className="flex items-center px-6 py-5 border-b border-stone-100 bg-white">
+              {/* Input Area (Deep Recess) */}
+              <div className="flex items-center px-6 py-5 bg-stone-100 ind-recessed rounded-none border-b border-stone-300 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.05)]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#007A55]">
                   <circle cx="11" cy="11" r="8"></circle>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -539,27 +409,28 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                   placeholder={d.searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 px-5 text-xl font-bold bg-transparent outline-none text-stone-800 placeholder-stone-300"
+                  className="flex-1 px-5 text-lg font-mono font-bold bg-transparent outline-none text-stone-800 placeholder-stone-400 focus-visible:shadow-none"
                 />
                 <button 
                   onClick={() => setIsSearchOpen(false)}
-                  className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-500 rounded-lg text-xs font-black tracking-widest transition-colors uppercase"
+                  className="px-4 py-2 bg-white shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] hover:-translate-y-[1px] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] text-stone-600 rounded-md text-xs font-black tracking-widest transition-all uppercase border border-stone-200"
                 >
                   ESC
                 </button>
               </div>
 
               {/* Suggestions / Results Area */}
-              <div className="p-6 bg-stone-50/50">
-                <h5 className="text-[11px] font-black text-stone-400 uppercase tracking-widest mb-4">
+              <div className="p-8">
+                <h5 className="text-[11px] font-mono font-black text-stone-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-stone-400"></span>
                   {d.searchModalTitle}
                 </h5>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3">
                   {d.searchSuggestions.map((suggestion, idx) => (
                     <button 
                       key={idx}
                       onClick={() => setSearchQuery(suggestion)}
-                      className="px-4 py-2 bg-white border border-stone-200 rounded-xl text-sm font-bold text-stone-600 hover:text-[#007A55] hover:border-[#007A55] hover:shadow-md transition-all"
+                      className="px-4 py-2 bg-white shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] hover:-translate-y-[1px] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] border border-stone-200 rounded-md text-sm font-bold text-stone-600 hover:text-[#007A55] transition-all"
                     >
                       {suggestion}
                     </button>
@@ -571,7 +442,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
         )}
       </AnimatePresence>
 
-      {/* --- MOBILE FULLSCREEN MENU (Solid Design) --- */}
+      {/* --- MOBILE FULLSCREEN MENU (Panel App) --- */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
@@ -579,17 +450,17 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             animate={{ opacity: 1, x: "0%" }}
             exit={{ opacity: 0, x: isRtl ? "-100%" : "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-100 bg-stone-50 lg:hidden flex flex-col"
+            className="fixed inset-0 z-[100] bg-[#FAF9F6] lg:hidden flex flex-col"
             dir={isRtl ? "rtl" : "ltr"}
           >
             {/* Mobile Header */}
-            <div className="h-24 px-6 flex items-center justify-between bg-white border-b-2 border-stone-200">
+            <div className="h-20 px-6 flex items-center justify-between bg-[#FAF9F6] border-b border-stone-300 shadow-[var(--shadow-ind-card)] z-10">
               <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
                 <img src="/logo.svg" alt="Logo" className="h-12 w-auto object-contain" />
               </Link>
               <button 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-3 bg-stone-100 text-stone-800 rounded-xl hover:bg-stone-200 transition-colors"
+                className="p-3 bg-white shadow-[var(--shadow-ind-card)] active:shadow-[var(--shadow-ind-pressed)] active:translate-y-[2px] border border-stone-200 text-stone-800 rounded-md transition-all"
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -599,7 +470,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             </div>
 
             {/* Mobile Links */}
-            <div className="flex-1 overflow-y-auto px-6 py-10">
+            <div className="flex-1 overflow-y-auto px-6 py-8">
               <ul className="space-y-4">
                 {d.links.map((link, i) => (
                   <motion.li 
@@ -612,41 +483,45 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                       <a 
                         href={link.path}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="bg-white p-6 rounded-2xl text-xl font-black text-stone-800 hover:text-white hover:bg-[#007A55] transition-colors block border border-stone-100 shadow-sm flex justify-between items-center"
+                        className="bg-white p-5 rounded-lg text-lg font-black text-stone-700 shadow-[var(--shadow-ind-card)] active:shadow-[var(--shadow-ind-pressed)] active:translate-y-[2px] transition-all border border-stone-200 flex justify-between items-center group"
                       >
                         {link.name}
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={isRtl ? "rotate-180" : ""}>
-                          <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
+                        <div className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center ind-recessed group-hover:bg-[#007A55] group-hover:text-white transition-colors">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={isRtl ? "rotate-180" : ""}>
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </div>
                       </a>
                     ) : (
                       <Link 
                         to={link.path}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="bg-white p-6 rounded-2xl text-xl font-black text-stone-800 hover:text-white hover:bg-[#007A55] transition-colors block border border-stone-100 shadow-sm flex justify-between items-center"
+                        className="bg-white p-5 rounded-lg text-lg font-black text-stone-700 shadow-[var(--shadow-ind-card)] active:shadow-[var(--shadow-ind-pressed)] active:translate-y-[2px] transition-all border border-stone-200 flex justify-between items-center group"
                       >
                         {link.name}
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={isRtl ? "rotate-180" : ""}>
-                          <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
+                        <div className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center ind-recessed group-hover:bg-[#007A55] group-hover:text-white transition-colors">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={isRtl ? "rotate-180" : ""}>
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </div>
                       </Link>
                     )}
                   </motion.li>
                 ))}
               </ul>
 
-              {/* Mobile Language Switcher */}
+              {/* Mobile Language Switcher (Physical Switch) */}
               <motion.div 
                 initial={{ opacity: 0 }} 
                 animate={{ opacity: 1 }} 
                 transition={{ delay: 0.4 }}
-                className="mt-10 bg-white p-2 rounded-2xl border border-stone-200 flex"
+                className="mt-8 bg-stone-100 p-2 rounded-lg border border-stone-300 ind-recessed flex"
               >
                 {languages.map((l) => (
                   <button
                     key={l.code}
                     onClick={() => { setLang(l.code); setIsMobileMenuOpen(false); }}
-                    className={`flex-1 py-4 rounded-xl text-sm font-black transition-all ${lang === l.code ? 'bg-[#004D36] text-white shadow-md' : 'text-stone-500 hover:bg-stone-50'}`}
+                    className={`flex-1 py-3.5 rounded-md text-sm font-black transition-all ${lang === l.code ? 'bg-white text-[#007A55] shadow-[var(--shadow-ind-card)]' : 'text-stone-500 hover:text-stone-700'}`}
                   >
                     {l.name}
                   </button>

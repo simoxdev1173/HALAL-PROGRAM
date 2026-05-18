@@ -12,6 +12,12 @@
   --shadow-premium-sm: var(--shadow-premium-sm);
   --shadow-premium-md: var(--shadow-premium-md);
   --shadow-premium-lg: var(--shadow-premium-lg);
+  
+  --shadow-ind-card: var(--shadow-ind-card);
+  --shadow-ind-floating: var(--shadow-ind-floating);
+  --shadow-ind-pressed: var(--shadow-ind-pressed);
+  --shadow-ind-recessed: var(--shadow-ind-recessed);
+  --shadow-ind-sharp: var(--shadow-ind-sharp);
 }
 
 :root {
@@ -42,8 +48,16 @@
   --shadow-gold: 0 10px 20px -5px rgba(202, 138, 4, 0.2);
   --shadow-primary: 0 10px 20px -5px rgba(0, 122, 85, 0.2);
 
+  /* Industrial Skeuomorphism Shadows - Refined to remove white aura */
+  --shadow-ind-card: 6px 6px 12px rgba(0,0,0,0.05);
+  --shadow-ind-floating: 10px 10px 20px rgba(0,0,0,0.06);
+  --shadow-ind-pressed: inset 4px 4px 8px rgba(0,0,0,0.05);
+  --shadow-ind-recessed: inset 3px 3px 6px rgba(0,0,0,0.06);
+  --shadow-ind-sharp: 4px 4px 8px rgba(0,0,0,0.08);
+
   /* Transitions */
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-mechanical: cubic-bezier(0.175, 0.885, 0.32, 1.275);
   --duration-normal: 300ms;
 }
 
@@ -65,23 +79,50 @@
 }
 
 @utility btn-base {
-  @apply px-8 py-4 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply px-8 py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-mechanical);
 }
 
 @utility btn-primary {
-  @apply btn-base bg-[var(--brand-primary)] text-white shadow-[var(--shadow-primary)] hover:bg-[var(--brand-primary-dark)] hover:shadow-xl;
+  @apply btn-base bg-[var(--brand-primary)] text-white shadow-[var(--shadow-ind-floating)] border border-black/5;
+  &:hover {
+    @apply brightness-110 -translate-y-[1px];
+  }
+  &:active {
+    @apply translate-y-[2px] shadow-[var(--shadow-ind-pressed)];
+  }
 }
 
 @utility btn-gold {
-  @apply btn-base border-2 border-[var(--brand-gold)] text-[var(--brand-gold)] hover:bg-[var(--brand-gold)] hover:text-white hover:shadow-[var(--shadow-gold)];
+  @apply btn-base bg-white text-[var(--brand-gold)] border border-[var(--brand-gold)] shadow-[var(--shadow-ind-floating)];
+  &:hover {
+    @apply bg-[var(--brand-gold)] text-white -translate-y-[1px];
+  }
+  &:active {
+    @apply translate-y-[2px] shadow-[var(--shadow-ind-pressed)];
+  }
+}
+
+@utility ind-card {
+  @apply bg-white rounded-2xl shadow-[var(--shadow-ind-card)] transition-all;
+  transition-duration: 300ms;
+  transition-timing-function: var(--ease-mechanical);
+  &:hover {
+    @apply -translate-y-1 shadow-[var(--shadow-ind-floating)];
+  }
+}
+
+@utility ind-recessed {
+  @apply bg-stone-50 rounded-lg shadow-[var(--shadow-ind-recessed)] border-none;
 }
 
 @utility glass-card {
-  @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-premium-lg;
+  @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-[var(--shadow-ind-floating)];
 }
 
 @utility premium-card {
-  @apply bg-white rounded-2xl border border-[var(--neutral-100)] shadow-premium-md transition-all duration-500 hover:shadow-premium-lg hover:-translate-y-1;
+  @apply ind-card;
 }
 
 /* Custom Scrollbar */
