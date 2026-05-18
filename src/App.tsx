@@ -59,7 +59,6 @@ const Home = () => (
 
 function App() {
   const [lang, setLang] = useState<"ar" | "en">("ar");
-  const [isIntroComplete, setIsIntroComplete] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
@@ -71,64 +70,60 @@ function App() {
     <Router>
       <ScrollToHash />
       <div className="bg-slate-950"> {/* Base background to prevent white flashes */}
-        <IntroAnimation onComplete={() => setIsIntroComplete(true)} />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className={`min-h-screen bg-white ${lang === 'ar' ? 'font-arabic' : 'font-sans'}`}
+        >
+          <Navbar lang={lang} setLang={setLang} />
+          
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about-us" element={<AboutProgram />} />
+            <Route path="/joined-countries" element={<JoinedCountries lang={lang} />} />
+            <Route path="/certificate-verification" element={<CertificateVerification />} />
+            <Route path="/join-program" element={<JoinProgram />} />
+          </Routes>
 
-        {isIntroComplete && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            className={`min-h-screen bg-white ${lang === 'ar' ? 'font-arabic' : 'font-sans'}`}
-          >
-            <Navbar lang={lang} setLang={setLang} />
+          <Footer lang={lang} onChatOpen={() => setIsChatOpen(true)} />
+
+          <ChatbotWidget isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
+
+          <style>{`
+            @import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700&display=swap');
             
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about-us" element={<AboutProgram />} />
-              <Route path="/joined-countries" element={<JoinedCountries lang={lang} />} />
-              <Route path="/certificate-verification" element={<CertificateVerification />} />
-              <Route path="/join-program" element={<JoinProgram />} />
-            </Routes>
+            :root {
+              font-family: 'Readex Pro', sans-serif;
+            }
 
-            <Footer lang={lang} onChatOpen={() => setIsChatOpen(true)} />
-
-            <ChatbotWidget isOpen={isChatOpen} setIsOpen={setIsChatOpen} />
-
-            <style>{`
-              @import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700&display=swap');
-              
-              :root {
-                font-family: 'Readex Pro', sans-serif;
+            .font-arabic, .font-sans { 
+              font-family: 'Readex Pro', sans-serif; 
+            }
+            
+            h1, h2, h3, h4, h5, h6 {
+              font-family: 'Readex Pro', sans-serif;
+              font-weight: 700;
+            }
+            
+            /* Professional transitions */
+            a, button, [role="button"] {
+              transition: all 0.2s ease-out;
+            }
+            
+            @media (prefers-reduced-motion: reduce) {
+              *, ::before, ::after {
+                animation-delay: -1ms !important;
+                animation-duration: 1ms !important;
+                animation-iteration-count: 1 !important;
+                background-attachment: initial !important;
+                scroll-behavior: auto !important;
+                transition-duration: 0s !important;
+                transition-delay: 0s !important;
               }
-
-              .font-arabic, .font-sans { 
-                font-family: 'Readex Pro', sans-serif; 
-              }
-              
-              h1, h2, h3, h4, h5, h6 {
-                font-family: 'Readex Pro', sans-serif;
-                font-weight: 700;
-              }
-              
-              /* Professional transitions */
-              a, button, [role="button"] {
-                transition: all 0.2s ease-out;
-              }
-              
-              @media (prefers-reduced-motion: reduce) {
-                *, ::before, ::after {
-                  animation-delay: -1ms !important;
-                  animation-duration: 1ms !important;
-                  animation-iteration-count: 1 !important;
-                  background-attachment: initial !important;
-                  scroll-behavior: auto !important;
-                  transition-duration: 0s !important;
-                  transition-delay: 0s !important;
-                }
-              }
-            `}</style>
-          </motion.div>
-        )}
+            }
+          `}</style>
+        </motion.div>
       </div>
     </Router>
   );

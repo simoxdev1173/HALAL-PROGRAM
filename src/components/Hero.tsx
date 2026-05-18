@@ -139,7 +139,7 @@ export function ActionCards() {
 export const Hero = () => {
   return (
     <div className="w-full bg-slate-50" dir="rtl">
-      <section className="relative w-full h-[750px] flex items-center overflow-hidden">
+      <section className="relative w-full h-[600px] lg:h-[650px] xl:h-[750px] flex items-center overflow-hidden">
         {/* Background Image & Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
@@ -162,39 +162,39 @@ export const Hero = () => {
           >
          
             
-            <h1 className="text-5xl md:text-7xl font-extrabold leading-tight mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-tight mb-6">
               البرنامج العربي <span className="text-[#007A55]">للحلال</span>
             </h1>
             
             {/* UI EXPERT NOTE: Gold accent border instead of green to break up the color blocking */}
-            <p className="text-lg md:text-xl text-slate-200 leading-relaxed font-light max-w-2xl border-r-4 border-[#CA8A04] pr-5 bg-gradient-to-l from-white/5 to-transparent py-2">
+            <p className="text-base md:text-lg xl:text-xl text-slate-200 leading-relaxed font-light max-w-2xl border-r-4 border-[#CA8A04] pr-5 bg-gradient-to-l from-white/5 to-transparent py-2">
               منظومة اعتراف متعدد الأطراف تربط <strong className="font-bold text-white">جهات التعيين الحكومية العربية</strong> بمعايير <strong className="font-bold text-white">دولية معتمدة</strong> — لضمان مصداقية شهادات الحلال وحماية المستهلك المسلم في كل الأسواق، من الدول العربية إلى كل دول العالم.
             </p>
             
             {/* CTA Buttons (Keeping Industrial Style) */}
-            <div className="mt-12 flex flex-col md:flex-row items-start gap-6">
+            <div className="mt-8 xl:mt-12 flex flex-col md:flex-row items-start gap-4 xl:gap-6">
               
               {/* Primary Button: Governmental Entities */}
               <div className="flex flex-col gap-2 w-full md:w-auto">
-                <span className="text-[#CA8A04] text-sm font-semibold tracking-wide px-1 flex items-center gap-2">
+                <span className="text-[#CA8A04] text-xs xl:text-sm font-semibold tracking-wide px-1 flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#CA8A04] "></span>
                   خاص بالجهات الحكومية المخولة وهيئات منح الشهادات
                 </span>
                 
-                <Link to="/join-program" className="btn-primary w-full md:w-auto h-[60px] text-base group">
+                <Link to="/join-program" className="btn-primary w-full md:w-auto h-[54px] xl:h-[60px] text-sm xl:text-base group">
                   انضم كجهة تعيين حكومية
                   <div className="w-6 h-6 rounded-sm bg-black/20 flex items-center justify-center">
-                    <ArrowLeft size={18} className="group-hover:text-[#CA8A04] transition-colors" />
+                    <ArrowLeft size={16} className="group-hover:text-[#CA8A04] transition-colors" />
                   </div>
                 </Link>
               </div>
 
               {/* Secondary Button: Suppliers & Business Sector */}
-              <div className="flex flex-col gap-2 w-full md:w-auto md:mt-[26px]">
-                <Link to="/certificate-verification" className="btn-gold w-full md:w-auto h-[60px] text-base group !bg-slate-900/40  !border-2 !border-[#CA8A04] !text-white ">
+              <div className="flex flex-col gap-2 w-full md:w-auto md:mt-[22px] xl:mt-[26px]">
+                <Link to="/certificate-verification" className="btn-gold w-full md:w-auto h-[54px] xl:h-[60px] text-sm xl:text-base group !bg-slate-900/40  !border-2 !border-[#CA8A04] !text-white ">
                   طلب ترخيص العلامة للموردين
                   <div className="w-6 h-6 rounded-sm bg-black/30 flex items-center justify-center shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]">
-                    <ArrowLeft size={18} className="text-[#CA8A04] group-hover:-translate-x-1 transition-transform" />
+                    <ArrowLeft size={16} className="text-[#CA8A04] group-hover:-translate-x-1 transition-transform" />
                   </div>
                 </Link>
               </div>
@@ -205,19 +205,19 @@ export const Hero = () => {
       </section>
 
       {/* Intro Section - Industrial Styling (User Liked This) */}
-      <section className="relative z-10 py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]">
+      <section className="relative z-10 py-20 lg:py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]">
         {/* Subtle grid pattern background */}
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16 items-center">
             
             {/* Image (Visual Left in LTR / Right in RTL) */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="relative p-4 bg-white rounded-2xl shadow-[var(--shadow-ind-floating)] border border-stone-200"
+              className="relative p-3 lg:p-4 bg-white rounded-2xl shadow-[var(--shadow-ind-floating)] border border-stone-200"
             >
               {/* Screws */}
               <div className="absolute top-3 left-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
@@ -234,7 +234,7 @@ export const Hero = () => {
             <div className="flex flex-col items-start text-right">
             
 
-              <h1 className="text-3xl md:text-4xl font-black mb-8 tracking-tight text-stone-800 leading-tight">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-black mb-6 xl:mb-8 tracking-tight text-stone-800 leading-tight">
                 ماذا يقدم{" "}
                 <span className="text-[#007A55] drop-shadow-[0_1px_1px_rgba(255,255,255,1)]">
                   البرنامج العربي للحلال
@@ -242,11 +242,11 @@ export const Hero = () => {
                 لك؟
               </h1>
 
-              <div className=" p-8 rounded-xl shadow-[var(--shadow-ind-card)] border border-stone-200 relative">
+              <div className="p-6 xl:p-8 rounded-xl shadow-[var(--shadow-ind-card)] border border-stone-200 relative">
                 {/* Structural highlight */}
                 
                 
-                <p className="text-lg leading-relaxed text-stone-600 font-medium">
+                <p className="text-base lg:text-lg leading-relaxed text-stone-600 font-medium">
                   يعمل البرنامج على ضمان{" "}
                   <strong className="text-stone-900 font-black">حماية المستهلك المسلم</strong>{" "}
                   في الدول العربية وفي جميع دول العالم، ليس فقط من{" "}

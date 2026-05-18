@@ -15,105 +15,79 @@ const AccreditationWorkflow = () => {
       id: "1",
       title: "تقديم طلب الانضمام",
       subtitle: "المرحلة الإجرائية",
-      description: "تقوم <strong class='text-slate-900 font-bold'>جهات التعيين الحكومية</strong> بتقديم طلب رسمي للمنظمة مشفوعاً بكافة الوثائق القانونية والفنية.",
+      description: "تقوم <strong class='text-stone-900 font-black'>جهات التعيين الحكومية</strong> بتقديم طلب رسمي للمنظمة مشفوعاً بكافة الوثائق القانونية والفنية.",
       icon: FileText,
-      // Gradient background and image setup for the top visual
-      bgGradient: "from-emerald-50 to-teal-100",
-      image: "/workflow/w-1.png"
+      image: "/workflow/w-1.png",
+      delay: 0.1
     },
     {
       id: "2",
       title: "التقييم والقرار",
       subtitle: "المراجعة الفنية",
-      description: "يخضع الطلب لتدقيق دقيق وفق مواصفات <strong class='text-slate-900 font-bold'>ISO/IEC 17000</strong>، ويتم الرد خلال <strong class='text-[#007A55] font-bold'>30 يوماً</strong> كحد أقصى.",
+      description: "يخضع الطلب لتدقيق دقيق وفق مواصفات <strong class='text-stone-900 font-black'>ISO/IEC 17000</strong>، ويتم الرد خلال <strong class='text-[#007A55] font-black'>30 يوماً</strong> كحد أقصى.",
       icon: Search,
-      bgGradient: "from-[#CA8A04]/10 to-amber-100/50",
-      image: "/workflow/w-2.png"
+      image: "/workflow/w-2.png",
+      delay: 0.2
     },
     {
       id: "3",
       title: "وثيقة التعاون الفني",
       subtitle: "الاعتماد الرسمي",
-      description: "عند القبول، يتم توقيع الاتفاقية لمنح حق استخدام <strong class='text-slate-900 font-bold'>علامة الحلال العربية</strong> وتفويض الجهات التابعة.",
+      description: "عند القبول، يتم توقيع الاتفاقية لمنح حق استخدام <strong class='text-stone-900 font-black'>علامة الحلال العربية</strong> وتفويض الجهات التابعة.",
       icon: Handshake,
-      bgGradient: "from-stone-100 to-slate-200",
-      image: "/workflow/w-3.png"
+      image: "/workflow/w-3.png",
+      delay: 0.3
     }
   ];
 
-  // Animation Variants for staggering children
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.4, // Slower, more cinematic stagger
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 40, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: { duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] as [number, number, number, number] }    }
-  };
-
   return (
-    // Tightened vertical padding significantly (py-12 to py-16)
     <section className="relative py-16 lg:py-24 bg-gradient-to-br from-[#fdfcfb] via-[#faf9f6] to-stone-50 overflow-hidden" dir="rtl">
       
-      {/* Background Ambient Glows */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#CA8A04] opacity-[0.03] blur-[120px] rounded-full pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#007A55] opacity-[0.03] blur-[120px] rounded-full pointer-events-none"></div>
+      {/* Industrial noise overlay */}
+      <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
+
+      {/* Blueprint Grid Overlay */}
+      <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         
         {/* --- 1. HEADER SECTION --- */}
-        <div className="flex flex-col items-center text-center mb-16 md:mb-24">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-3xl md:text-5xl font-light text-slate-900 tracking-tight leading-tight mb-6"
-          >
-            كيفية الانضمام <strong className="text-[#007A55] font-bold relative inline-block">
-            إلى البرنامج العربي للحلال؟
-              <span className="absolute -bottom-2 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#CA8A04]/60 to-transparent"></span>
-            </strong>
-          </motion.h2>
+        <div className="flex flex-col items-center text-center mb-16 lg:mb-20 relative">
           
-          <motion.p 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-base md:text-lg text-slate-600 text-nowrap max-w-3xl mb-8 leading-relaxed"
-          >
-            نظام عالمي يضمن <strong className="text-slate-900 font-bold">المصداقية الشرعية</strong> ويسهل 
-            <strong className="text-slate-900  font-bold"> التبادل التجاري</strong> للمنتجات والخدمات عبر آلية اعتماد شفافة.
-          </motion.p>
+          <div className="inline-flex items-center justify-center gap-3 mb-6">
+               <div className="w-12 h-1 bg-stone-300 rounded-full shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"></div>
+               <span className="px-4 py-1.5 text-[10px] lg:text-xs font-mono font-bold uppercase tracking-widest text-[#007A55] rounded bg-white shadow-[var(--shadow-ind-sharp)] border border-stone-200">الإجراءات</span>
+               <div className="w-12 h-1 bg-stone-300 rounded-full shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"></div>
+          </div>
+
+          <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black text-stone-800 tracking-tight leading-tight mb-6 drop-shadow-[0_1px_1px_#ffffff]">
+            كيفية الانضمام <span className="text-[#007A55]">للبرنامج؟</span>
+          </h2>
+          
+          <p className="text-sm md:text-base lg:text-lg text-stone-600 font-medium max-w-3xl mb-10 leading-relaxed">
+            نظام عالمي يضمن <strong className="text-stone-900 font-black">المصداقية الشرعية</strong> ويسهل 
+            <strong className="text-stone-900 font-black"> التبادل التجاري</strong> للمنتجات والخدمات عبر آلية اعتماد شفافة وموثوقة.
+          </p>
 
           <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="group flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl shadow-slate-900/10 hover:bg-[#007A55] hover:shadow-[#007A55]/20 transition-all text-sm md:text-base cursor-pointer"
+            whileHover={{ y: -1 }}
+            whileTap={{ y: 2 }}
+            className="btn-primary group h-[54px] xl:h-[60px] text-sm xl:text-base"
           >
             تحميل دليل وثائق البرنامج 
-            <Download size={20} className="group-hover:-translate-y-1 transition-transform" />
+            <div className="w-7 h-7 xl:w-8 xl:h-8 rounded-sm bg-black/10 flex items-center justify-center shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)]">
+              <Download size={16} className="group-hover:-translate-y-1 transition-transform" />
+            </div>
           </motion.button>
         </div>
 
         {/* --- 2. WORKFLOW TIMELINE SECTION --- */}
-        <div className="relative w-full mb-20 md:mb-32">
+        <div className="relative w-full mb-16 lg:mb-24">
           
-          {/* The Connecting Animated Line */}
-          {/* Adjusted 'top' positioning to perfectly center with the newly sized images (h-64 = 256px + gap-5 (20px) + half-badge (20px) = 296px) */}
-          <div className="hidden md:block absolute top-[296px] right-0 w-full h-[2px] bg-stone-200 rounded-full z-0">
-            <motion.div 
+          {/* Physical Connector Pipe */}
+          <div className="hidden md:block absolute top-[160px] xl:top-[180px] right-0 w-full h-3 rounded-full bg-stone-200 shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] z-0">
+             {/* Progress indicator inside pipe */}
+             <motion.div 
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
               viewport={{ once: true, margin: "-100px" }}
@@ -122,111 +96,118 @@ const AccreditationWorkflow = () => {
             />
           </div>
 
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16 relative z-10"
-          >
-            {steps.map((step) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 xl:gap-16 relative z-10">
+            {steps.map((step, index) => (
               <motion.div
                 key={step.id}
-                variants={itemVariants}
-                className="group relative flex flex-col gap-6 text-center md:text-right"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: step.delay, duration: 0.6, ease: [0.175, 0.885, 0.32, 1.275] }}
+                className="group relative flex flex-col text-center"
               >
-                {/* A. Top Image Block - Increased height to h-64 */}
-                <div className="relative h-64 w-full rounded-3xl overflow-hidden bg-white shadow-lg shadow-stone-200/50 group-hover:shadow-2xl group-hover:shadow-[#007A55]/15 transition-all duration-700 border border-stone-100">
-                  {/* Subtle Gradient Overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${step.bgGradient} opacity-40 mix-blend-multiply z-10 transition-opacity duration-700 group-hover:opacity-20`}></div>
-                  {/* Background Image */}
-                  <img 
-                    src={step.image} 
-                    alt={step.title}
-                    className="w-full h-full object-cover transform transition-transform duration-1000 ease-out group-hover:scale-110 opacity-95"
-                  />
-                  {/* Floating Icon inside Image */}
-                  <div className="absolute inset-0 flex items-center justify-center z-20">
-                     <div className="w-16 h-16 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl flex items-center justify-center transform transition-transform duration-700 group-hover:-translate-y-2 group-hover:rotate-6">
-                       <step.icon className="w-8 h-8 text-[#007A55]" strokeWidth={1.5} />
-                     </div>
+                {/* A. Top Image Block - Physical Module */}
+                <div className="relative h-[280px] lg:h-[320px] xl:h-[360px] w-full ind-card border border-stone-200/50 p-2 lg:p-3 mb-6">
+                  
+                  {/* Screws */}
+                  <div className="absolute top-2 left-2 w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
+                  <div className="absolute top-2 right-2 w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
+                  <div className="absolute bottom-2 left-2 w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
+                  <div className="absolute bottom-2 right-2 w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
+
+                  {/* Recessed Screen Area */}
+                  <div className="relative w-full h-full ind-recessed overflow-hidden rounded-xl group-hover:shadow-[inset_2px_2px_8px_rgba(0,0,0,0.1)] transition-all">
+                    {/* Scanline overlay */}
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.05)_50%)] bg-[length:100%_4px] z-10 pointer-events-none"></div>
+                    <img 
+                      src={step.image} 
+                      alt={step.title}
+                      className="w-full h-full object-cover transform transition-transform duration-1000 group-hover:scale-110 opacity-95"
+                    />
+                    
+                    {/* Floating Icon inside Screen */}
+                    <div className="absolute inset-0 flex items-center justify-center z-20">
+                       <div className="w-12 h-12 lg:w-16 lg:h-16 bg-white shadow-[var(--shadow-ind-floating)] rounded-xl flex items-center justify-center border border-stone-200">
+                         <step.icon className="w-6 h-6 lg:w-8 lg:h-8 text-[#007A55]" strokeWidth={2} />
+                       </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* B. Middle Number Badge */}
-                <div className="relative flex items-center justify-center w-10 h-10 bg-white rounded-full mx-auto border-4 border-stone-50 shadow-sm group-hover:border-[#007A55] transition-colors duration-500 z-10">
-                  <div className="w-full h-full bg-[#007A55] rounded-full flex items-center justify-center text-white font-bold text-sm group-hover:bg-[#CA8A04] transition-colors duration-500 shadow-inner">
-                    {step.id}
+                {/* B. Middle Number Badge / Indicator */}
+                <div className="relative flex items-center justify-center w-12 h-12 lg:w-14 lg:h-14 mx-auto mb-6 bg-stone-100 rounded-full shadow-[var(--shadow-ind-card)] border-4 border-[#FAF9F6] z-10 group-hover:-translate-y-1 transition-transform duration-300">
+                  <div className="w-full h-full rounded-full ind-recessed flex items-center justify-center">
+                    <span className="font-mono font-black text-base lg:text-lg text-stone-500 group-hover:text-[#007A55] transition-colors">
+                      {step.id}
+                    </span>
                   </div>
                 </div>
 
                 {/* C. Bottom Content Block */}
-                <div className="space-y-3 px-4">
-                  <span className="text-xs font-black text-[#CA8A04] tracking-widest uppercase block">
+                <div className="space-y-3 px-2">
+                  <span className="inline-block px-3 py-1 bg-stone-200 text-stone-600 rounded text-[9px] lg:text-[10px] font-mono font-bold tracking-widest uppercase shadow-[var(--shadow-ind-sharp)]">
                     {step.subtitle}
                   </span>
-                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight group-hover:text-[#007A55] transition-colors">
+                  <h3 className="text-lg lg:text-xl font-black text-stone-800">
                     {step.title}
                   </h3>
                   <p 
-                    className="text-sm md:text-base text-slate-600 leading-relaxed pt-1"
+                    className="text-xs lg:text-sm text-stone-600 font-medium leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: step.description }}
                   />
                 </div>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
 
-     {/* --- 3. REFINED BOTTOM CARD (Photo Background) --- */}
+        {/* --- 3. REFINED BOTTOM CARD (Dark Technical Panel) --- */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          // Added a subtle shadow and border color transition on hover for a premium feel
-          className="relative rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 group border border-stone-200/20 hover:border-[#007A55]/30 cursor-pointer"
+          className="relative bg-slate-900 rounded-2xl overflow-hidden shadow-[var(--shadow-ind-floating)] border border-stone-700 group cursor-pointer"
         >
-          {/* Background Image with Directed Overlay */}
-          <div className="absolute inset-0 bg-slate-900">
+          {/* Background Image from previous version */}
+          <div className="absolute inset-0">
             <img 
               src="/workflow/w-4.png" 
               alt="Professional Setting"
-              // Removed mix-blend-luminosity to keep the image's true colors.
-              // Changed object-fill to object-cover to prevent ugly stretching.
-              // Smooth, premium scale effect on hover.
               className="w-full h-full object-cover opacity-80 group-hover:scale-105 group-hover:opacity-60 transition-all duration-700 ease-out"
             />
-            {/* 
-              UI/UX Trick: Since the text is on the right (Arabic), we use 'bg-gradient-to-l' 
-              to make the right side dark for text legibility, while the left side stays clear to show the image.
-            */}
             <div className="absolute inset-0 bg-gradient-to-l from-slate-950/95 via-slate-900/60 to-transparent transition-opacity duration-700" />
           </div>
 
-          <div className="relative p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 z-10">
+          {/* Vents */}
+          <div className="absolute top-6 left-6 flex gap-1.5 z-20">
+             <div className="h-2 w-6 lg:w-8 rounded-full bg-black/60 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]" />
+             <div className="h-2 w-6 lg:w-8 rounded-full bg-black/60 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]" />
+          </div>
+
+          <div className="relative p-6 lg:p-10 xl:p-12 flex flex-col md:flex-row items-center justify-between gap-6 lg:gap-8 z-10">
             
-            <div className="flex-1 text-center md:text-right max-w-2xl">
-              <div className="inline-block px-3 py-1 rounded-full bg-[#CA8A04]/20 border border-[#CA8A04]/30 text-[#CA8A04] text-[10px] font-bold tracking-wider mb-4 backdrop-blur-md">
-                ملاحظة هامة
+            <div className="flex-1 text-right max-w-3xl">
+              <div className="flex items-center gap-3 mb-4">
+                 <div className="w-2.5 h-2.5 rounded-full bg-[#CA8A04] animate-pulse shadow-[0_0_10px_rgba(202,138,4,0.6)]"></div>
+                 <span className="text-[#CA8A04] font-mono text-[10px] lg:text-xs font-bold tracking-widest uppercase">ملاحظة هامة</span>
               </div>
-              <h4 className="text-lg md:text-xl font-bold text-white mb-3 drop-shadow-md">
+              <h4 className="text-xl lg:text-2xl font-black text-white mb-4">
                 تفويض القطاع الخاص والجهات غير الحكومية
               </h4>
-              <p className="text-sm text-slate-200 leading-relaxed font-light border-r-2 border-[#007A55] pr-4 bg-gradient-to-l from-white/10 to-transparent py-2 backdrop-blur-[2px]">
-                يُمكن لجهة التعيين الحكومية <strong className="text-white font-bold">تفويض جهات تقييم مطابقة خاصة</strong> للعمل تحت مظلتها، شريطة إبلاغ المنظمة كتابياً والالتزام بسداد التكاليف المقررة لضمان <strong className="text-[#CA8A04] font-bold">نزاهة وشرعية</strong> علامة الحلال العربية.
+              <p className="text-stone-300 text-sm lg:text-base leading-relaxed font-medium">
+                يُمكن لجهة التعيين الحكومية <strong className="text-white font-black">تفويض جهات تقييم مطابقة خاصة</strong> للعمل تحت مظلتها، شريطة إبلاغ المنظمة كتابياً والالتزام بسداد التكاليف المقررة لضمان <strong className="text-[#CA8A04] font-black underline decoration-[#CA8A04]/30 underline-offset-4">نزاهة وشرعية</strong> علامة الحلال العربية.
               </p>
             </div>
 
             <motion.button 
-              whileHover={{ x: -4, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-  
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-[#007A55] bg-[#007A55]/80 backdrop-blur-md text-white hover:bg-[#007A55] hover:shadow-[0_0_20px_rgba(0,122,85,0.4)] font-bold text-xs transition-all duration-300 whitespace-nowrap group/btn w-full md:w-auto shrink-0 cursor-pointer"
+              whileHover={{ y: -1 }}
+              whileTap={{ y: 2 }}
+              className="flex items-center justify-center gap-3 px-6 lg:px-8 py-3.5 lg:py-4 rounded-xl border-2 border-[#CA8A04] bg-[#CA8A04]/10 backdrop-blur-md shadow-[var(--shadow-ind-floating)] text-white hover:bg-[#CA8A04] font-bold text-sm lg:text-base transition-all duration-300 whitespace-nowrap group/btn w-full md:w-auto shrink-0"
             >
-              الاطلاع على المتطلبات الفنية 
-     
-              <ArrowLeft size={16} className="text-[#CA8A04] group-hover/btn:-translate-x-1.5 transition-transform duration-300" />
+              الاطلاع على المتطلبات
+              <div className="w-5 h-5 lg:w-6 lg:h-6 rounded-sm bg-black/30 flex items-center justify-center shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]">
+                 <ArrowLeft size={14} className="text-[#CA8A04] group-hover/btn:-translate-x-1 transition-transform" />
+              </div>
             </motion.button>
             
           </div>

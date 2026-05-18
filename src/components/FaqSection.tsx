@@ -11,7 +11,7 @@ interface FAQItem {
 const faqs: FAQItem[] = [
   {
     question: "ما هو البرنامج العربي الموحد للحلال وما هي أهدافه؟",
-    answer: "البرنامج هو منظومة اعتراف متعدد الأطراف بشهادة وعلامة الحلال العربية. يهدف إلى حماية المستهلك المسلم في جميع دول العالم من الشهادات المزورة أو غير المهنية، وتسهيل التبادل التجاري بين الدول العربية، مع ضمان مطابقة المنتجات لأحكام الشريعة الإسلامية والمواصفات الدولية مثل (ISO/IEC 17000)."
+    answer: "البرنامج هو منظومة اعتراف متعدد الأطراف بشهادة وعلامة الحلال العربية. يهدف إلى حماية المستهلك المسلم في جميع دول العالم من الشهادات المزورة أو غير المهنية، وتسهيل التبادل التجاري بين الدول العربية، مع ضمان مطابقة المنتجات لأحكام الشريعة الإسلامية والمواصفات الدولية."
   },
   {
     question: "من يحق له الانضمام للبرنامج كجهة تعيين؟",
@@ -19,11 +19,11 @@ const faqs: FAQItem[] = [
   },
   {
     question: "كيف يمكن لجهات المنح الأجنبية (خارج المنطقة العربية) الحصول على الاعتماد؟",
-    answer: "يمكن للهيئات المانحة خارج المنطقة العربية التواصل مع إحدى الجهات الوطنية المعينة والموقعة على وثيقة التعاون الفني مع المنظمة للحصول على الاعتماد، وذلك بعد استيفاء جميع الشروط المنصوص عليها في البرنامج. الحصول على حقوق منح الشهادة لا يخول الولوج للأسواق العربية ما لم يتم الاعتماد من جهة تعيين عربية عضو بالبرنامج."
+    answer: "يمكن للهيئات المانحة خارج المنطقة العربية التواصل مع إحدى الجهات الوطنية المعينة والموقعة على وثيقة التعاون الفني للحصول على الاعتماد. الحصول على حقوق منح الشهادة لا يخول الولوج للأسواق العربية ما لم يتم الاعتماد من جهة تعيين عربية عضو بالبرنامج."
   },
   {
     question: "ما هي المنتجات والخدمات المشمولة في تطبيق البرنامج؟",
-    answer: "يُطبق البرنامج على المنتجات المشار إليها في المواصفة (GSO2055-2). وتشمل الأولويات: اللحوم ومنتجاتها، العصائر والمشروبات، الأدوية، مستحضرات التجميل، خدمات الحلال، المنتجات المحفوظة في درجة حرارة الغرفة، المكملات الغذائية، والسياحة الحلال."
+    answer: "يُطبق البرنامج على المنتجات المشار إليها في المواصفة (GSO2055-2). وتشمل الأولويات: اللحوم، العصائر، الأدوية، مستحضرات التجميل، المكملات الغذائية، والسياحة الحلال."
   },
   {
     question: "ما هي التكاليف المالية المرتبطة بالشهادة وعلامة الحلال؟",
@@ -43,35 +43,42 @@ const FAQSection: React.FC = () => {
   };
 
   return (
-    // Slightly increased padding from py-10 to py-16 lg:py-20 to give some room
-    <section className="relative py-16 lg:py-20 px-6 md:px-12  overflow-hidden" dir="rtl">
+    <section className="relative py-16 lg:py-24 px-6 md:px-12 overflow-hidden border-y border-stone-800" dir="rtl">
       
-      {/* Background Image & Overlay */}
+      {/* Background Image & Overlay from previous version */}
       <div className="absolute inset-0 z-0">
         <img 
           src="/faq-bg-g.jpeg" 
           alt="Support Background" 
           className="w-full h-full object-cover object-center opacity-100" 
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/80 to-slate-900/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-slate-900/80 to-slate-950"></div>
       </div>
 
-      <div className="max-w-6xl mx-auto relative z-10 w-full">
-        {/* Increased gap between columns slightly */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+      {/* Industrial noise overlay */}
+      <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
+
+      <div className="max-w-7xl mx-auto relative z-10 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
           {/* --- LEFT COLUMN --- */}
           <div className="lg:col-span-4 lg:sticky lg:top-32">
+            
+            <div className="inline-flex items-center gap-3 mb-6">
+               <div className="w-8 h-1 bg-white/10 rounded-full shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"></div>
+               <span className="px-3 py-1 text-[9px] lg:text-[10px] font-mono font-bold uppercase tracking-widest text-[#CA8A04] rounded bg-white/5 backdrop-blur-md shadow-[var(--shadow-ind-sharp)] border border-white/10">الدعم الفني</span>
+            </div>
+
             <motion.h2 
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="text-3xl md:text-4xl font-light text-white leading-tight tracking-tight mb-5"
+              className="text-2xl md:text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
             >
-              الأسئلة <span className="font-bold text-[#007A55]">الشائعة</span>
+              الأسئلة <span className="text-[#007A55]">الشائعة</span>
             </motion.h2>
             
-            <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-8 max-w-sm font-light">
+            <p className="text-stone-300 text-sm lg:text-base leading-relaxed mb-8 max-w-sm font-medium">
               إجابات رسمية وموثوقة حول آليات عمل البرنامج العربي للحلال، شروط الانضمام، والتفاصيل المالية والقانونية.
             </p>
 
@@ -79,42 +86,44 @@ const FAQSection: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              // Relaxed card padding and gap
-              className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl flex flex-col items-start gap-4"
+              className="bg-white/5 backdrop-blur-md border border-white/10 p-5 lg:p-6 rounded-2xl flex flex-col items-start gap-4 relative cursor-default shadow-xl"
             >
-              <div className="w-10 h-10 rounded-xl bg-[#CA8A04]/10 flex items-center justify-center text-[#CA8A04] shrink-0">
-                <HelpCircle size={20} strokeWidth={1.5} />
+              {/* Screws */}
+              <div className="absolute top-3 left-3 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-stone-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
+              <div className="absolute top-3 right-3 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-stone-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
+
+              <div className="w-10 lg:w-12 h-10 lg:h-12 rounded-lg bg-white/10 border border-white/10 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2)] flex items-center justify-center text-[#CA8A04] shrink-0">
+                <HelpCircle size={20} lg:size={24} strokeWidth={2} />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-white mb-2">لديك استفسارات أخرى؟</h4>
-                <p className="text-xs text-slate-300 mb-5 leading-relaxed">
+                <h4 className="text-sm lg:text-base font-black text-white mb-2">لديك استفسارات أخرى؟</h4>
+                <p className="text-xs lg:text-sm text-stone-300 mb-6 leading-relaxed font-medium">
                   فريقنا الفني متاح للرد على أي استفسارات تتعلق بعمليات التفتيش أو المصادقة.
                 </p>
-                <a href="mailto:halal@aidsmo.org" className="inline-flex items-center gap-2 text-xs font-bold text-[#CA8A04] hover:text-[#CA8A04]/80 transition-colors uppercase tracking-widest group cursor-pointer">
+                <a href="mailto:halal@aidsmo.org" className="btn-gold w-fit text-[10px] lg:text-xs group uppercase tracking-widest px-5 py-2.5 lg:px-6 lg:py-3 border border-[#CA8A04] bg-transparent text-[#CA8A04] hover:bg-[#CA8A04] hover:text-white transition-all">
                   راسلنا عبر البريد 
-                  <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                  <ArrowLeft size={14} lg:size={16} className="group-hover:-translate-x-1 transition-transform" />
                 </a>
               </div>
             </motion.div>
           </div>
 
-          {/* --- RIGHT COLUMN (Accordion) --- */}
-          <div className="lg:col-span-8">
-            <div className="border-t border-white/10">
+          {/* --- RIGHT COLUMN --- */}
+          <div className="lg:col-span-8 flex flex-col gap-3 lg:gap-4">
               {faqs.map((faq, index) => {
                 const isOpen = openIndex === index;
                 return (
-                  <div key={index} className="border-b border-white/10 group">
+                  <div key={index} className={`bg-white/5 backdrop-blur-sm border transition-all duration-300 rounded-xl overflow-hidden group ${isOpen ? 'border-[#007A55]/50 bg-white/10' : 'border-white/10 hover:border-white/20'}`}>
+                    
                     <button
                       onClick={() => toggleFAQ(index)}
-                      // Increased button padding slightly for better touch target and spacing
-                      className="w-full py-5 md:py-6 flex items-center justify-between gap-6 text-right transition-colors focus:outline-none cursor-pointer"
+                      className="w-full p-4 lg:p-6 flex items-center justify-between gap-4 lg:gap-6 text-right cursor-pointer"
                     >
-                      <h3 className={`text-base md:text-lg font-bold transition-colors ${isOpen ? 'text-[#007A55]' : 'text-slate-200 group-hover:text-white'}`}>
+                      <h3 className={`text-sm md:text-base lg:text-lg font-black transition-colors ${isOpen ? 'text-[#007A55]' : 'text-slate-200 group-hover:text-white'}`}>
                         {faq.question}
                       </h3>
-                      <div className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${isOpen ? 'border-[#CA8A04] bg-[#CA8A04] text-slate-900' : 'border-white/20 text-white group-hover:border-[#CA8A04] group-hover:text-[#CA8A04]'}`}>
-                        {isOpen ? <Minus size={14} /> : <Plus size={14} />}
+                      <div className={`shrink-0 w-7 lg:w-8 h-7 lg:h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${isOpen ? 'border-[#CA8A04] bg-[#CA8A04] text-slate-900 shadow-[0_0_10px_rgba(202,138,4,0.5)]' : 'border-white/20 text-white group-hover:border-[#CA8A04] group-hover:text-[#CA8A04]'}`}>
+                        {isOpen ? <Minus size={14} lg:size={16} strokeWidth={3} /> : <Plus size={14} lg:size={16} strokeWidth={3} />}
                       </div>
                     </button>
                     
@@ -125,13 +134,13 @@ const FAQSection: React.FC = () => {
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.3, ease: "easeInOut" }}
-                          className="overflow-hidden"
                         >
-                          {/* Relaxed margin/padding for the open answer */}
-                          <div className="pb-6 pr-5 border-r-2 border-[#CA8A04]/30 mb-2">
-                            <p className="text-slate-300 text-sm md:text-base leading-relaxed font-light">
-                              {faq.answer}
-                            </p>
+                          <div className="px-4 lg:px-6 pb-4 lg:pb-6 pt-0">
+                            <div className="p-3 lg:p-4 bg-black/20 rounded-lg border-r-4 border-[#CA8A04]/50 shadow-inner">
+                              <p className="text-stone-300 text-xs lg:text-sm md:text-base leading-relaxed font-medium">
+                                {faq.answer}
+                              </p>
+                            </div>
                           </div>
                         </motion.div>
                       )}
@@ -139,7 +148,6 @@ const FAQSection: React.FC = () => {
                   </div>
                 );
               })}
-            </div>
           </div>
 
         </div>

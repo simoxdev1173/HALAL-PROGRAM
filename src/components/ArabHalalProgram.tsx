@@ -1,6 +1,5 @@
 "use client";
 
-// Simple Arrow SVG component, customized for progression in an RTL layout (pointing left visually)
 const ArrowLeftIcon = ({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -20,148 +19,160 @@ const ArrowLeftIcon = ({ className }: { className?: string }) => (
 const ArabHalalProgram = () => {
   return (
     <div
-      className="relative overflow-hidden bg-slate-900 text-white min-h-screen flex flex-col justify-center" // Ensure it fits the screen height and centers
+      className="relative overflow-hidden bg-[#1C4C2A] text-white min-h-screen flex flex-col justify-center border-y border-stone-800"
       dir="rtl"
     >
-      {/* Background Image & Overlay */}
+      {/* Background Image & Overlay from previous version */}
       <div className="absolute inset-0 z-0">
         <img
           src="/section-bg-1.jpeg"
           alt="Section Background"
           className="w-full h-full object-cover object-center opacity-20"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 via-slate-900/40 to-slate-900/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1C4C2A]/50 via-[#1C4C2A]/40 to-[#1C4C2A]/40"></div>
       </div>
 
-      {/* Benefit Section (Tightened to fit single screen) */}
-      <section className="relative z-10 py-16 px-6 md:px-12 flex-grow flex items-center">
-        {" "}
-        {/* Adjusted padding, flex-grow to center content */}
+      {/* Industrial noise overlay */}
+      <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
+
+      <section className="relative z-10 py-16 lg:py-24 px-6 md:px-12 flex-grow flex items-center">
         <div className="max-w-7xl mx-auto w-full">
-          {" "}
-          {/* Reduced max-width for tighter grouping */}
-          <div className="text-center mb-10">
-            {" "}
-            {/* Reduced margin */}
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              {" "}
-              {/* Reduced margin */}
-              كيف يمكن لك الاستفادة من البرنامج
+          
+          <div className="text-center mb-12 lg:mb-16 relative">
+            {/* Structural Title Element */}
+            <div className="inline-flex items-center justify-center gap-3 mb-6">
+               <div className="w-12 h-1 bg-white/20 rounded-full shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"></div>
+               <span className="px-4 py-1.5 text-[10px] lg:text-xs font-mono font-bold uppercase tracking-widest text-[#CA8A04] rounded bg-white/5 backdrop-blur-md shadow-[var(--shadow-ind-sharp)] border border-white/10">الدليل الإرشادي</span>
+               <div className="w-12 h-1 bg-white/20 rounded-full shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"></div>
+            </div>
+            
+            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black mb-6 tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+              كيف يمكن لك الاستفادة من البرنامج؟
             </h2>
-            <p className="text-slate-300 text-lg leading-relaxed max-w-3xl mx-auto">
+            <p className="text-stone-200 text-base lg:text-lg leading-relaxed max-w-3xl mx-auto font-medium">
               يوفر البرنامج العربي للحلال مسارات واضحة للهيئات المانحة
               والموردين والمنشآت الراغبة في الحصول على الاعتماد أو الترخيص
               باستخدام علامة الحلال العربية.
             </p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            {" "}
-            {/* Reduced gap */}
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xl:gap-8">
+            
             {/* Card 1 */}
-            <div className="bg-white/5 backdrop-blur-md p-8 flex flex-col rounded-2xl border border-white/10 border-t-4 border-t-transparent hover:border-t-[#CA8A04] shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:shadow-2xl hover:shadow-[#CA8A04]/5 hover:-translate-y-1 transition-all duration-500 group">
-              {" "}
-              {/* Reduced padding */}
-              <h3 className="text-2xl font-bold mb-4 text-[#007A55] transition-colors leading-relaxed">
-                {" "}
-                {/* Reduced margin */}
+            <div className="relative group bg-white/5 backdrop-blur-md rounded-2xl p-8 flex flex-col border border-white/10 hover:-translate-y-1 transition-all duration-300 cursor-default shadow-xl">
+              {/* Screws */}
+              <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
+              <div className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
+
+              {/* Status Indicator */}
+              <div className="absolute top-4 right-1/2 translate-x-1/2 flex items-center justify-center">
+                 <div className="w-2 h-2 rounded-full bg-[#CA8A04] animate-pulse shadow-[0_0_8px_rgba(202,138,4,0.8)]"></div>
+              </div>
+
+              <div className="mt-6 mb-6 inline-flex items-center justify-center w-12 h-12 rounded-lg bg-white/10 text-[#CA8A04] shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2)] border border-white/5">
+                 <span className="font-mono font-bold text-xl">01</span>
+              </div>
+
+              <h3 className="text-xl font-black mb-4 text-[#CA8A04] leading-relaxed group-hover:-translate-y-0.5 transition-transform duration-300">
                 هيئة مانحة لشهادة الحلال غير معتمدة
               </h3>
-              <p className="text-slate-300 leading-normal flex-grow text-base md:text-lg">
-                {" "}
-                {/* Updated leading to be more compact, text size */}
+              
+              <p className="text-stone-200 font-medium leading-relaxed flex-grow text-sm mb-8">
                 إذا كنتم هيئة مانحة لشهادة الحلال (خارج المنطقة العربية) غير
                 معتمدة من قبل جهة تعيين عربية موقعة على وثيقة التعاون الفنية مع
                 المنظمة غير (عضو بالبرنامج)، يمكن لكم التواصل مع إحدى الجهات
                 الوطنية المعينة موقعة على وثيقة التعاون الفني مع المنظمة، عضو
-                بالبرنامج، للحصول على الاعتماد بعد استيفاء جميع الشروط المنصوص
-                عليها في البرنامج العربي للحلال.
+                بالبرنامج، للحصول على الاعتماد بعد استيفاء جميع الشروط.
               </p>
-              <a
-                href="#"
-                className="mt-8 flex items-center gap-3 text-sm font-black tracking-wide text-white border-b-2 border-[#CA8A04]/40 pb-1 hover:text-[#CA8A04] hover:border-[#CA8A04] transition-all w-fit leading-relaxed group/cta"
-              >
-                {" "}
-                {/* Updated styling to be more prominent with arrow */}
-                <span>التواصل مع جهة تعيين عربية عضو بالبرنامج</span>
-                <ArrowLeftIcon className="transition-transform group-hover/cta:-translate-x-1" />
+
+              <a href="#" className="flex items-center gap-3 font-bold text-sm mt-auto w-fit group/btn transition-colors cursor-pointer text-white hover:text-[#CA8A04]">
+                التواصل مع جهة تعيين عربية
+                <div className="w-6 h-6 rounded-full flex items-center justify-center shadow-[var(--shadow-ind-sharp)] bg-white/10 border border-white/10">
+                  <ArrowLeftIcon className="w-3 h-3 group-hover/btn:-translate-x-1 transition-transform duration-300" />
+                </div>
               </a>
             </div>
+
             {/* Card 2 */}
-            <div className="bg-white/5 backdrop-blur-md p-8 flex flex-col rounded-2xl border border-white/10 border-t-4 border-t-transparent hover:border-t-[#CA8A04] shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:shadow-2xl hover:shadow-[#CA8A04]/5 hover:-translate-y-1 transition-all duration-500 group">
-              {" "}
-              {/* Reduced padding */}
-              <h3 className="text-2xl font-bold mb-4 text-[#007A55] transition-colors leading-relaxed">
-                {" "}
-                {/* Reduced margin */}
-                هيئة مانحة معتمدة من جهة عربية غير عضو بالبرنامج
+            <div className="relative group bg-white/5 backdrop-blur-md rounded-2xl p-8 flex flex-col border border-white/10 hover:-translate-y-1 transition-all duration-300 cursor-default shadow-xl">
+              {/* Screws */}
+              <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
+              <div className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
+
+              {/* Status Indicator */}
+              <div className="absolute top-4 right-1/2 translate-x-1/2 flex items-center justify-center">
+                 <div className="w-2 h-2 rounded-full bg-stone-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
+              </div>
+
+              <div className="mt-6 mb-6 inline-flex items-center justify-center w-12 h-12 rounded-lg bg-white/10 text-[#CA8A04] shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2)] border border-white/5">
+                 <span className="font-mono font-bold text-xl">02</span>
+              </div>
+
+              <h3 className="text-xl font-black mb-4 text-[#CA8A04] leading-relaxed group-hover:-translate-y-0.5 transition-transform duration-300">
+                هيئة مانحة معتمدة من جهة عربية غير عضو
               </h3>
-              <p className="text-slate-300 leading-normal flex-grow text-base md:text-lg">
-                {" "}
-                {/* Updated leading and text size */}
+              
+              <p className="text-stone-200 font-medium leading-relaxed flex-grow text-sm mb-8">
                 إذا كنتم هيئة مانحة لشهادة الحلال معتمدة من جهة عربية غير موقعة
-                على وثيقة التعاون الفنية مع المنظمة غير (عضو بالبرنامج)، يمكن
+                على وثيقة التعاون الفنية مع المنظمة، يمكن
                 لك التواصل مع المنظمة بهذا الشأن، إلا أن حصولك على حقوق منح
-                الشهادة لا يخول للمورد أو المنشأة الحاصلة على هذه الشهادة
-                الولوج إلى الأسواق العربية ما لم يتم اعتمادك من قبل جهة تعيين
-                عربية عضو بالبرنامج.
+                الشهادة لا يخول الولوج إلى الأسواق العربية ما لم يتم اعتمادك.
               </p>
-              <a
-                href="#"
-                className="mt-8 flex items-center gap-3 text-sm font-black tracking-wide text-white border-b-2 border-[#CA8A04]/40 pb-1 hover:text-[#CA8A04] hover:border-[#CA8A04] transition-all w-fit leading-relaxed group/cta"
-              >
-                {" "}
-                {/* Updated styling to be more prominent with arrow */}
-                <span>التواصل مع المنظمة</span>
-                <ArrowLeftIcon className="transition-transform group-hover/cta:-translate-x-1" />
+
+              <a href="#" className="flex items-center gap-3 font-bold text-sm mt-auto w-fit group/btn transition-colors cursor-pointer text-white hover:text-[#CA8A04]">
+                التواصل مع المنظمة
+                <div className="w-6 h-6 rounded-full flex items-center justify-center shadow-[var(--shadow-ind-sharp)] bg-white/10 border border-white/10">
+                  <ArrowLeftIcon className="w-3 h-3 group-hover/btn:-translate-x-1 transition-transform duration-300" />
+                </div>
               </a>
             </div>
-            {/* Card 3 */}
-            <div className="bg-white/5 backdrop-blur-md p-8 flex flex-col rounded-2xl border border-white/10 border-t-4 border-t-transparent hover:border-t-[#CA8A04] shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:shadow-2xl hover:shadow-[#CA8A04]/5 hover:-translate-y-1 transition-all duration-500 group">
-              {" "}
-              {/* Reduced padding */}
-              <h3 className="text-2xl font-bold mb-4 text-[#007A55] transition-colors leading-relaxed">
-                {" "}
-                {/* Reduced margin */}
+
+            {/* Card 3 (Elevated Priority) */}
+            <div className="relative group bg-white/5 backdrop-blur-md rounded-2xl p-8 flex flex-col border border-white/10 hover:-translate-y-1 transition-all duration-300 cursor-default shadow-xl">
+              {/* Vents */}
+              <div className="absolute top-4 left-4 flex gap-1.5 z-20">
+                  <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]" />
+                  <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]" />
+              </div>
+              <div className="absolute top-4 right-4 flex gap-1.5 z-20">
+                  <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]" />
+                  <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]" />
+              </div>
+
+               {/* Status Indicator */}
+               <div className="absolute top-4 right-1/2 translate-x-1/2 flex items-center justify-center">
+                 <div className="w-2.5 h-2.5 rounded-full bg-[#007A55] animate-pulse shadow-[0_0_10px_rgba(0,122,85,1)]"></div>
+              </div>
+
+              <div className="mt-6 mb-6 inline-flex items-center justify-center w-12 h-12 rounded-lg bg-white/10 text-[#CA8A04] shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2)] border border-white/5">
+                 <span className="font-mono font-bold text-xl">03</span>
+              </div>
+
+              <h3 className="text-xl font-black mb-4 text-white leading-relaxed group-hover:-translate-y-0.5 transition-transform duration-300">
                 مورد أو منشأة راغبة في الحصول على الشهادة
               </h3>
-              <div className="text-slate-300 leading-normal flex-grow text-base md:text-lg space-y-4">
-                {" "}
-                {/* Updated leading, text size, element spacing */}
+              
+              <div className="text-stone-400 font-medium leading-relaxed flex-grow text-sm mb-8 space-y-4">
                 <p>
                   يمكن لك التواصل مع إحدى الجهات المعينة المعتمدة من قبل جهة
-                  تعيين عربية، موقعة على وثيقة التعاون الفنية مع المنظمة (عضو
-                  بالبرنامج) وطلب الحصول على الترخيص لمنح الشهادة، مع ضمان أن
-                  تكون المنتجات ضمن مجالات الفئات المحددة.
+                  تعيين عربية (عضو بالبرنامج) وطلب الحصول على الترخيص لمنح الشهادة.
                 </p>
-                <p>
+                <p className="border-r-2 border-[#CA8A04]/50 pr-3">
                   كما يمكن لك التواصل مع المنظمة بطلب الحصول على الترخيص
-                  باستخدام العلامة مع اتباع الإجراءات المطلوبة التي تحددها
-                  المنظمة بهذا الشأن.
+                  باستخدام العلامة مع اتباع الإجراءات المطلوبة.
                 </p>
               </div>
-              <div className="mt-8 flex flex-col gap-4">
-                {" "}
-                {/* Reduced gap and margin */}
-                <a
-                  href="#"
-                  className="flex items-center gap-3 text-sm font-black tracking-wide text-white border-b-2 border-[#CA8A04]/40 pb-1 hover:text-[#CA8A04] hover:border-[#CA8A04] transition-all w-fit leading-relaxed group/cta"
-                >
-                  {" "}
-                  {/* Updated styling */}
-                  <span>طلب الترخيص باستخدام علامة الحلال العربية</span>
-                  <ArrowLeftIcon className="transition-transform group-hover/cta:-translate-x-1" />
-                </a>
-                <a
-                  href="#"
-                 className="flex items-center gap-3 text-sm font-black tracking-wide text-white border-b-2 border-[#CA8A04]/40 pb-1 hover:text-[#CA8A04] hover:border-[#CA8A04] transition-all w-fit leading-relaxed group/cta"
-                >
-                  {" "}
-                  {/* Updated styling to have similar arrow effect */}
-                  <span>طلب الحصول على الترخيص باستخدام العلامة</span>
-                  <ArrowLeftIcon className="opacity-70 group-hover/cta:opacity-100 transition-transform group-hover/cta:-translate-x-1" />
+
+              <div className="flex flex-col gap-4 mt-auto">
+                <a href="#" className="flex items-center gap-3 font-bold text-sm w-fit group/btn transition-colors cursor-pointer text-stone-300 hover:text-[#CA8A04]">
+                  طلب الترخيص باستخدام العلامة
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center shadow-[var(--shadow-ind-sharp)] bg-white/10 border border-white/10">
+                    <ArrowLeftIcon className="w-3 h-3 group-hover/btn:-translate-x-1 transition-transform duration-300" />
+                  </div>
                 </a>
               </div>
             </div>
+
           </div>
         </div>
       </section>

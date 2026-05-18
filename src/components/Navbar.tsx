@@ -140,41 +140,41 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           setIsLangOpen(false);
         }}
       >
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-16 lg:h-20 flex items-center justify-between">
           
           {/* Logo & Desktop Links Grouped to fix spacing */}
-          <div className="flex items-center gap-10 lg:gap-14 h-full z-40">
-            {/* BIG ROUND LOGO */}
+          <div className="flex items-center gap-6 xl:gap-14 h-full z-40">
+            {/* BIG ROUND LOGO - Scaled for different screens */}
             <Link to="/" className="relative group">
-               <div className="absolute top-[-10px] left-1/2 -translate-x-1/2 w-28 h-28 bg-white rounded-full shadow-[var(--shadow-ind-floating)] border border-stone-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 active:scale-95 z-99 overflow-hidden">
+               <div className="absolute top-[-5px] lg:top-[-10px] left-1/2 -translate-x-1/2 w-20 h-20 lg:w-24 xl:w-28 lg:h-24 xl:h-28 bg-white rounded-full shadow-[var(--shadow-ind-floating)] border border-stone-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 active:scale-95 z-99 overflow-hidden">
                   <div className="absolute inset-0 bg-stone-50/50 ind-recessed rounded-full m-1"></div>
                   <img 
                     src="/logo.svg" 
                     alt="Logo" 
-                    className="relative z-99 w-20 h-auto object-contain shrink-0"
+                    className="relative z-99 w-14 lg:w-16 xl:w-20 h-auto object-contain shrink-0"
                   />
                </div>
             </Link>
 
             {/* Desktop Links (Tactile tags) - Added margin to account for the big logo */}
             <div 
-              className={`hidden lg:flex items-center h-full ${isRtl ? 'mr-32' : 'ml-32'}`}
+              className={`hidden lg:flex items-center h-full ${isRtl ? 'mr-20 xl:mr-32' : 'ml-20 xl:ml-32'}`}
               onMouseEnter={() => setMegaMenuOpen(true)}
             >
-              <ul className="flex items-center gap-2 h-full">
+              <ul className="flex items-center gap-1 h-full">
                 {d.links.map((link, i) => (
                   <li key={i} className="h-full flex items-center">
                     {link.path.startsWith("/#") ? (
                       <a 
                         href={link.path}
-                        className="relative px-5 py-2.5 rounded-md text-[13px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50"
+                        className="relative px-3 xl:px-5 py-2 rounded-md text-[11px] xl:text-[13px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50"
                       >
                         {link.name}
                       </a>
                     ) : (
                       <Link 
                         to={link.path}
-                        className="relative px-5 py-2.5 rounded-md text-[13px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50"
+                        className="relative px-3 xl:px-5 py-2 rounded-md text-[11px] xl:text-[13px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50"
                       >
                         {link.name}
                       </Link>
