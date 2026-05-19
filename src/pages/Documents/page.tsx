@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  FileText, Download, Eye, ShieldCheck, FileSignature, Award, 
-  Paintbrush, Briefcase, BookOpen, Scale, ArrowLeft, Mail, Info, FileStack, ShieldAlert
+   Download, Eye, ShieldCheck, FileSignature, Award, 
+  Paintbrush, Briefcase, BookOpen, Scale, Mail, Info, FileStack, 
 } from "lucide-react";
 
-// --- Data Structure based on provided content ---
 const DOCUMENT_SECTIONS = [
   {
     id: "forms",

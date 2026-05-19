@@ -3,8 +3,8 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Building2, ExternalLink, ChevronRight, MapPin, Star, ArrowUpRight, Clock,
-  Globe, ShieldCheck, Info, Award, Package, Calendar, CheckCircle2, XCircle, ArrowLeft, Download, Mail, Phone, X, Search
+    MapPin,  ArrowUpRight, Clock,
+   ShieldCheck, Info, Award, Package, Calendar,  ArrowLeft, 
 } from "lucide-react";
 
 // --------------------------------------------------------------

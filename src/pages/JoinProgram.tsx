@@ -99,24 +99,7 @@ const JoinProgram = () => {
     }, 2500);
   };
 
-  const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 30 : -30,
-      opacity: 0,
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-      transition: { duration: 0.4, ease: [0.175, 0.885, 0.32, 1.275] }
-    },
-    exit: (direction: number) => ({
-      zIndex: 0,
-      x: direction < 0 ? 30 : -30,
-      opacity: 0,
-      transition: { duration: 0.3, ease: "easeIn" }
-    })
-  };
+
 
   return (
     <div className="bg-[#FAF9F6] min-h-screen font-arabic overflow-hidden" dir="rtl">
