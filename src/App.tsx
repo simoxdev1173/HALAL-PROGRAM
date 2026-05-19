@@ -81,7 +81,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about-us" element={<AboutProgram />} />
-            <Route path="/joined-countries" element={<JoinedCountries lang={lang} />} />
+            <Route path="/joined-countries" element={<JoinedCountries />} />
             <Route path="/certificate-verification" element={<CertificateVerification />} />
             <Route path="/join-program" element={<JoinProgram />} />
             <Route path="/documents" element={<DocumentsModels />} />

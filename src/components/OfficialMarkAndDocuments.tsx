@@ -179,7 +179,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
                     <div className="absolute inset-0 bg-[#007A55]/0 group-hover:bg-[#007A55]/5 transition-colors duration-500" />
                     
                     <div className="absolute bottom-2 left-2 w-6 h-6 lg:w-8 lg:h-8 bg-white border border-stone-200 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 shadow-md">
-                      <Search size={12} lg:size={14} className="text-[#007A55]" />
+                      <Search size={12} className="text-[#007A55] lg:w-3.5 lg:h-3.5" />
                     </div>
                 </div>
               </div>
@@ -199,7 +199,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
                 
                 <div className="mt-auto flex items-center gap-2 text-[10px] lg:text-xs font-bold text-[#007A55] group-hover:gap-3 transition-all duration-300">
                   <span>فتح للتحقق</span>
-                  <ArrowLeft size={12} lg:size={14} />
+                  <ArrowLeft size={12} className="lg:w-3.5 lg:h-3.5" />
                 </div>
               </div>
             </motion.div>
@@ -253,7 +253,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
                 >
                    <div>
                      <h5 className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                       <ShieldCheck size={12} lg:size={14} /> الأهمية القانونية
+                       <ShieldCheck size={12} className="lg:w-3.5 lg:h-3.5" /> الأهمية القانونية
                      </h5>
                      <p className="text-[11px] lg:text-xs text-slate-600 leading-relaxed font-light">
                        هذا النموذج محمي بموجب قوانين الملكية الفكرية، ويُعتبر المرجع الوحيد المعتمد من قبل المنظمة لضمان جودة ومصداقية شهادات الحلال. لا يُسمح بتعديله أو استخدامه دون إذن رسمي.
@@ -265,7 +265,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
                         <p className="text-[8px] lg:text-[9px] font-bold text-slate-400 mb-1">الرقم المرجعي</p>
                         <p className="text-[9px] lg:text-[10px] font-mono font-bold tracking-tighter text-slate-800">{selectedDoc.code}</p>
                      </div>
-                     <div className="p-3 bg-white border border-slate-200 rounded-sm shadow-sm flex flex-col justify-center">
+                     <div className="p-3 bg-white border border-stone-200 rounded-sm shadow-sm flex flex-col justify-center">
                         <p className="text-[8px] lg:text-[9px] font-bold text-slate-400 mb-1">صيغة الملف</p>
                         <p className="text-[9px] lg:text-[10px] font-bold uppercase text-slate-800">Standard PDF / 300 DPI</p>
                      </div>
@@ -292,4 +292,4 @@ const OfficialMarkAndDocuments: React.FC = () => {
   );
 };
 
-export default OfficialMarkAndDocuments;Documents;
+export default OfficialMarkAndDocuments;
