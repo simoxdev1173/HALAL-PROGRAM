@@ -17,6 +17,7 @@ import AboutProgram from "./about-us/page";
 import CertificateVerification from "./pages/CertificateVerification";
 import JoinProgram from "./pages/JoinProgram";
 import JoinedCountries from "./pages/JoinedCountries";
+import DocumentsModels from "./pages/Documents/page";
 import { motion } from "framer-motion";
 
 const ScrollToHash = () => {
@@ -84,6 +85,7 @@ function App() {
             <Route path="/joined-countries" element={<JoinedCountries lang={lang} />} />
             <Route path="/certificate-verification" element={<CertificateVerification />} />
             <Route path="/join-program" element={<JoinProgram />} />
+            <Route path="/documents" element={<DocumentsModels />} />
           </Routes>
 
           <Footer lang={lang} onChatOpen={() => setIsChatOpen(true)} />

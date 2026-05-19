@@ -40,9 +40,9 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
       links: [
         { name: "عن البرنامج", path: "/about-us" },
         { name: "الدول المنضمة", path: "/joined-countries" },
-        { name: "التحقق من شهادة", path: "/certificate-verification" },
+        { name: "التحقق من شهادة", path: "/certificate-verification" },  
         { name: "الانضمام للبرنامج", path: "/join-program" },
-        { name: "النماذج والوثائق", path: "/#directory" },
+        { name: "النماذج والوثائق", path: "/documents" },
       ],
       mega: {
         links: {
@@ -51,7 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             { text: "الدول المنضمة للبرنامج", href: "/joined-countries" },
             { text: "آلية الانضمام للبرنامج", href: "/join-program" },
             { text: "تكاليف الحصول على الشهادة", href: "/join-program" },
-            { text: "شروط استخدام العلامة", href: "/#directory" },
+            { text: "شروط استخدام العلامة", href: "/documents" },  
             { text: "محرك البحث والتحقق", href: "/certificate-verification" }
           ]
         },
@@ -81,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
         { name: "Joined Countries", path: "/joined-countries" },
         { name: "Verification", path: "/certificate-verification" },
         { name: "Accreditation", path: "/join-program" },
-        { name: "Directory", path: "/#directory" },
+        { name: "Directory", path: "/documents" },
       ],
       mega: {
         links: {
@@ -90,10 +90,9 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             { text: "Joined Countries", href: "/joined-countries" },
             { text: "How to Join", href: "/join-program" },
             { text: "Certification Costs", href: "/join-program" },
-            { text: "Label Usage Terms", href: "/#directory" },
-            { text: "Verification Engine", href: "/certificate-verification" }
-          ]
-        },
+            { text: "Label Usage Terms", href: "/documents" },
+            { text: "Verification Engine", href: "/certificate-verification" }        
+          ]        },
         faq: {
           title: "FAQ",
           items: [
@@ -131,8 +130,8 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
       <nav 
         className={`fixed top-0 w-full z-40 transition-all duration-300 bg-[#FAF9F6] ${
           scrolled 
-            ? "shadow-[var(--shadow-ind-floating)] border-b border-stone-200 py-0" 
-            : "border-b border-stone-200 py-2 shadow-[var(--shadow-ind-card)]"
+            ? "shadow-[var(--shadow-ind-floating)] border-b border-stone-200" 
+            : "border-b border-stone-200 shadow-[var(--shadow-ind-card)]"
         }`}
         dir={isRtl ? "rtl" : "ltr"}
         onMouseLeave={() => {

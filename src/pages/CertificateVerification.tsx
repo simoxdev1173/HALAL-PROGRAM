@@ -1,9 +1,11 @@
+"use client";
+
 import React, { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, ShieldCheck, MapPin, CheckCircle2, 
-  ShieldAlert, Info, SlidersHorizontal, ArrowLeft, Download, Award, Mail, Phone
+  ShieldAlert, Info, SlidersHorizontal, ArrowLeft, Download, Mail,Target , Phone, X
 } from "lucide-react";
 
 interface Certificate {
@@ -128,9 +130,9 @@ const MOCK_DATA: Certificate[] = [
 ];
 
 const statusConfig = {
-  Active: { label: "نشط", color: "text-emerald-700", bg: "bg-emerald-50", icon: CheckCircle2 },
-  Expired: { label: "منتهي", color: "text-rose-700", bg: "bg-rose-50", icon: ShieldAlert },
-  Pending: { label: "قيد المراجعة", color: "text-amber-700", bg: "bg-amber-50", icon: Info },
+  Active: { label: "نشط", color: "text-[#007A55]", bg: "bg-[#007A55]/10", led: "bg-[#007A55]", icon: CheckCircle2 },
+  Expired: { label: "منتهي", color: "text-rose-600", bg: "bg-rose-500/10", led: "bg-rose-600", icon: ShieldAlert },
+  Pending: { label: "قيد المراجعة", color: "text-[#CA8A04]", bg: "bg-[#CA8A04]/10", led: "bg-[#CA8A04]", icon: Info },
 };
 
 const CertificateVerification: React.FC = () => {
@@ -139,19 +141,15 @@ const CertificateVerification: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>("الكل");
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
 
-  // Extract unique categories for filter tabs
   const categories = ["الكل", ...Array.from(new Set(MOCK_DATA.map(item => item.category)))];
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const q = params.get("q");
     if (q) setQuery(q);
-    
-    // Scroll to top on load
     window.scrollTo(0, 0);
   }, [location.search]);
 
-  // Filter data based on search query and category
   const filteredData = useMemo(() => {
     return MOCK_DATA.filter(cert => {
       const matchesQuery = 
@@ -159,12 +157,10 @@ const CertificateVerification: React.FC = () => {
         cert.licenseNumber.toLowerCase().includes(query.toLowerCase()) ||
         cert.location.includes(query);
       const matchesCategory = activeCategory === "الكل" || cert.category === activeCategory;
-      
       return matchesQuery && matchesCategory;
     });
   }, [query, activeCategory]);
 
-  // Disable body scroll when modal is open
   useEffect(() => {
     if (selectedCert) {
       document.body.style.overflow = 'hidden';
@@ -175,137 +171,159 @@ const CertificateVerification: React.FC = () => {
   }, [selectedCert]);
 
   return (
-    <div className="min-h-screen bg-white pt-24 font-arabic flex flex-col" dir="rtl">
+    <div className="min-h-screen bg-[#FAF9F6]  font-arabic flex flex-col overflow-hidden" dir="rtl">
       
-      {/* 1. Header & Search Area (Airbnb Style) */}
-      <div className="sticky top-20 z-40 bg-white border-b border-slate-100 shadow-sm pt-4 pb-4 px-6 md:px-10">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-6 justify-between">
+      {/* Industrial noise overlay */}
+      <div className="fixed inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none z-50" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
+
+      {/* 1. Header & Search Area (Industrial Control Panel) */}
+      <div className="sticky top-16 lg:top-20 z-30 bg-[#e0e5ec] border-b border-stone-300 shadow-[var(--shadow-ind-card)] pt-6 pb-2 px-6 lg:px-10">
+        <div className="max-w-7xl mx-auto">
           
-          <div className="w-full md:w-auto">
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">الدليل الرقمي</h1>
-            <p className="text-sm text-slate-500">الشركات الحاصلة على شهادة الحلال العربية</p>
-          </div>
-
-          {/* Pill Search Bar */}
-          <div className="w-full md:w-auto flex-1 max-w-2xl flex items-center bg-white border border-slate-200 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-md transition-shadow px-2 py-2">
-            <div className="flex-1 px-4 border-l border-slate-200">
-              <label className="block text-[10px] font-bold text-slate-800 mb-0.5">البحث</label>
-              <input 
-                type="text" 
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="اسم المنشأة، رقم الترخيص، أو الموقع..."
-                className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 font-medium"
-              />
-            </div>
+          <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-12 justify-between mb-8">
             
-            <button className="w-12 h-12 bg-[#007A55] rounded-full flex items-center justify-center text-white hover:bg-[#006344] transition-colors ml-1 shrink-0">
-              <Search size={18} strokeWidth={2.5} />
-            </button>
+            <div className="w-full lg:w-auto">
+              <h1 className="text-2xl lg:text-3xl pr-21 font-black text-stone-800 tracking-tight drop-shadow-[0_1px_1px_#ffffff]">الدليل الرقمي الموحد</h1>
+              
+            </div>
+
+            {/* Recessed Search Bar */}
+            <div className="w-full lg:w-auto flex-1 max-w-2xl relative">
+               <div className="ind-recessed bg-[#FAF9F6] rounded-xl p-1.5 flex items-center shadow-[var(--shadow-ind-recessed)] focus-within:ring-2 focus-within:ring-[#007A55]/30 transition-all border-none">
+                  <div className="flex-1 px-4">
+                    <input 
+                      type="text" 
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="اسم المنشأة، رقم الترخيص، أو الموقع..."
+                      className="w-full bg-transparent text-sm lg:text-base text-stone-800 outline-none placeholder:text-stone-300 font-bold"
+                    />
+                  </div>
+                  
+                  <button className="w-12 h-12 bg-[#007A55] text-white rounded-lg flex items-center justify-center hover:bg-[#006344] active:translate-y-[2px] active:shadow-[var(--shadow-ind-pressed)] transition-all shadow-[var(--shadow-ind-floating)] border border-black/10 shrink-0 cursor-pointer">
+                    <Search size={20} strokeWidth={2.5} />
+                  </button>
+               </div>
+            </div>
+
+            {/* Filter Toggle */}
+            <div className="hidden lg:flex items-center">
+              <button className="flex items-center gap-3 px-6 py-3.5 bg-[#FAF9F6] border border-white rounded-xl text-sm font-black text-stone-700 shadow-[var(--shadow-ind-card)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-ind-floating)] active:translate-y-0.5 transition-all cursor-pointer group">
+                <SlidersHorizontal size={18} className="group-hover:rotate-90 transition-transform duration-500" />
+                <span>إعدادات العرض</span>
+              </button>
+            </div>
           </div>
 
-          {/* Filter Button (Visual only) */}
-          <div className="hidden md:flex w-full md:w-auto items-center justify-end">
-            <button className="flex items-center gap-2 px-4 py-3 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:border-slate-800 transition-colors">
-              <SlidersHorizontal size={16} />
-              فلاتر متقدمة
-            </button>
+          {/* Categories - Printed Label Style */}
+          <div className="flex items-center gap-4 overflow-x-auto no-scrollbar pb-4 relative">
+            {categories.map((cat) => {
+              const isActive = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`flex items-center gap-2 whitespace-nowrap px-5 py-2.5 rounded-md text-[11px] lg:text-xs font-black transition-all cursor-pointer uppercase tracking-widest ${
+                    isActive 
+                      ? "bg-[#007A55] text-white shadow-[var(--shadow-ind-floating)] -translate-y-0.5" 
+                      : "bg-white/40 text-stone-500 hover:text-stone-800 hover:bg-white shadow-[var(--shadow-ind-sharp)]"
+                  }`}
+                >
+                  {isActive && <div className="w-1.5 h-1.5 rounded-full bg-[#CA8A04] animate-pulse" />}
+                  {cat}
+                </button>
+              );
+            })}
           </div>
-
-        </div>
-
-        {/* Categories Scroller */}
-        <div className="max-w-7xl mx-auto mt-6 flex items-center gap-8 overflow-x-auto no-scrollbar pb-2">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`flex flex-col items-center gap-2 whitespace-nowrap px-1 pb-2 border-b-2 transition-colors ${
-                activeCategory === cat 
-                  ? "border-slate-900 text-slate-900" 
-                  : "border-transparent text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              <span className={`text-sm ${activeCategory === cat ? 'font-bold' : 'font-medium'}`}>{cat}</span>
-            </button>
-          ))}
         </div>
       </div>
 
       {/* 2. Results Grid */}
-      <div className="max-w-7xl mx-auto px-6 md:px-10 mt-8 min-h-[50vh]">
+      <div className="max-w-7xl mx-auto w-full pt-18 lg:pt-24 px-6 lg:px-10 py-12 min-h-[60vh] relative z-10">
+        
+        {/* Schematic Grid Overlay for content area */}
+        <div className="absolute inset-0 opacity-[0.015] pointer-events-none" 
+             style={{ backgroundImage: 'linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
         {filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center">
-            <div className="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mb-4">
-              <Search size={24} />
+            <div className="w-20 h-20 bg-[#e0e5ec] text-stone-400 rounded-3xl flex items-center justify-center mb-6 shadow-[var(--shadow-ind-recessed)]">
+              <Search size={32} />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">لم نجد نتائج مطابقة</h3>
-            <p className="text-slate-500">حاول البحث بكلمات مختلفة أو تغيير التصنيف.</p>
+            <h3 className="text-xl lg:text-2xl font-black text-stone-800 mb-2">قاعدة البيانات لا تستجيب للطلب</h3>
+            <p className="text-stone-500 font-medium">لم نتمكن من العثور على أي سجلات مطابقة للمعايير المدخلة.</p>
             <button 
               onClick={() => { setQuery(""); setActiveCategory("الكل"); }}
-              className="mt-6 px-6 py-2 bg-slate-900 text-white rounded-lg text-sm font-bold hover:bg-slate-800 transition-colors"
+              className="mt-8 px-8 py-3 bg-[#1C4C2A] text-white rounded-xl text-sm font-black shadow-[var(--shadow-ind-floating)] hover:-translate-y-0.5 transition-all cursor-pointer"
             >
-              إزالة التصفية
+              إعادة تهيئة محرك البحث
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
-            <AnimatePresence>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 xl:gap-8">
+            <AnimatePresence mode="popLayout">
               {filteredData.map((cert) => {
-                const StatusIcon = statusConfig[cert.status].icon;
+                const config = statusConfig[cert.status];
                 return (
                   <motion.div 
                     key={cert.id}
                     layout
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className="group cursor-pointer"
+                    transition={{ duration: 0.3 }}
+                    className="group"
                     onClick={() => setSelectedCert(cert)}
                   >
-                    {/* Image Area */}
-                    <div className="relative aspect-square sm:aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 mb-4">
-                      <img 
-                        src={cert.image} 
-                        alt={cert.companyName} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                      
-                      {/* Status Badge */}
-                      <div className="absolute top-3 right-3">
-                        <div className={`px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 shadow-sm backdrop-blur-md bg-white/90 ${statusConfig[cert.status].color}`}>
-                          <StatusIcon size={12} strokeWidth={3} />
-                          {statusConfig[cert.status].label}
-                        </div>
-                      </div>
+                    <div className="ind-card p-3 bg-white border border-stone-200/50 rounded-[1.5rem] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[var(--shadow-ind-floating)] cursor-pointer relative overflow-hidden">
+                       
+                       {/* Screws */}
+                       <div className="absolute top-2 left-2 w-2 h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)] z-20"></div>
+                       <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)] z-20"></div>
 
-                      {/* Halal Watermark overlay on image */}
-                      <div className="absolute bottom-3 left-3 opacity-40 bg-white/20 p-1.5 rounded-full backdrop-blur-sm">
-                        <ShieldCheck size={18} className="text-white" />
-                      </div>
-                    </div>
+                       {/* Status LED (Top Center) */}
+                       <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20">
+                          <div className={`w-2 h-2 rounded-full ${config.led} animate-pulse shadow-[0_0_8px_rgba(0,0,0,0.2)]`} style={{ boxShadow: `0 0 10px ${config.led.replace('bg-', '')}` }}></div>
+                       </div>
 
-                    {/* Content Area */}
-                    <div className="space-y-1 px-1">
-                      <div className="flex justify-between items-start gap-2">
-                        <h3 className="font-bold text-slate-900 truncate">{cert.companyName}</h3>
-                        <div className="flex items-center gap-1 shrink-0 text-slate-500 text-xs mt-0.5">
-                           <Award size={12} />
-                           <span className="font-medium">{cert.category}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-1 text-slate-500 text-sm">
-                        <MapPin size={14} className="shrink-0" />
-                        <span className="truncate">{cert.location}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-1 text-slate-500 text-sm mt-1">
-                        <span className="font-medium">رقم الترخيص:</span>
-                        <span className="font-bold text-slate-700 font-mono tracking-tight">{cert.licenseNumber}</span>
-                      </div>
+                       {/* Image Area */}
+                       <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-white mb-5 border border-stone-100 shadow-sm">
+                          <img 
+                            src={cert.image} 
+                            alt={cert.companyName} 
+                            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                            loading="lazy"
+                          />
+                          
+                          {/* Category Tag */}
+                          <div className="absolute bottom-3 right-3 z-20">
+                             <div className="px-2 py-1 rounded bg-black/40 backdrop-blur-md border border-white/10 text-white text-[9px] font-mono font-black uppercase tracking-widest shadow-lg">
+                                {cert.category}
+                             </div>
+                          </div>
+                       </div>
+
+                       {/* Content Area */}
+                       <div className="px-2 pb-2 space-y-3">
+                          <h3 className="font-black text-stone-800 text-lg leading-tight truncate drop-shadow-[0_1px_0_#ffffff]">{cert.companyName}</h3>
+                          
+                          <div className="flex items-center gap-2 text-stone-500">
+                             <MapPin size={14} className="text-[#CA8A04]" />
+                             <span className="text-xs font-bold truncate">{cert.location}</span>
+                          </div>
+
+                          <div className="pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
+                             <div className="flex flex-col">
+                                <span className="text-[8px] font-mono font-black text-stone-400 uppercase tracking-tighter">License ID</span>
+                                <span className="text-xs font-mono font-black text-[#007A55] tracking-tight">{cert.licenseNumber}</span>
+                             </div>
+                             
+                             <div className={`px-2.5 py-1 rounded text-[10px] font-black flex items-center gap-1.5 shadow-[var(--shadow-ind-sharp)] border border-white/50 ${config.bg} ${config.color}`}>
+                                <config.icon size={12} strokeWidth={3} />
+                                {config.label}
+                             </div>
+                          </div>
+                       </div>
                     </div>
                   </motion.div>
                 );
@@ -315,7 +333,7 @@ const CertificateVerification: React.FC = () => {
         )}
       </div>
 
-      {/* 3. Detail Modal (Appears when a card is clicked) */}
+      {/* 3. Detail Drawer (Industrial Technical Dossier) */}
       <AnimatePresence>
         {selectedCert && (
           <>
@@ -324,117 +342,177 @@ const CertificateVerification: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedCert(null)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-[100]"
             />
             
             <motion.div 
-              initial={{ opacity: 0, y: "100%" }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed inset-x-0 bottom-0 md:inset-x-auto md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full md:w-[600px] bg-white md:rounded-3xl rounded-t-3xl shadow-2xl z-50 max-h-[90vh] overflow-y-auto"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 200 }}
+              className="fixed top-0 right-0 h-full w-full max-w-lg lg:max-w-xl bg-[#FAF9F6] shadow-[-20px_0_50px_rgba(0,0,0,0.2)] z-[101] flex flex-col border-l border-stone-300"
             >
-              {/* Modal Header Image */}
-              <div className="relative h-64 w-full bg-slate-100">
-                <img 
-                  src={selectedCert.image} 
-                  alt={selectedCert.companyName} 
-                  className="w-full h-full object-cover"
-                />
+              {/* Noise Overlay in Drawer */}
+              <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
+
+              {/* Drawer Header (Control Panel) */}
+              <div className="p-6 lg:p-8 bg-[#e0e5ec] border-b border-stone-300 sticky top-0 z-20 flex items-center justify-between">
+                <div className="flex flex-col gap-1">
+                   <div className="flex items-center gap-2">
+                      <div className={`w-2.5 h-2.5 rounded-full ${statusConfig[selectedCert.status].led} shadow-[0_0_10px_rgba(0,0,0,0.1)]`} />
+                      <span className="text-[10px] font-mono font-black text-stone-500 uppercase tracking-widest">Technical Report</span>
+                   </div>
+                   <h2 className="text-xl lg:text-2xl font-black text-stone-800 tracking-tight">{selectedCert.companyName}</h2>
+                </div>
+                
                 <button 
                   onClick={() => setSelectedCert(null)}
-                  className="absolute top-4 right-4 w-8 h-8 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-slate-900 hover:bg-white transition-colors"
+                  className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center rounded-xl bg-white border border-white text-stone-400 hover:text-stone-900 shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] active:translate-y-0.5 transition-all cursor-pointer"
                 >
-                  <ArrowLeft size={18} />
+                  <X size={24} strokeWidth={2.5} />
                 </button>
               </div>
 
-              {/* Modal Content */}
-              <div className="p-6 md:p-8">
-                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 ${statusConfig[selectedCert.status].bg} ${statusConfig[selectedCert.status].color}`}>
-                  {React.createElement(statusConfig[selectedCert.status].icon, { size: 14 })}
-                  {statusConfig[selectedCert.status].label}
-                </div>
+              {/* Drawer Content */}
+              <div className="flex-grow overflow-y-auto p-6 lg:p-10 relative z-10 space-y-10">
                 
-                <h2 className="text-2xl font-bold text-slate-900 mb-2">{selectedCert.companyName}</h2>
-                <div className="flex items-center gap-2 text-slate-500 text-sm mb-8 pb-8 border-b border-slate-100">
-                  <MapPin size={16} />
-                  <span>{selectedCert.location}</span>
-                  <span className="mx-2">•</span>
-                  <Award size={16} />
-                  <span>{selectedCert.category}</span>
+                {/* Main Visual Display */}
+                <div className="ind-card p-3 border border-stone-200/50 rounded-3xl overflow-hidden relative shadow-lg">
+                   <div className="absolute top-4 left-4 w-2 h-2 rounded-full bg-stone-300 shadow-inner"></div>
+                   <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-stone-300 shadow-inner"></div>
+                   
+                   <div className="h-64 lg:h-80 w-full rounded-2xl overflow-hidden relative border border-stone-100 shadow-inner">
+                      <img 
+                        src={selectedCert.image} 
+                        alt={selectedCert.companyName} 
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 to-transparent"></div>
+                      <div className="absolute bottom-6 right-6">
+                         <div className="flex items-center gap-3 text-white">
+                            <div className="w-10 h-10 rounded-lg bg-[#CA8A04] flex items-center justify-center shadow-lg">
+                               <ShieldCheck size={24} />
+                            </div>
+                            <span className="text-xl font-black drop-shadow-md">وثيقة حلال رسمية</span>
+                         </div>
+                      </div>
+                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-y-6 gap-x-4 mb-8">
-                  <div>
-                    <span className="block text-xs font-bold text-slate-400 mb-1">رقم الترخيص</span>
-                    <span className="text-base font-bold text-slate-900 font-mono">{selectedCert.licenseNumber}</span>
-                  </div>
-                  <div>
-                    <span className="block text-xs font-bold text-slate-400 mb-1">المواصفات</span>
-                    <div className="flex flex-wrap gap-1">
+                {/* Technical Data Points */}
+                <div className="grid grid-cols-2 gap-6 lg:gap-8">
+                   {[
+                     { label: "License Number", value: selectedCert.licenseNumber, mono: true, color: "text-[#007A55]" },
+                     { label: "Issuance Category", value: selectedCert.category, mono: false },
+                     { label: "Geographic Location", value: selectedCert.location, mono: false },
+                     { label: "Expiry Protocol", value: selectedCert.expiryDate, mono: true, color: "text-rose-600" },
+                     { label: "Certification Status", value: statusConfig[selectedCert.status].label, mono: false, status: true },
+                     { label: "Next Technical Audit", value: selectedCert.nextFollowUp, mono: true }
+                   ].map((item, idx) => (
+                     <div key={idx} className="space-y-1.5">
+                        <span className="text-[10px] font-mono font-black text-stone-400 uppercase tracking-widest block">{item.label}</span>
+                        <div className={`p-4 rounded-xl bg-white border border-stone-200 shadow-[var(--shadow-ind-sharp)] font-black text-sm lg:text-base ${item.mono ? 'font-mono tracking-tighter' : ''} ${item.color || 'text-stone-800'}`}>
+                           {item.value}
+                        </div>
+                     </div>
+                   ))}
+                </div>
+
+                {/* Standards Module */}
+                <div className="ind-card p-6 border border-stone-200/50 bg-[#e0e5ec]/30 space-y-4">
+                   <div className="flex items-center gap-2 mb-2">
+                      <Target size={14} className="text-[#CA8A04]" />
+                      <span className="text-[10px] font-mono font-black text-stone-500 uppercase tracking-widest">Compliance Standards</span>
+                   </div>
+                   <div className="flex flex-wrap gap-3">
                       {selectedCert.standards.map((std, i) => (
-                        <span key={i} className="text-sm font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">{std}</span>
+                        <div key={i} className="px-4 py-2 bg-white border border-stone-300 rounded shadow-[var(--shadow-ind-sharp)] text-xs font-black text-stone-700 flex items-center gap-2">
+                           <CheckCircle2 size={12} className="text-[#007A55]" />
+                           {std}
+                        </div>
                       ))}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="block text-xs font-bold text-slate-400 mb-1">تاريخ الانتهاء</span>
-                    <span className="text-base font-bold text-slate-900">{selectedCert.expiryDate}</span>
-                  </div>
-                  <div>
-                    <span className="block text-xs font-bold text-slate-400 mb-1">المتابعة القادمة</span>
-                    <span className="text-base font-bold text-slate-900">{selectedCert.nextFollowUp}</span>
-                  </div>
+                   </div>
                 </div>
 
+                {/* Support Contact Mini-Panel */}
+                <div className="flex items-center gap-4 p-4 lg:p-6 bg-stone-900 rounded-2xl border border-stone-700 shadow-[var(--shadow-ind-floating)] relative overflow-hidden group">
+                   <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
+                   <div className="w-12 lg:w-14 h-12 lg:h-14 rounded-xl bg-[#1C4C2A] flex items-center justify-center shrink-0 shadow-lg group-hover:scale-110 transition-transform">
+                      <Info size={24} className="text-[#CA8A04]" />
+                   </div>
+                   <div>
+                      <p className="text-white font-black text-sm lg:text-base">تحتاج مساعدة فنية؟</p>
+                      <p className="text-stone-400 text-xs font-medium">فريق التدقيق متاح للرد على أي استفسار.</p>
+                   </div>
+                   <button className="mr-auto w-10 h-10 rounded-full bg-stone-800 text-[#CA8A04] flex items-center justify-center hover:bg-stone-700 transition-colors shadow-inner">
+                      <Mail size={18} />
+                   </button>
+                </div>
+              </div>
+
+              {/* Action Area */}
+              <div className="p-6 lg:p-8 bg-white border-t border-stone-200 sticky bottom-0 z-20 flex gap-4">
                 {selectedCert.status === "Active" && (
-                  <a 
-                    href={selectedCert.certificateUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 py-4 bg-[#007A55] text-white rounded-xl font-bold text-sm hover:bg-[#006344] transition-colors"
-                  >
-                    <Download size={18} />
-                    تحميل الشهادة
-                  </a>
+                  <button className="flex-1 btn-primary h-[60px] group shadow-[0_10px_30px_rgba(0,122,85,0.2)]">
+                    <Download size={20} />
+                    تحميل الوثيقة المعتمدة
+                  </button>
                 )}
+                <button className="flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-xl border-2 border-stone-200 text-stone-700 font-black text-sm lg:text-base hover:bg-stone-50 active:translate-y-0.5 transition-all">
+                   طباعة التقرير
+                </button>
               </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
 
-      {/* 4. Contact CTA Section */}
-      <section className="relative mt-10 py-24 bg-slate-950 text-center overflow-hidden">
-        <div className="absolute inset-0">
-          <img src="/section-bg-1.jpeg" alt="Background" className="w-full h-full object-cover blur-[4px] opacity-10" />
+      {/* 4. Contact CTA Section (Dark Technical Panel) */}
+      <section className="relative mt-20 py-24 bg-[#1C4C2A] text-center overflow-hidden border-t border-stone-800">
+        <div className="absolute inset-0 opacity-20 z-0">
+          <img src="/section-bg-1.jpeg" alt="Background" className="w-full h-full object-cover blur-[2px]" />
+          <div className="absolute inset-0 bg-slate-900/60 mix-blend-multiply"></div>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent"></div>
         
-        <div className="relative z-10 max-w-3xl mx-auto px-6">
-          <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 text-[#007A55] border border-white/10">
-            <ShieldCheck size={32} />
+        {/* ISO Grid overlay */}
+        <div className="absolute inset-0 opacity-[0.05] pointer-events-none z-0" 
+             style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+
+        <div className="relative z-10 max-w-4xl mx-auto px-6 flex flex-col items-center">
+          <div className="w-20 h-20 bg-black/20 backdrop-blur-md rounded-[1.5rem] flex items-center justify-center mb-8 text-[#CA8A04] border border-white/10 shadow-[var(--shadow-ind-floating)] group hover:scale-105 transition-transform duration-500">
+            <ShieldCheck size={40} className="group-hover:rotate-12 transition-transform" />
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">هل تحتاج إلى مساعدة في التحقق؟</h2>
-          <p className="text-slate-400 text-lg mb-10 leading-relaxed">
-            فريق الدعم الفني للبرنامج العربي للحلال متاح للرد على استفساراتكم المتعلقة بعمليات التحقق ومطابقة الشهادات.
+          
+          <h2 className="text-3xl md:text-4xl lg:text-4xl font-black text-white mb-6 leading-relaxed drop-shadow-lg">
+             هل تحتاج إلى مساعدة <br/> 
+             <span className="text-[#CA8A04]">في التحقق من البيانات؟</span>
+          </h2>
+          
+          <p className="text-stone-300 text-base lg:text-lg mb-12 leading-relaxed max-w-2xl font-medium">
+            فريق الدعم الفني للبرنامج العربي للحلال متاح على مدار الساعة للرد على استفساراتكم المتعلقة بعمليات التحقق ومطابقة الشهادات الرسمية.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="mailto:halal@aidsmo.org" className="flex items-center justify-center gap-2 px-8 py-4 bg-[#007A55] text-white rounded-xl font-bold hover:bg-[#006344] transition-colors">
-              <Mail size={18} />
+          
+          <div className="flex flex-col sm:flex-row justify-center gap-6 w-full sm:w-auto">
+            <a href="mailto:halal@aidsmo.org" className="btn-primary !bg-[#CA8A04] !text-stone-900 h-[60px] px-10 group shadow-[0_15px_40px_rgba(202,138,4,0.3)] min-w-[200px]">
+              <Mail size={20} />
               راسلنا الآن
+              <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
             </a>
-            <button className="flex items-center justify-center gap-2 px-8 py-4 bg-white/5 text-white border border-white/10 rounded-xl font-bold hover:bg-white/10 transition-colors">
-              <Phone size={18} />
+            <button className="flex items-center justify-center gap-3 px-10 py-4 rounded-xl border-2 border-white/20 text-white font-black text-lg hover:bg-white hover:text-[#1C4C2A] transition-all duration-300 active:translate-y-[2px] group">
+              <Phone size={20} className="group-hover:rotate-12 transition-transform" />
               الدعم الفني
             </button>
           </div>
         </div>
+        
+        {/* Hardware Detail */}
+        <div className="absolute top-10 right-10 flex gap-2">
+           <div className="h-10 w-2 rounded-full bg-black/40 shadow-inner" />
+           <div className="h-10 w-2 rounded-full bg-black/40 shadow-inner" />
+        </div>
       </section>
 
       <style>{`
-        .font-arabic { font-family: 'Readex Pro', sans-serif; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>

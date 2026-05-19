@@ -212,23 +212,7 @@ export const Hero = () => {
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16 items-center">
             
-            {/* Image (Visual Left in LTR / Right in RTL) */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="relative p-3 lg:p-4 bg-white rounded-2xl shadow-[var(--shadow-ind-floating)] border border-stone-200"
-            >
-              {/* Screws */}
-              <div className="absolute top-3 left-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
-              <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
-              <div className="absolute bottom-3 left-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
-              <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
-
-              <div className="relative z-10 rounded-xl overflow-hidden ind-recessed shadow-[inset_0_4px_10px_rgba(0,0,0,0.1)]">
-                <img src="/about-us-bg.png" alt="Editorial Visual" className="w-full h-auto grayscale-[20%] hover:grayscale-0 transition-all duration-700" />
-              </div>
-            </motion.div>
+          
 
             {/* Text Content */}
             <div className="flex flex-col items-start text-right">
@@ -246,7 +230,7 @@ export const Hero = () => {
                 {/* Structural highlight */}
                 
                 
-                <p className="text-base lg:text-lg leading-relaxed text-stone-600 font-medium">
+                <p className="text-base lg:text-lg text-justify leading-relaxed text-stone-600 font-medium">
                   يعمل البرنامج على ضمان{" "}
                   <strong className="text-stone-900 font-black">حماية المستهلك المسلم</strong>{" "}
                   في الدول العربية وفي جميع دول العالم، ليس فقط من{" "}
@@ -261,7 +245,23 @@ export const Hero = () => {
                 </p>
               </div>
             </div>
+  {/* Image (Visual Left in LTR / Right in RTL) */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="relative p-3 lg:p-4 bg-white rounded-2xl shadow-[var(--shadow-ind-floating)] border border-stone-200"
+            >
+              {/* Screws */}
+              <div className="absolute top-3 left-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
+              <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
+              <div className="absolute bottom-3 left-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
+              <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
 
+              <div className="relative z-10 rounded-xl overflow-hidden ind-recessed shadow-[inset_0_4px_10px_rgba(0,0,0,0.1)]">
+                <img src="/about-us-bg.png" alt="Editorial Visual" className="w-full h-auto grayscale-[20%] hover:grayscale-0 transition-all duration-700" />
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
