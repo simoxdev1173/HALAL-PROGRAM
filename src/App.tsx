@@ -10,7 +10,6 @@ import OfficialMarkAndDocuments from "./components/OfficialMarkAndDocuments";
 import InternationalRecognition from "./components/InternationalRecognition";
 import FAQSection from "./components/FaqSection";
 import { Hero } from "./components/Hero";
-import IntroAnimation from "./components/IntroAnimation";
 import Footer from "./components/Footer";
 import { ChatbotWidget } from "./components/ChatbotWidget";
 import AboutProgram from "./about-us/page";

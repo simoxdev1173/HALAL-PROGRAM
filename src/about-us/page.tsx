@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ShieldCheck, Target, Globe2, Layers, ArrowLeft } from "lucide-react";
+import { ShieldCheck, Globe2, Layers, ArrowLeft } from "lucide-react";
 
 export default function AboutProgram() {
   return (

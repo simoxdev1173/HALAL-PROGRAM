@@ -123,7 +123,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
     { name: "إنجليزي", code: "en" }
   ];
 
-  const customEase = [0.175, 0.885, 0.32, 1.275]; // Mechanical easing
+  const customEase: [number, number, number, number] = [0.175, 0.885, 0.32, 1.275]; // Mechanical easing
 
   return (
     <>

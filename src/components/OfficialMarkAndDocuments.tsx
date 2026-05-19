@@ -235,7 +235,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
                   onClick={() => setSelectedDoc(null)}
                   className="w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
                 >
-                  <X size={18} lg:size={20} strokeWidth={2} />
+                  <X size={18} strokeWidth={2} className="lg:w-5 lg:h-5" />
                 </button>
               </div>
               
@@ -292,4 +292,4 @@ const OfficialMarkAndDocuments: React.FC = () => {
   );
 };
 
-export default OfficialMarkAndDocuments;
+export default OfficialMarkAndDocuments;Documents;

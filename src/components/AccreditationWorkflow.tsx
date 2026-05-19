@@ -96,8 +96,8 @@ const AccreditationWorkflow = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 xl:gap-16 relative z-10">
-            {steps.map((step, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16 relative z-10">
+            {steps.map((step) => (
               <motion.div
                 key={step.id}
                 initial={{ opacity: 0, y: 30 }}

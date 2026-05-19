@@ -131,7 +131,7 @@ const CompanySearch = () => {
                   {isSearching ? (
                     <div className="w-4 lg:w-5 h-4 lg:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
-                    <ArrowLeft size={18} lg:size={20} strokeWidth={2.5} className="group-hover:-translate-x-1 transition-transform" />
+                    <ArrowLeft size={18} strokeWidth={2.5} className="lg:w-5 lg:h-5 group-hover:-translate-x-1 transition-transform" />
                   )}
                 </button>
               </form>
@@ -169,7 +169,7 @@ const CompanySearch = () => {
               className="absolute top-6 right-6 md:top-10 md:right-10 bg-white/10 backdrop-blur-md border border-white/20 p-3 lg:p-4 rounded-xl lg:rounded-2xl flex items-center gap-3 lg:gap-4 text-white shadow-lg z-30"
             >
               <div className="w-10 lg:w-12 h-10 lg:h-12 bg-[#CA8A04] rounded-full flex items-center justify-center shadow-inner">
-                <ShieldCheck size={20} lg:size={24} className="text-slate-900" />
+                <ShieldCheck size={20} className="lg:w-6 lg:h-6 text-slate-900" />
               </div>
               <div>
                 <div className="text-[10px] lg:text-xs font-medium text-white/80 uppercase tracking-wider mb-1">دقة وموثوقية</div>
@@ -184,7 +184,7 @@ const CompanySearch = () => {
               className="absolute bottom-6 left-6 md:bottom-10 md:left-10 bg-white p-4 lg:p-5 rounded-xl lg:rounded-2xl flex items-center gap-3 lg:gap-4 shadow-xl border border-slate-100/50 z-30"
             >
               <div className="w-10 lg:w-12 h-10 lg:h-12 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100">
-                <Globe2 size={20} lg:size={24} className="text-[#007A55]" />
+                <Globe2 size={20} className="lg:w-6 lg:h-6 text-[#007A55]" />
               </div>
               <div>
                 <div className="text-[9px] lg:text-[10px] font-bold text-slate-400 mb-1">تغطية شاملة</div>

@@ -93,7 +93,7 @@ const FAQSection: React.FC = () => {
               <div className="absolute top-3 right-3 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-stone-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
 
               <div className="w-10 lg:w-12 h-10 lg:h-12 rounded-lg bg-white/10 border border-white/10 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2)] flex items-center justify-center text-[#CA8A04] shrink-0">
-                <HelpCircle size={20} lg:size={24} strokeWidth={2} />
+                <HelpCircle size={20} className="lg:w-6 lg:h-6" strokeWidth={2} />
               </div>
               <div>
                 <h4 className="text-sm lg:text-base font-black text-white mb-2">لديك استفسارات أخرى؟</h4>
@@ -102,7 +102,7 @@ const FAQSection: React.FC = () => {
                 </p>
                 <a href="mailto:halal@aidsmo.org" className="btn-gold w-fit text-[10px] lg:text-xs group uppercase tracking-widest px-5 py-2.5 lg:px-6 lg:py-3 border border-[#CA8A04] bg-transparent text-[#CA8A04] hover:bg-[#CA8A04] hover:text-white transition-all">
                   راسلنا عبر البريد 
-                  <ArrowLeft size={14} lg:size={16} className="group-hover:-translate-x-1 transition-transform" />
+                  <ArrowLeft size={14} className="lg:w-4 lg:h-4 group-hover:-translate-x-1 transition-transform" />
                 </a>
               </div>
             </motion.div>
@@ -123,7 +123,7 @@ const FAQSection: React.FC = () => {
                         {faq.question}
                       </h3>
                       <div className={`shrink-0 w-7 lg:w-8 h-7 lg:h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${isOpen ? 'border-[#CA8A04] bg-[#CA8A04] text-slate-900 shadow-[0_0_10px_rgba(202,138,4,0.5)]' : 'border-white/20 text-white group-hover:border-[#CA8A04] group-hover:text-[#CA8A04]'}`}>
-                        {isOpen ? <Minus size={14} lg:size={16} strokeWidth={3} /> : <Plus size={14} lg:size={16} strokeWidth={3} />}
+                        {isOpen ? <Minus size={14} className="lg:w-4 lg:h-4" strokeWidth={3} /> : <Plus size={14} className="lg:w-4 lg:h-4" strokeWidth={3} />}
                       </div>
                     </button>
                     
