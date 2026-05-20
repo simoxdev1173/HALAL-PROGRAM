@@ -151,10 +151,6 @@ const JoinProgram = () => {
             {/* Sidebar Navigation (Machine Rack) */}
             <div className="w-full lg:w-[320px] lg:sticky lg:top-32 space-y-6 shrink-0">
               <div className="ind-card border border-stone-200/50 p-6 lg:p-8 relative bg-[#e0e5ec]">
-                 {/* Hardware Details */}
-                 <div className="absolute top-3 left-3 w-2 h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
-                 <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
-
                  <h3 className="text-xs font-mono font-black text-stone-500 uppercase tracking-widest mb-8 border-b border-white/40 pb-4 shadow-[0_1px_0_rgba(255,255,255,0.5)]">إجراءات الانضمام</h3>
                  
                  <div className="space-y-4">

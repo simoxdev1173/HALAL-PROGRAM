@@ -88,10 +88,6 @@ const FAQSection: React.FC = () => {
               viewport={{ once: true }}
               className="bg-white/5 backdrop-blur-md border border-white/10 p-5 lg:p-6 rounded-2xl flex flex-col items-start gap-4 relative cursor-default shadow-xl"
             >
-              {/* Screws */}
-              <div className="absolute top-3 left-3 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-stone-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
-              <div className="absolute top-3 right-3 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-stone-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
-
               <div className="w-10 lg:w-12 h-10 lg:h-12 rounded-lg bg-white/10 border border-white/10 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2)] flex items-center justify-center text-[#CA8A04] shrink-0">
                 <HelpCircle size={20} className="lg:w-6 lg:h-6" strokeWidth={2} />
               </div>

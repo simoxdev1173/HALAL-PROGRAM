@@ -109,12 +109,6 @@ const AccreditationWorkflow = () => {
                 {/* A. Top Image Block - Physical Module */}
                 <div className="relative h-[280px] lg:h-[320px] xl:h-[360px] w-full ind-card border border-stone-200/50 p-2 lg:p-3 mb-6">
                   
-                  {/* Screws */}
-                  <div className="absolute top-2 left-2 w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-                  <div className="absolute top-2 right-2 w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-                  <div className="absolute bottom-2 left-2 w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-                  <div className="absolute bottom-2 right-2 w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-
                   {/* Recessed Screen Area */}
                   <div className="relative w-full h-full ind-recessed overflow-hidden rounded-xl group-hover:shadow-[inset_2px_2px_8px_rgba(0,0,0,0.1)] transition-all">
                     {/* Scanline overlay */}

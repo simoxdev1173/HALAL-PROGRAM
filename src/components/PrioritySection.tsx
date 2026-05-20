@@ -138,12 +138,6 @@ const ExploreSectors = () => {
                 href="#"
                 className="group relative flex flex-col items-center justify-center p-3 lg:p-4 min-h-[180px] lg:min-h-[220px] bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 cursor-pointer overflow-hidden hover:-translate-y-1 transition-all duration-300 shadow-xl"
               >
-                {/* Screws */}
-                <div className="absolute top-3 left-3 w-2 h-2 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-                <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-                <div className="absolute bottom-3 left-3 w-2 h-2 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-                <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-
                 {/* Recessed Image Area */}
                 <div className="absolute top-10 left-4 right-4 bottom-14 bg-stone-900 rounded-lg overflow-hidden border-none z-10 transition-all duration-500 group-hover:shadow-[inset_2px_2px_10px_rgba(0,0,0,0.5)] shadow-[inset_1px_1px_4px_rgba(0,0,0,0.5)]">
                   <img 

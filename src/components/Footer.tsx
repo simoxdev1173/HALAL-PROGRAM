@@ -121,12 +121,6 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
           {/* Premium Glow */}
           <div className="absolute top-0 right-0 w-48 h-48 lg:w-64 lg:h-64 bg-[#CA8A04] opacity-[0.08] blur-[60px] rounded-full pointer-events-none z-0"></div>
 
-          {/* Screws */}
-          <div className="absolute top-6 left-6 w-1.5 lg:w-2.5 h-1.5 lg:h-2.5 rounded-full bg-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)] z-20"></div>
-          <div className="absolute top-6 right-6 w-1.5 lg:w-2.5 h-1.5 lg:h-2.5 rounded-full bg-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)] z-20"></div>
-          <div className="absolute bottom-6 left-6 w-1.5 lg:w-2.5 h-1.5 lg:h-2.5 rounded-full bg-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)] z-20"></div>
-          <div className="absolute bottom-6 right-6 w-1.5 lg:w-2.5 h-1.5 lg:h-2.5 rounded-full bg-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)] z-20"></div>
-
           <div className="relative z-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-8 xl:gap-12">
             
             {/* Text Content */}

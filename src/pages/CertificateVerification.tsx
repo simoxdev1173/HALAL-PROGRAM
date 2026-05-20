@@ -277,14 +277,7 @@ const CertificateVerification: React.FC = () => {
                   >
                     <div className="ind-card p-3 bg-white border border-stone-200/50 rounded-[1.5rem] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[var(--shadow-ind-floating)] cursor-pointer relative overflow-hidden">
                        
-                       {/* Screws */}
-                       <div className="absolute top-2 left-2 w-2 h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)] z-20"></div>
-                       <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)] z-20"></div>
-
-                       {/* Status LED (Top Center) */}
-                       <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20">
-                          <div className={`w-2 h-2 rounded-full ${config.led} animate-pulse shadow-[0_0_8px_rgba(0,0,0,0.2)]`} style={{ boxShadow: `0 0 10px ${config.led.replace('bg-', '')}` }}></div>
-                       </div>
+                       
 
                        {/* Image Area */}
                        <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-white mb-5 border border-stone-100 shadow-sm">
@@ -378,9 +371,6 @@ const CertificateVerification: React.FC = () => {
                 
                 {/* Main Visual Display */}
                 <div className="ind-card p-3 border border-stone-200/50 rounded-3xl overflow-hidden relative shadow-lg">
-                   <div className="absolute top-4 left-4 w-2 h-2 rounded-full bg-stone-300 shadow-inner"></div>
-                   <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-stone-300 shadow-inner"></div>
-                   
                    <div className="h-64 lg:h-80 w-full rounded-2xl overflow-hidden relative border border-stone-100 shadow-inner">
                       <img 
                         src={selectedCert.image} 

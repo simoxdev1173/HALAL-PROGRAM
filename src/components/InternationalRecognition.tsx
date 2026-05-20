@@ -38,12 +38,6 @@ helll
           </h2>
 
           <div className="relative bg-black/10 border border-white/10 p-6 lg:p-8 xl:p-10 rounded-2xl shadow-[var(--shadow-ind-floating)] backdrop-blur-md mt-4 lg:mt-6 w-full max-w-4xl">
-            {/* Screws */}
-            <div className="absolute top-4 left-4 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-stone-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]"></div>
-            <div className="absolute top-4 right-4 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-stone-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]"></div>
-            <div className="absolute bottom-4 left-4 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-stone-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]"></div>
-            <div className="absolute bottom-4 right-4 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-stone-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]"></div>
-
             <p className="text-sm md:text-base lg:text-lg xl:text-xl font-medium text-white leading-relaxed text-center">
               إذا كنتم هيئة مانحة لشهادات الحلال خارج المنطقة العربية، يمكن لكم التواصل مع إحدى الجهات
               الوطنية المعينة الموقعة على وثيقة التعاون الفني مع المنظمة والعضو بالبرنامج، وذلك للحصول

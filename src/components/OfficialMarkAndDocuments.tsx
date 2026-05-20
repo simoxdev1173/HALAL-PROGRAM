@@ -93,12 +93,6 @@ const OfficialMarkAndDocuments: React.FC = () => {
         <div className="mb-8 lg:mb-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
           <div className="lg:col-span-8 bg-[#F8F9FA] border border-stone-100 p-6 lg:p-8 flex flex-col md:flex-row items-center gap-6 lg:gap-8 relative cursor-default rounded-sm shadow-sm hover:shadow-md transition-shadow">
              
-             {/* Hardware Details */}
-             <div className="absolute top-4 left-4 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-gradient-to-br from-stone-200 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)]"></div>
-             <div className="absolute top-4 right-4 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-gradient-to-br from-stone-200 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)]"></div>
-             <div className="absolute bottom-4 left-4 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-gradient-to-br from-stone-200 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)]"></div>
-             <div className="absolute bottom-4 right-4 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-gradient-to-br from-stone-200 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)]"></div>
-
              {/* ISO-Style Background from previous version */}
              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
                   style={{ backgroundImage: 'radial-gradient(#1F5D3A 1px, transparent 0)', backgroundSize: '30px 30px' }} />

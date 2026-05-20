@@ -69,10 +69,6 @@ const CompanySearch = () => {
             {/* --- Search Panel (Industrial Control Panel) --- */}
             <div className="bg-white rounded-2xl lg:rounded-3xl p-5 lg:p-6 relative shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100">
               
-              {/* Screws */}
-              <div className="absolute top-3 left-3 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-              <div className="absolute top-3 right-3 w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-
               {/* Status LED */}
               <div className="absolute top-3 right-1/2 translate-x-1/2">
                  <div className={`w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full ${isSearching ? 'bg-[#CA8A04] animate-pulse shadow-[0_0_8px_rgba(202,138,4,0.8)]' : 'bg-[#007A55] shadow-[0_0_8px_rgba(0,122,85,0.8)]'}`}></div>
@@ -147,12 +143,6 @@ const CompanySearch = () => {
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             className="lg:col-span-6 relative h-[400px] md:h-[500px] lg:h-[550px] xl:h-[600px] rounded-[2rem] xl:rounded-[2.5rem] overflow-hidden group shadow-2xl shadow-[#007A55]/10"
           >
-            {/* Screws */}
-            <div className="absolute top-6 left-6 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400/20 to-stone-600/20 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] z-20"></div>
-            <div className="absolute top-6 right-6 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400/20 to-stone-600/20 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] z-20"></div>
-            <div className="absolute bottom-6 left-6 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400/20 to-stone-600/20 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] z-20"></div>
-            <div className="absolute bottom-6 right-6 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400/20 to-stone-600/20 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] z-20"></div>
-
             <div className="absolute inset-0">
               <img 
                 src="/searchSection.png" 

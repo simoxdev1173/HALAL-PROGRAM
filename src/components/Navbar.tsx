@@ -41,17 +41,17 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
         { name: "عن البرنامج", path: "/about-us" },
         { name: "الدول المنضمة", path: "/joined-countries" },
         { name: "التحقق من شهادة", path: "/certificate-verification" },  
-        { name: "الانضمام للبرنامج", path: "#" },
-        { name: "النماذج والوثائق", path: "#" },
+        { name: "الانضمام للبرنامج", path: "/join-program" },
+        { name: "النماذج والوثائق", path: "/documents" },
       ],
       mega: {
         links: {
           title: "روابط هامة",
           items: [
             { text: "الدول المنضمة للبرنامج", href: "/joined-countries" },
-            { text: "آلية الانضمام للبرنامج", href: "#" },
-            { text: "تكاليف الحصول على الشهادة", href: "#" },
-            { text: "شروط استخدام العلامة", href: "#" },  
+            { text: "آلية الانضمام للبرنامج", href: "/join-program" },
+            { text: "تكاليف الحصول على الشهادة", href: "/join-program" },
+            { text: "شروط استخدام العلامة", href: "/documents" },  
             { text: "محرك البحث والتحقق", href: "/certificate-verification" }
           ]
         },
@@ -273,12 +273,6 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
               className="absolute top-full left-0 w-full bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-floating)] z-30"
             >
               <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 p-12 relative">
-                {/* Structural Screws */}
-                <div className="absolute top-6 left-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
-                <div className="absolute top-6 right-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
-                <div className="absolute bottom-6 left-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
-                <div className="absolute bottom-6 right-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
-
                 {/* Links */}
                 <div>
                   <div className="flex items-center gap-3 mb-6 border-b border-stone-300 pb-4 shadow-[0_1px_0_rgba(255,255,255,1)]">

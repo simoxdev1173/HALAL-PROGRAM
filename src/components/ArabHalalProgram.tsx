@@ -60,14 +60,7 @@ const ArabHalalProgram = () => {
             
             {/* Card 1 */}
             <div className="relative group bg-white/5 backdrop-blur-md rounded-2xl p-8 flex flex-col border border-white/10 hover:-translate-y-1 transition-all duration-300 cursor-default shadow-xl">
-              {/* Screws */}
-              <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
-              <div className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
-
-              {/* Status Indicator */}
-              <div className="absolute top-4 right-1/2 translate-x-1/2 flex items-center justify-center">
-                 <div className="w-2 h-2 rounded-full bg-[#CA8A04] animate-pulse shadow-[0_0_8px_rgba(202,138,4,0.8)]"></div>
-              </div>
+             
 
               <div className="mt-6 mb-6 inline-flex items-center justify-center w-12 h-12 rounded-lg bg-white/10 text-[#CA8A04] shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2)] border border-white/5">
                  <span className="font-mono font-bold text-xl">01</span>
@@ -95,14 +88,7 @@ const ArabHalalProgram = () => {
 
             {/* Card 2 */}
             <div className="relative group bg-white/5 backdrop-blur-md rounded-2xl p-8 flex flex-col border border-white/10 hover:-translate-y-1 transition-all duration-300 cursor-default shadow-xl">
-              {/* Screws */}
-              <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
-              <div className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
-
-              {/* Status Indicator */}
-              <div className="absolute top-4 right-1/2 translate-x-1/2 flex items-center justify-center">
-                 <div className="w-2 h-2 rounded-full bg-stone-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></div>
-              </div>
+             
 
               <div className="mt-6 mb-6 inline-flex items-center justify-center w-12 h-12 rounded-lg bg-white/10 text-[#CA8A04] shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2)] border border-white/5">
                  <span className="font-mono font-bold text-xl">02</span>
@@ -129,20 +115,7 @@ const ArabHalalProgram = () => {
 
             {/* Card 3 (Elevated Priority) */}
             <div className="relative group bg-white/5 backdrop-blur-md rounded-2xl p-8 flex flex-col border border-white/10 hover:-translate-y-1 transition-all duration-300 cursor-default shadow-xl">
-              {/* Vents */}
-              <div className="absolute top-4 left-4 flex gap-1.5 z-20">
-                  <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]" />
-                  <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]" />
-              </div>
-              <div className="absolute top-4 right-4 flex gap-1.5 z-20">
-                  <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]" />
-                  <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]" />
-              </div>
-
-               {/* Status Indicator */}
-               <div className="absolute top-4 right-1/2 translate-x-1/2 flex items-center justify-center">
-                 <div className="w-2.5 h-2.5 rounded-full bg-[#007A55] animate-pulse shadow-[0_0_10px_rgba(0,122,85,1)]"></div>
-              </div>
+               
 
               <div className="mt-6 mb-6 inline-flex items-center justify-center w-12 h-12 rounded-lg bg-white/10 text-[#CA8A04] shadow-[inset_2px_2px_5px_rgba(0,0,0,0.2)] border border-white/5">
                  <span className="font-mono font-bold text-xl">03</span>
@@ -152,7 +125,7 @@ const ArabHalalProgram = () => {
                 مورد أو منشأة راغبة في الحصول على الشهادة
               </h3>
               
-              <div className="text-stone-400 font-medium leading-relaxed flex-grow text-sm mb-8 space-y-4">
+              <div className="text-white font-medium leading-relaxed flex-grow text-sm mb-8 space-y-4">
                 <p>
                   يمكن لك التواصل مع إحدى الجهات المعينة المعتمدة من قبل جهة
                   تعيين عربية (عضو بالبرنامج) وطلب الحصول على الترخيص لمنح الشهادة.
@@ -164,7 +137,7 @@ const ArabHalalProgram = () => {
               </div>
 
               <div className="flex flex-col gap-4 mt-auto">
-                <a href="#" className="flex items-center gap-3 font-bold text-sm w-fit group/btn transition-colors cursor-pointer text-stone-300 hover:text-[#CA8A04]">
+                <a href="#" className="flex items-center gap-3 font-bold text-sm w-fit group/btn transition-colors cursor-pointer text-white hover:text-[#CA8A04]">
                   طلب الترخيص باستخدام العلامة
                   <div className="w-6 h-6 rounded-full flex items-center justify-center shadow-[var(--shadow-ind-sharp)] bg-white/10 border border-white/10">
                     <ArrowLeftIcon className="w-3 h-3 group-hover/btn:-translate-x-1 transition-transform duration-300" />

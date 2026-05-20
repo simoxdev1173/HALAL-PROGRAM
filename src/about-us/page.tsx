@@ -40,12 +40,7 @@ export default function AboutProgram() {
             </h1>
           </motion.div>
         </div>
-        
-        {/* Hardware Detail */}
-        <div className="absolute bottom-6 left-6 flex gap-2 z-20">
-           <div className="h-2 w-8 rounded-full bg-black/20 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]" />
-           <div className="h-2 w-8 rounded-full bg-black/20 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]" />
-        </div>
+
       </section>
 
       {/* --- SECTION 1: CORE MISSION --- */}
@@ -87,9 +82,6 @@ export default function AboutProgram() {
 
               <div className="ind-card border border-stone-200/50 p-6 lg:p-8 relative">
                
-                <div className="absolute top-3 left-3 w-2 h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-                <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-                
                 <div className="space-y-6 text-justify text-sm lg:text-base text-slate-600 font-medium leading-relaxed">
                   <p>
                     ويعتبر البرنامج بمثابة تأسيس لمنظومة اعتراف متعدد الأطراف، بشهادة وعلامة الحلال العربية، بين الدول العربية المنضمة إليه، وقد وضعت بنوده بما يتوافق مع مواصفة تقييم المطابقة - المصطلحات والمبادئ العامة{" "}
@@ -109,12 +101,6 @@ export default function AboutProgram() {
               className="lg:w-1/2 relative"
             >
               <div className="ind-card p-3 lg:p-4 border border-stone-200/50 rounded-[2.5rem] overflow-hidden shadow-2xl relative">
-                {/* Screws */}
-                <div className="absolute top-6 left-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-                <div className="absolute top-6 right-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-                <div className="absolute bottom-6 left-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-                <div className="absolute bottom-6 right-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-
                 <div className="relative h-[400px] lg:h-[500px] w-full rounded-[2rem] overflow-hidden ind-recessed shadow-[inset_0_10px_40px_rgba(0,0,0,0.2)]">
                   {/* Scanline overlay */}
                   <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.05)_50%)] bg-[length:100%_4px] pointer-events-none z-10"></div>
@@ -256,10 +242,6 @@ export default function AboutProgram() {
                 className="group flex flex-col items-center text-center"
               >
                 <div className="ind-card p-3 lg:p-4 border border-stone-200/50 mb-8 w-full relative">
-                  {/* Screws */}
-                  <div className="absolute top-2 left-2 w-2 h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-                  <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-                  
                   <div className="relative h-[250px] lg:h-[300px] w-full rounded-2xl overflow-hidden ind-recessed group-hover:shadow-[inset_0_4px_20px_rgba(0,0,0,0.2)] transition-all duration-500">
                     <img
                       src={item.image}

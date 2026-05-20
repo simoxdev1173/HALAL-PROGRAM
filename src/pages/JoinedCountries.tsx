@@ -255,12 +255,6 @@ const JoinedCountries = () => {
             </div>
             
             <div className="p-8 lg:p-10 ind-card border border-stone-100 bg-[#FAF9F6] relative">
-               {/* Hardware Details */}
-               <div className="absolute top-3 left-3 w-2 h-2 rounded-full bg-stone-300 shadow-inner"></div>
-               <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-stone-300 shadow-inner"></div>
-               <div className="absolute bottom-3 left-3 w-2 h-2 rounded-full bg-stone-300 shadow-inner"></div>
-               <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-stone-300 shadow-inner"></div>
-
                <p className="text-base lg:text-xl text-slate-600 font-medium leading-relaxed">
                  {t.introDesc}
                </p>
@@ -330,12 +324,6 @@ const JoinedCountries = () => {
           >
             {/* Country Scenery Module */}
             <div className="ind-card p-3 lg:p-4 border border-stone-200/50 rounded-[2.5rem] overflow-hidden shadow-2xl relative bg-white">
-              {/* Screws */}
-              <div className="absolute top-6 left-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-inner z-20"></div>
-              <div className="absolute top-6 right-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-inner z-20"></div>
-              <div className="absolute bottom-6 left-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-inner z-20"></div>
-              <div className="absolute bottom-6 right-6 w-3 h-3 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-inner z-20"></div>
-
               <div className="relative h-[400px] lg:h-[500px] w-full rounded-[2rem] overflow-hidden border border-stone-100">
                  <img src={selectedCountry.scenery} alt={selectedCountry.name} className="w-full h-full object-cover" />
                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>

@@ -72,10 +72,6 @@ export function ActionCards() {
                   : "bg-white ind-card border border-white/50"
               }`}
             >
-              {/* Screws */}
-              <div className="absolute top-4 left-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-              <div className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-gradient-to-br from-stone-300 to-stone-400 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)] z-20"></div>
-
               {/* Card Image Header */}
               <div className="relative h-48 w-full overflow-hidden ind-recessed rounded-none border-b border-stone-200/20">
                 <div className="absolute inset-0 bg-stone-900/30 group-hover:bg-transparent transition-colors duration-500 z-10" />
@@ -252,12 +248,6 @@ export const Hero = () => {
               viewport={{ once: true }}
               className="relative p-3 lg:p-4 bg-white rounded-2xl shadow-[var(--shadow-ind-floating)] border border-stone-200"
             >
-              {/* Screws */}
-              <div className="absolute top-3 left-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
-              <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
-              <div className="absolute bottom-3 left-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
-              <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-stone-300 shadow-[inset_1px_1px_1px_rgba(0,0,0,0.2)]"></div>
-
               <div className="relative z-10 rounded-xl overflow-hidden ind-recessed shadow-[inset_0_4px_10px_rgba(0,0,0,0.1)]">
                 <img src="/about-us-bg.png" alt="Editorial Visual" className="w-full h-auto grayscale-[20%] hover:grayscale-0 transition-all duration-700" />
               </div>
