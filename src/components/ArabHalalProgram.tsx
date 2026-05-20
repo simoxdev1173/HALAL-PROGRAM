@@ -148,7 +148,7 @@ const ArabHalalProgram = () => {
                  <span className="font-mono font-bold text-xl">03</span>
               </div>
 
-              <h3 className="text-xl font-black mb-4 text-white leading-relaxed group-hover:-translate-y-0.5 transition-transform duration-300">
+              <h3 className="text-xl text-[#CA8A04] font-black mb-4  leading-relaxed group-hover:-translate-y-0.5 transition-transform duration-300">
                 مورد أو منشأة راغبة في الحصول على الشهادة
               </h3>
               
