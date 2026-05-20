@@ -1,12 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { 
   Building2, 
   FileCheck2, 
   Search, 
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 
@@ -43,6 +46,26 @@ const CTA_DATA = [
     image: "/card-3.png"
   }
 ];
+
+const HERO_SLIDES = [
+  {
+    image:
+      "/slider/i-1.jpeg",
+    alt: "منتجات غذائية وسلاسل توريد",
+  },
+    {
+      image:
+      "/slider/i-2.jpeg",
+    alt: "وثائق واعتماد رسمي",
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1494412519320-aa613dfb7738?auto=format&fit=crop&w=2200&q=85",
+    alt: "تجارة وأسواق عالمية",
+  },
+];
+
+const HERO_SLIDE_DURATION = 5200;
 
 /* ---------- ACTION CARDS COMPONENT (Industrial Style) ---------- */
 export function ActionCards() {
@@ -133,37 +156,102 @@ export function ActionCards() {
 
 /* ---------- MAIN LAYOUT ---------- */
 export const Hero = () => {
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
+    }, HERO_SLIDE_DURATION);
+
+    return () => window.clearTimeout(timer);
+  }, [activeSlide]);
+
+  const goToSlide = (index: number) => setActiveSlide(index);
+  const goToPrevious = () => {
+    setActiveSlide((current) => (current === 0 ? HERO_SLIDES.length - 1 : current - 1));
+  };
+  const goToNext = () => {
+    setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
+  };
+
   return (
     <div className="w-full bg-slate-50" dir="rtl">
-      <section className="relative w-full h-[600px] lg:h-[650px] xl:h-[750px] flex items-center overflow-hidden">
-        {/* Background Image & Overlay */}
+      <section className="relative w-full h-[690px] lg:h-[760px] xl:h-[840px] flex items-center overflow-hidden bg-slate-950">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/hero-photo.png" 
-            alt="Global Islamic Trade" 
-            className="w-full h-full object-cover object-center"
+          <AnimatePresence initial={false} mode="popLayout">
+            <motion.img
+              key={HERO_SLIDES[activeSlide].image}
+              src={HERO_SLIDES[activeSlide].image}
+              alt={HERO_SLIDES[activeSlide].alt}
+              initial={{
+                x: "-10%",
+                scale: 1.12,
+                opacity: 0,
+                clipPath: "polygon(100% 0, 100% 0, 100% 100%, 100% 100%)",
+              }}
+              animate={{
+                x: "0%",
+                scale: 1,
+                opacity: 1,
+                clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
+              }}
+              exit={{
+                x: "8%",
+                scale: 1.04,
+                opacity: 0,
+                clipPath: "polygon(0 0, 0 0, 0 100%, 0 100%)",
+              }}
+              transition={{ duration: 1.05, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0 h-full w-full object-cover object-center"
+            />
+          </AnimatePresence>
+
+          <motion.div
+            key={`wash-${activeSlide}`}
+            initial={{ opacity: 0.2 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0 bg-[radial-gradient(circle_at_72%_42%,rgba(0,122,85,0.42),transparent_32%),linear-gradient(90deg,rgba(3,7,18,0.26),rgba(3,7,18,0.72)_52%,rgba(3,7,18,0.95))]"
           />
-      
-          <div className="absolute inset-0 bg-slate-900/40 mix-blend-multiply"></div>
-          <div className="absolute inset-0 bg-gradient-to-l from-[#111827]/20 via-[#111827]/30 to-transparent"></div>
+          <div className="absolute inset-0 bg-slate-950/20 mix-blend-multiply"></div>
+          <div
+            className="absolute inset-0 opacity-[0.09]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px)",
+              backgroundSize: "54px 54px",
+            }}
+          />
         </div>
 
-        {/* Hero Content */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 mt-16 text-white">
+        <button
+          onClick={goToPrevious}
+          aria-label="الشريحة السابقة"
+          className="absolute right-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-slate-950/30 text-white backdrop-blur-md hover:border-[#CA8A04] hover:bg-slate-950/50 hover:text-[#CA8A04] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30 sm:h-12 sm:w-12 xl:right-8"
+        >
+          <ChevronRight size={22} />
+        </button>
+
+        <button
+          onClick={goToNext}
+          aria-label="الشريحة التالية"
+          className="absolute left-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-slate-950/30 text-white backdrop-blur-md hover:border-[#CA8A04] hover:bg-slate-950/50 hover:text-[#CA8A04] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30 sm:h-12 sm:w-12 xl:left-8"
+        >
+          <ChevronLeft size={22} />
+        </button>
+
+        <div className="relative z-20 w-full max-w-7xl mx-auto px-6 pt-20 text-white">
           <motion.div 
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
             className="max-w-4xl"
           >
-         
-            
-            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-tight mb-6">
-              البرنامج العربي <span className="text-[#007A55]">للحلال</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-tight mb-6 drop-shadow-[0_16px_40px_rgba(0,0,0,.45)]">
+              البرنامج العربي <span className="text-[#CA8A04]">للحلال</span>
             </h1>
             
-            {/* UI EXPERT NOTE: Gold accent border instead of green to break up the color blocking */}
-            <p className="text-base md:text-lg xl:text-xl text-slate-200 leading-relaxed font-light max-w-2xl border-r-4 border-[#CA8A04] pr-5 bg-gradient-to-l from-white/5 to-transparent py-2">
+            <p className="text-base md:text-lg xl:text-xl text-slate-100 leading-relaxed font-medium max-w-2xl border-r-4 border-[#CA8A04] pr-5 bg-gradient-to-l from-white/10 to-transparent py-3 backdrop-blur-[2px]">
               منظومة اعتراف متعدد الأطراف تربط <strong className="font-bold text-white">جهات التعيين الحكومية العربية</strong> بمعايير <strong className="font-bold text-white">دولية معتمدة</strong> — لضمان مصداقية شهادات الحلال وحماية المستهلك المسلم في كل الأسواق، من الدول العربية إلى كل دول العالم.
             </p>
             
@@ -178,7 +266,7 @@ export const Hero = () => {
                 </span>
                 
                 <Link to="/join-program" className="btn-primary w-full md:w-auto h-[54px] xl:h-[60px] text-sm xl:text-base group">
-                  انضم كجهة تعيين حكومية
+                 الإنضمام لبرنامج
                   <div className="w-6 h-6 rounded-sm bg-black/20 flex items-center justify-center">
                     <ArrowLeft size={16} className="group-hover:text-[#CA8A04] transition-colors" />
                   </div>
@@ -195,6 +283,50 @@ export const Hero = () => {
                 </Link>
               </div>
 
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.35 }}
+            className="mt-10 max-w-3xl"
+          >
+            <div className="grid grid-cols-3 gap-2 lg:gap-3">
+              {HERO_SLIDES.map((slide, index) => {
+                const isActive = index === activeSlide;
+
+                return (
+                  <button
+                    key={slide.image}
+                    onClick={() => goToSlide(index)}
+                    className={`group relative h-16 lg:h-20 overflow-hidden rounded-xl border text-right cursor-pointer transition-colors focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30 ${
+                      isActive ? "border-[#CA8A04] bg-white/15" : "border-white/15 bg-white/5 hover:border-white/35"
+                    }`}
+                    aria-label={`عرض الشريحة ${index + 1}`}
+                  >
+                    <img
+                      src={slide.image}
+                      alt=""
+                      className="absolute inset-0 h-full w-full object-cover opacity-55 transition duration-500 group-hover:opacity-85"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/55 to-transparent" />
+                    <div className="absolute bottom-0 right-0 left-0 p-3">
+                      <div className="h-1 overflow-hidden rounded-full bg-white/20">
+                        {isActive && (
+                          <motion.div
+                            key={`progress-${activeSlide}`}
+                            initial={{ width: "0%" }}
+                            animate={{ width: "100%" }}
+                            transition={{ duration: HERO_SLIDE_DURATION / 1000, ease: "linear" }}
+                            className="h-full rounded-full bg-[#CA8A04]"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </motion.div>
         </div>

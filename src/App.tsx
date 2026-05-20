@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import ArabHalalProgram from "./components/ArabHalalProgram";
-import ExploreSectors from "./components/PrioritySection";
 import CompanySearch from "./components/CompanySearch";
 import AccreditationWorkflow from "./components/AccreditationWorkflow";
 import OfficialMarkAndDocuments from "./components/OfficialMarkAndDocuments";
@@ -45,7 +44,6 @@ const Home = () => (
     <section id="join">
        <AccreditationWorkflow />
     </section>
-    <ExploreSectors />
     <CompanySearch />
     <InternationalRecognition />
     <section id="directory">

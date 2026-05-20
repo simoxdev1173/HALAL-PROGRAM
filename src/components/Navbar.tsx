@@ -12,7 +12,7 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
-  const [isMegaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -38,11 +38,26 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
   const menuData = {
     ar: {
       links: [
-        { name: "عن البرنامج", path: "/about-us" },
-        { name: "الدول المنضمة", path: "/joined-countries" },
+        {
+          name: "عن البرنامج",
+          path: "/about-us",
+          children: [
+            { text: "نظرة عامة", href: "/about-us" },
+            { text: "أهداف البرنامج", href: "/#about" },
+            { text: "منظومة الخدمات", href: "/#join" },
+          ],
+        },
+        {
+          name: "الانضمام للبرنامج",
+          path: "/join-program",
+          children: [
+            { text: "آلية الانضمام", href: "/join-program" },
+            { text: "الدول المنضمة", href: "/joined-countries" },
+            { text: "النماذج والوثائق", href: "/documents" },
+          ],
+        },
+        { name: "الجهات المعنية الحلال في الدول العربية ", path: "/joined-countries" },
         { name: "التحقق من شهادة", path: "/certificate-verification" },  
-        { name: "الانضمام للبرنامج", path: "/join-program" },
-        { name: "النماذج والوثائق", path: "/documents" },
       ],
       mega: {
         links: {
@@ -77,10 +92,26 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
     },
     en: {
       links: [
-        { name: "About", path: "/about-us" },
+        {
+          name: "About",
+          path: "/about-us",
+          children: [
+            { text: "Overview", href: "/about-us" },
+            { text: "Program Goals", href: "/#about" },
+            { text: "Services", href: "/#join" },
+          ],
+        },
+        {
+          name: "Join Program",
+          path: "/join-program",
+          children: [
+            { text: "How to Join", href: "/join-program" },
+            { text: "Joined Countries", href: "/joined-countries" },
+            { text: "Forms & Documents", href: "/documents" },
+          ],
+        },
         { name: "Joined Countries", path: "/joined-countries" },
         { name: "Verification", path: "/certificate-verification" },
-        { name: "Accreditation", path: "/join-program" },
         { name: "Directory", path: "/documents" },
       ],
       mega: {
@@ -135,49 +166,91 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
         }`}
         dir={isRtl ? "rtl" : "ltr"}
         onMouseLeave={() => {
-          setMegaMenuOpen(false);
+          setActiveDropdown(null);
           setIsLangOpen(false);
         }}
       >
-        <div className="max-w-7xl mx-auto px-6 h-16 lg:h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-20 lg:h-24 flex items-center justify-between">
           
           {/* Logo & Desktop Links Grouped to fix spacing */}
-          <div className="flex items-center gap-6 xl:gap-14 h-full z-40">
+          <div className="flex items-center gap-6 xl:gap-10 h-full z-40 min-w-0">
             {/* BIG ROUND LOGO - Scaled for different screens */}
             <Link to="/" className="relative group">
-               <div className="absolute top-[-5px] lg:top-[-10px] left-1/2 -translate-x-1/2 w-20 h-20 lg:w-24 xl:w-28 lg:h-24 xl:h-28 bg-white rounded-full shadow-[var(--shadow-ind-floating)] border border-stone-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 active:scale-95 z-99 overflow-hidden">
+               <div className="absolute top-[-10px] lg:top-[-16px] left-1/2 -translate-x-1/2 w-24 h-24 lg:w-32 xl:w-36 lg:h-32 xl:h-36 bg-white rounded-full shadow-[var(--shadow-ind-floating)] border border-stone-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 active:scale-95 z-99 overflow-hidden">
                   <div className="absolute inset-0 bg-stone-50/50 ind-recessed rounded-full m-1"></div>
                   <img 
                     src="/logo.svg" 
                     alt="Logo" 
-                    className="relative z-99 w-14 lg:w-16 xl:w-20 h-auto object-contain shrink-0"
+                    className="relative z-99 w-16 lg:w-32 xl:w-34 h-auto object-contain shrink-0"
                   />
                </div>
             </Link>
 
             {/* Desktop Links (Tactile tags) - Added margin to account for the big logo */}
             <div 
-              className={`hidden lg:flex items-center h-full ${isRtl ? 'mr-20 xl:mr-32' : 'ml-20 xl:ml-32'}`}
-              onMouseEnter={() => setMegaMenuOpen(true)}
+              className={`hidden lg:flex items-center h-full min-w-0 ${isRtl ? 'mr-22 xl:mr-30' : 'ml-24 xl:ml-36'}`}
             >
               <ul className="flex items-center gap-1 h-full">
                 {d.links.map((link, i) => (
-                  <li key={i} className="h-full flex items-center">
+                  <li
+                    key={i}
+                    className="relative h-full flex items-center"
+                    onMouseEnter={() => setActiveDropdown(link.children ? link.name : null)}
+                  >
                     {link.path.startsWith("/#") ? (
                       <a 
                         href={link.path}
-                        className="relative px-3 xl:px-5 py-2 rounded-md text-[11px] xl:text-[13px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50"
+                        className="relative px-3 xl:px-4 py-2 rounded-md text-[11px] xl:text-[12px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5"
                       >
                         {link.name}
+                        {link.children && (
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={activeDropdown === link.name ? "rotate-180 transition-transform" : "transition-transform"}>
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                          </svg>
+                        )}
                       </a>
                     ) : (
                       <Link 
                         to={link.path}
-                        className="relative px-3 xl:px-5 py-2 rounded-md text-[11px] xl:text-[13px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50"
+                        className="relative px-3 xl:px-4 py-2 rounded-md text-[11px] xl:text-[12px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5"
                       >
                         {link.name}
+                        {link.children && (
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={activeDropdown === link.name ? "rotate-180 transition-transform" : "transition-transform"}>
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                          </svg>
+                        )}
                       </Link>
                     )}
+
+                    <AnimatePresence>
+                      {link.children && activeDropdown === link.name && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                          transition={{ duration: 0.18, ease: customEase }}
+                          className={`absolute top-[calc(100%-12px)] ${isRtl ? "right-0" : "left-0"} w-64 rounded-xl border border-stone-200 bg-[#FAF9F6] p-2 shadow-[var(--shadow-ind-floating)] z-50`}
+                        >
+                          {link.children.map((item, idx) => {
+                            const itemClass = "flex items-center gap-3 rounded-lg bg-white px-4 py-3 text-[13px] font-black text-stone-700 shadow-[var(--shadow-ind-card)] hover:text-[#007A55] hover:shadow-[var(--shadow-ind-floating)] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] transition-all";
+                            const dot = <span className="h-2 w-2 rounded-full bg-[#CA8A04] shadow-inner" />;
+
+                            return item.href.startsWith("/#") || item.href.startsWith("http") ? (
+                              <a key={idx} href={item.href} className={itemClass}>
+                                {dot}
+                                {item.text}
+                              </a>
+                            ) : (
+                              <Link key={idx} to={item.href} className={itemClass}>
+                                {dot}
+                                {item.text}
+                              </Link>
+                            );
+                          })}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </li>
                 ))}
               </ul>
@@ -186,6 +259,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-3 z-20 shrink-0">
+          
             
             {/* Search Placeholder Button (Recessed Well) */}
             <button 
@@ -247,7 +321,11 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                 )}
               </AnimatePresence>
             </div>
-
+            <img
+              src="/aidsmo.png"
+              alt="AIDSMO"
+              className="hidden xl:block h-18 w-auto object-contain rounded px-2 py-1"
+            />
             {/* Mobile Hamburger Button */}
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
@@ -262,111 +340,6 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           </div>
         </div>
 
-        {/* Desktop Mega Menu (Bolted Module) */}
-        <AnimatePresence>
-          {isMegaMenuOpen && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3, ease: customEase }}
-              className="absolute top-full left-0 w-full bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-floating)] z-30"
-            >
-              <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 p-12 relative">
-                {/* Links */}
-                <div>
-                  <div className="flex items-center gap-3 mb-6 border-b border-stone-300 pb-4 shadow-[0_1px_0_rgba(255,255,255,1)]">
-                    <div className="w-8 h-8 rounded-full bg-[#CA8A04] shadow-[var(--shadow-ind-floating)] flex items-center justify-center text-white">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                    </div>
-                    <h4 className="text-[14px] font-black text-stone-800 uppercase tracking-widest">
-                      {d.mega.links.title}
-                    </h4>
-                  </div>
-                  <ul className="space-y-3">
-                    {d.mega.links.items.map((item, i) => (
-                      <li key={i}>
-                        {item.href.startsWith("/#") || item.href.startsWith("http") ? (
-                          <a href={item.href} className="flex items-center gap-3 text-stone-600 hover:text-[#007A55] bg-white shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] hover:-translate-y-[1px] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] p-3 rounded-md text-[13px] font-bold transition-all group">
-                            <span className="w-2 h-2 rounded-full bg-stone-300 group-hover:bg-[#007A55] shadow-inner transition-colors"></span>
-                            {item.text}
-                          </a>
-                        ) : (
-                          <Link to={item.href} className="flex items-center gap-3 text-stone-600 hover:text-[#007A55] bg-white shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] hover:-translate-y-[1px] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] p-3 rounded-md text-[13px] font-bold transition-all group">
-                            <span className="w-2 h-2 rounded-full bg-stone-300 group-hover:bg-[#007A55] shadow-inner transition-colors"></span>
-                            {item.text}
-                          </Link>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* FAQ */}
-                <div>
-                  <div className="flex items-center gap-3 mb-6 border-b border-stone-300 pb-4 shadow-[0_1px_0_rgba(255,255,255,1)]">
-                    <div className="w-8 h-8 rounded-full bg-[#007A55] shadow-[var(--shadow-ind-floating)] flex items-center justify-center text-white">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                    </div>
-                    <h4 className="text-[14px] font-black text-stone-800 uppercase tracking-widest">
-                      {d.mega.faq.title}
-                    </h4>
-                  </div>
-                  <div className="space-y-4">
-                    {d.mega.faq.items.map((item, i) => (
-                      <div key={i} className="group cursor-default bg-white p-4 rounded-md shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] hover:-translate-y-[1px] transition-all duration-300 border border-stone-100">
-                        <h5 className="text-[13px] font-black text-[#007A55] mb-2 font-mono">
-                          {item.q}
-                        </h5>
-                        <p className="text-[12px] font-medium text-stone-600 leading-relaxed">
-                          {item.a}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Contact Card (Panel Style with Background Image) */}
-             <div 
-                className="md:col-span-2 rounded-xl p-8 flex flex-col justify-center relative overflow-hidden group border border-stone-300 shadow-[var(--shadow-ind-floating)]"
-              >
-                {/* Background Image & Overlay */}
-                <div className="absolute inset-0 z-0">
-                  <img src="/header-nav.png" alt="Contact Background" className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700" />
-                  <div className="absolute inset-0 bg-[#004D36]/80 mix-blend-multiply"></div>
-                </div>
-
-                {/* Scanline overlay for screen effect */}
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none z-10"></div>
-                
-                {/* Tech noise */}
-                <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay z-0" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
-
-                <div className="relative z-20 flex items-start gap-4">
-                  <div className="w-3 h-3 mt-2 rounded-full bg-[#CA8A04] shadow-[var(--shadow-ind-glow-gold)] animate-pulse shrink-0"></div>
-                  <div>
-                    <h4 className="font-mono font-black text-white text-2xl mb-3 uppercase tracking-widest drop-shadow-md">
-                      {d.mega.contact.title}
-                    </h4>
-
-                    <p className="text-white/80 text-sm font-medium leading-relaxed max-w-md mb-8 drop-shadow-sm">
-                      {d.mega.contact.desc}
-                    </p>
-                    
-                    <a 
-                      href={`mailto:${d.mega.contact.email}`}
-                      className="inline-flex btn-primary !bg-white !text-[#007A55] hover:!bg-[#CA8A04] hover:!text-white border-none shadow-[var(--shadow-ind-floating)]"
-                    >
-                      {d.mega.contact.btn}
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </nav>
 
       {/* --- SEARCH OVERLAY (Recessed Terminal Style) --- */}
@@ -449,7 +422,10 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             {/* Mobile Header */}
             <div className="h-20 px-6 flex items-center justify-between bg-[#FAF9F6] border-b border-stone-300 shadow-[var(--shadow-ind-card)] z-10">
               <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
-                <img src="/logo.svg" alt="Logo" className="h-12 w-auto object-contain" />
+                <div className="flex items-center gap-3">
+                  <img src="/logo.svg" alt="Logo" className="h-14 w-auto object-contain" />
+                  <img src="/aidsmo.png" alt="AIDSMO" className="h-9 w-auto object-contain" />
+                </div>
               </Link>
               <button 
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -498,6 +474,31 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                           </svg>
                         </div>
                       </Link>
+                    )}
+                    {link.children && (
+                      <div className="mt-2 grid gap-2 pr-3">
+                        {link.children.map((item, idx) =>
+                          item.href.startsWith("/#") || item.href.startsWith("http") ? (
+                            <a
+                              key={idx}
+                              href={item.href}
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="rounded-md bg-white/70 px-4 py-3 text-sm font-bold text-stone-600 shadow-[var(--shadow-ind-card)]"
+                            >
+                              {item.text}
+                            </a>
+                          ) : (
+                            <Link
+                              key={idx}
+                              to={item.href}
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="rounded-md bg-white/70 px-4 py-3 text-sm font-bold text-stone-600 shadow-[var(--shadow-ind-card)]"
+                            >
+                              {item.text}
+                            </Link>
+                          )
+                        )}
+                      </div>
                     )}
                   </motion.li>
                 ))}
