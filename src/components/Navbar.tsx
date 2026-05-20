@@ -41,17 +41,17 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
         { name: "عن البرنامج", path: "/about-us" },
         { name: "الدول المنضمة", path: "/joined-countries" },
         { name: "التحقق من شهادة", path: "/certificate-verification" },  
-        { name: "الانضمام للبرنامج", path: "/join-program" },
-        { name: "النماذج والوثائق", path: "/documents" },
+        { name: "الانضمام للبرنامج", path: "#" },
+        { name: "النماذج والوثائق", path: "#" },
       ],
       mega: {
         links: {
           title: "روابط هامة",
           items: [
             { text: "الدول المنضمة للبرنامج", href: "/joined-countries" },
-            { text: "آلية الانضمام للبرنامج", href: "/join-program" },
-            { text: "تكاليف الحصول على الشهادة", href: "/join-program" },
-            { text: "شروط استخدام العلامة", href: "/documents" },  
+            { text: "آلية الانضمام للبرنامج", href: "#" },
+            { text: "تكاليف الحصول على الشهادة", href: "#" },
+            { text: "شروط استخدام العلامة", href: "#" },  
             { text: "محرك البحث والتحقق", href: "/certificate-verification" }
           ]
         },
