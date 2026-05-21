@@ -73,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           children: [
             { text: "شروط الانضمام", href: "/join-program" },
             { text: "الدول المنضمة", href: "/joined-countries" },
-            { text: "الجهات المعنية بقطاع الحلال في الدول العربية", href: "/joined-countries" },
+            { text: "الجهات المعنية بقطاع الحلال في الدول العربية", href: "/halal-sector-authorities" },
           ],
         },
         { name: "شهادة وعلامة حلال", path: "/documents" },
@@ -128,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           children: [
             { text: "Joining Requirements", href: "/join-program" },
             { text: "Joined Countries", href: "/joined-countries" },
-            { text: "Halal Sector Authorities in Arab Countries", href: "/joined-countries" },
+            { text: "Halal Sector Authorities in Arab Countries", href: "/halal-sector-authorities" },
           ],
         },
         { name: "Halal Certificate & Mark", path: "/documents" },

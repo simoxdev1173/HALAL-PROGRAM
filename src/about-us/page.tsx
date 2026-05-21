@@ -107,7 +107,7 @@ export default function AboutProgram() {
                 <div className="relative h-full min-h-[390px] overflow-hidden rounded-[1.5rem] bg-slate-900 shadow-[inset_0_10px_40px_rgba(0,0,0,0.2)]">
                   <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.05)_50%)] bg-[length:100%_4px] pointer-events-none z-10" />
                   <img
-                    src="/section-bg-1.jpeg"
+                    src="/about-us-card.png"
                     alt="البرنامج العربي للحلال"
                     className="h-full w-full object-cover transition-transform duration-1000 hover:scale-105"
                   />

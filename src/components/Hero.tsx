@@ -285,7 +285,7 @@ export const Hero = () => {
       // Load all textures
       const loader = new THREE.TextureLoader();
       const loadedTextures = await Promise.all(
-        HERO_SLIDES.map((slide) => new Promise((resolve) => {
+        HERO_SLIDES.map((slide) => new Promise<any>((resolve) => {
           loader.load(slide.image, (t: any) => {
             t.minFilter = t.magFilter = THREE.LinearFilter;
             t.userData = { size: new THREE.Vector2(t.image.width, t.image.height) };

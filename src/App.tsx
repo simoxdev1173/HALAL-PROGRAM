@@ -17,6 +17,7 @@ import AboutProgram from "./about-us/page";
 import CertificateVerification from "./pages/CertificateVerification";
 import JoinProgram from "./pages/JoinProgram";
 import JoinedCountries from "./pages/JoinedCountries";
+import HalalSectorAuthorities from "./pages/HalalSectorAuthorities";
 import DocumentsModels from "./pages/Documents/page";
 import ProgramGoals from "./pages/ProgramGoals";
 import ProgramScope from "./pages/ProgramScope";
@@ -90,6 +91,7 @@ function App() {
             <Route path="/program-goals" element={<ProgramGoals />} />
             <Route path="/program-scope" element={<ProgramScope />} />
             <Route path="/joined-countries" element={<JoinedCountries />} />
+            <Route path="/halal-sector-authorities" element={<HalalSectorAuthorities />} />
             <Route path="/certificate-verification" element={<CertificateVerification />} />
             <Route path="/join-program" element={<JoinProgram />} />
             <Route path="/documents" element={<DocumentsModels />} />
