@@ -53,7 +53,7 @@ const goalFeatures = [
     icon: ConsumerSeal,
     title: "حماية المستهلك المسلم",
     description: "حماية المستهلك المسلم في جميع الدول من علامات وشهادات الحلال غير المعتمدة.",
-    image: "/goals-slider/goals-2.png",
+    image: "/goals-slider/goals-2-1.png",
   },
   {
     id: 3,

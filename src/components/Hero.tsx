@@ -52,7 +52,7 @@ const HERO_SLIDES = [
     alt: "منتجات غذائية وسلاسل توريد",
   },
   {
-    image: "/slider/i-2.jpeg",
+    image: "/slider/i-2-2-2.jpeg",
     alt: "وثائق واعتماد رسمي",
   },
   {
