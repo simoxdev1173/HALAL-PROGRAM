@@ -65,10 +65,8 @@ const OfficialMarkAndDocuments: React.FC = () => {
   ];
 
   return (
-    <section className="py-16 lg:py-24 px-6 bg-gradient-to-b from-white to-slate-50 relative min-h-screen flex flex-col justify-center border-y border-stone-200" dir="rtl">
-      
-      {/* Industrial noise overlay */}
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
+  <section className="relative z-10 py-20 lg:py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]">
+        <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
 
       <div className="max-w-7xl mx-auto w-full relative z-10">
         
@@ -168,7 +166,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
                     <img 
                       src={doc.image} 
                       alt={doc.title} 
-                      className="w-full h-full object-contain filter grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700 bg-white shadow-md" 
+                      className="w-full h-full object-contain filter  group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700 bg-white shadow-md" 
                     />
                     <div className="absolute inset-0 bg-[#007A55]/0 group-hover:bg-[#007A55]/5 transition-colors duration-500" />
                     
