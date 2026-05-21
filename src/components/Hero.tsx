@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { 
   Building2, 
   FileCheck2, 
@@ -11,7 +11,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-
 
 const CTA_DATA = [
   {
@@ -49,30 +48,26 @@ const CTA_DATA = [
 
 const HERO_SLIDES = [
   {
-    image:
-      "/slider/i-1.jpeg",
+    image: "/slider/i-1.jpeg",
     alt: "منتجات غذائية وسلاسل توريد",
   },
-    {
-      image:
-      "/slider/i-2.jpeg",
+  {
+    image: "/slider/i-2.jpeg",
     alt: "وثائق واعتماد رسمي",
   },
   {
-    image:
-      "https://images.unsplash.com/photo-1494412519320-aa613dfb7738?auto=format&fit=crop&w=2200&q=85",
+    image: "/slider/i-1.png",
     alt: "تجارة وأسواق عالمية",
   },
 ];
 
-const HERO_SLIDE_DURATION = 5200;
+const HERO_SLIDE_DURATION = 6800;
+const HERO_TRANSITION_DURATION = 2.5; // Adjusted to match the WebGL shader duration
 
-/* ---------- ACTION CARDS COMPONENT (Industrial Style) ---------- */
+/* ---------- ACTION CARDS COMPONENT ---------- */
 export function ActionCards() {
   return (
     <section className="py-24 relative z-10 bg-[#FAF9F6] overflow-hidden" dir="rtl">
-      
-      {/* Industrial noise overlay */}
       <div className="absolute inset-0 opacity-[0.02] mix-blend-multiply pointer-events-none" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -95,7 +90,6 @@ export function ActionCards() {
                   : "bg-white ind-card border border-white/50"
               }`}
             >
-              {/* Card Image Header */}
               <div className="relative h-48 w-full overflow-hidden ind-recessed rounded-none border-b border-stone-200/20">
                 <div className="absolute inset-0 bg-stone-900/30 group-hover:bg-transparent transition-colors duration-500 z-10" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
@@ -105,7 +99,6 @@ export function ActionCards() {
                   className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out grayscale group-hover:grayscale-0"
                 />
                 
-                {/* Vent Slots */}
                 <div className="absolute top-4 right-1/2 translate-x-1/2 flex gap-1.5 z-20">
                   <div className="h-1.5 w-8 rounded-full bg-black/40 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]" />
                   <div className="h-1.5 w-8 rounded-full bg-black/40 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]" />
@@ -120,7 +113,6 @@ export function ActionCards() {
                 </div>
               </div>
 
-              {/* Card Content */}
               <div className="p-8 flex flex-col flex-grow relative">
                 <div className="flex items-center gap-4 mb-5">
                   <div className={`w-12 h-12 rounded-lg flex items-center justify-center ind-recessed transition-all duration-300 ${
@@ -157,65 +149,267 @@ export function ActionCards() {
 /* ---------- MAIN LAYOUT ---------- */
 export const Hero = () => {
   const [activeSlide, setActiveSlide] = useState(0);
+  const prefersReducedMotion = useReducedMotion();
 
+  // --- WEBGL REFS ---
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const shaderMaterialRef = useRef<any>(null);
+  const texturesRef = useRef<any[]>([]);
+  const isTransitioningRef = useRef(false);
+  const rendererRef = useRef<any>(null);
+
+  // --- 1. LOAD EXTERNAL SCRIPTS & INIT THREE.JS ---
+  useEffect(() => {
+    if (prefersReducedMotion) return; // Fallback handled by CSS if reduced motion
+
+    const loadScripts = async () => {
+      const loadScript = (src: string, globalName: string) => new Promise<void>((res, rej) => {
+        if ((window as any)[globalName]) { res(); return; }
+        if (document.querySelector(`script[src="${src}"]`)) {
+          const check = setInterval(() => {
+            if ((window as any)[globalName]) { clearInterval(check); res(); }
+          }, 50);
+          return;
+        }
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = () => { setTimeout(() => res(), 100); };
+        s.onerror = () => rej(new Error(`Failed to load ${src}`));
+        document.head.appendChild(s);
+      });
+      
+      try {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js', 'gsap');
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', 'THREE');
+        initWebGL();
+      } catch (e) {
+        console.error('Failed to load WebGL scripts:', e);
+      }
+    };
+
+    const initWebGL = async () => {
+      const THREE = (window as any).THREE;
+      if (!canvasRef.current || !THREE) return;
+
+      // Setup Scene
+      const scene = new THREE.Scene();
+      const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current, antialias: false, alpha: false });
+      rendererRef.current = renderer;
+      renderer.setSize(window.innerWidth, canvasRef.current.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Shaders
+      const vertexShader = `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+      const fragmentShader = `
+        uniform sampler2D uTexture1, uTexture2;
+        uniform float uProgress;
+        uniform vec2 uResolution, uTexture1Size, uTexture2Size;
+        
+        // Settings strictly mapped to the "Glass/Default" preset from 21 Dev
+        uniform float uGlassRefractionStrength;
+        uniform float uGlassChromaticAberration;
+        uniform float uGlassBubbleClarity;
+        uniform float uGlassEdgeGlow;
+        uniform float uGlassLiquidFlow;
+        uniform float uSpeedMultiplier;
+        uniform float uDistortionStrength;
+        uniform float uGlobalIntensity;
+
+        varying vec2 vUv;
+
+        vec2 getCoverUV(vec2 uv, vec2 textureSize) {
+            vec2 s = uResolution / textureSize;
+            float scale = max(s.x, s.y);
+            vec2 scaledSize = textureSize * scale;
+            vec2 offset = (uResolution - scaledSize) * 0.5;
+            return (uv * uResolution - offset) / scaledSize;
+        }
+
+        vec4 glassEffect(vec2 uv, float progress) {
+            float time = progress * 5.0 * uSpeedMultiplier;
+            vec2 uv1 = getCoverUV(uv, uTexture1Size); vec2 uv2 = getCoverUV(uv, uTexture2Size);
+            float maxR = length(uResolution) * 0.85; float br = progress * maxR;
+            vec2 p = uv * uResolution; vec2 c = uResolution * 0.5;
+            float d = length(p - c); float nd = d / max(br, 0.001);
+            float param = smoothstep(br + 3.0, br - 3.0, d);
+            vec4 img;
+            
+            if (param > 0.0) {
+                 float ro = 0.08 * uGlassRefractionStrength * uDistortionStrength * uGlobalIntensity * pow(smoothstep(0.3 * uGlassBubbleClarity, 1.0, nd), 1.5);
+                 vec2 dir = (d > 0.0) ? (p - c) / d : vec2(0.0);
+                 vec2 distUV = uv2 - dir * ro;
+                 distUV += vec2(sin(time + nd * 10.0), cos(time * 0.8 + nd * 8.0)) * 0.015 * uGlassLiquidFlow * uSpeedMultiplier * nd * param;
+                 float ca = 0.02 * uGlassChromaticAberration * uGlobalIntensity * pow(smoothstep(0.3, 1.0, nd), 1.2);
+                 img = vec4(texture2D(uTexture2, distUV + dir * ca * 1.2).r, texture2D(uTexture2, distUV + dir * ca * 0.2).g, texture2D(uTexture2, distUV - dir * ca * 0.8).b, 1.0);
+                 
+                 if (uGlassEdgeGlow > 0.0) {
+                    float rim = smoothstep(0.95, 1.0, nd) * (1.0 - smoothstep(1.0, 1.01, nd));
+                    img.rgb += rim * 0.08 * uGlassEdgeGlow * uGlobalIntensity;
+                 }
+            } else { img = texture2D(uTexture2, uv2); }
+            
+            vec4 oldImg = texture2D(uTexture1, uv1);
+            if (progress > 0.95) img = mix(img, texture2D(uTexture2, uv2), (progress - 0.95) / 0.05);
+            return mix(oldImg, img, param);
+        }
+
+        void main() {
+            gl_FragColor = glassEffect(vUv, uProgress);
+        }
+      `;
+
+      shaderMaterialRef.current = new THREE.ShaderMaterial({
+        uniforms: {
+          uTexture1: { value: null }, 
+          uTexture2: { value: null }, 
+          uProgress: { value: 0 },
+          uResolution: { value: new THREE.Vector2(window.innerWidth, canvasRef.current.clientHeight) },
+          uTexture1Size: { value: new THREE.Vector2(1, 1) }, 
+          uTexture2Size: { value: new THREE.Vector2(1, 1) },
+          uGlobalIntensity: { value: 1.0 }, 
+          uSpeedMultiplier: { value: 1.0 }, 
+          uDistortionStrength: { value: 1.0 }, 
+          uGlassRefractionStrength: { value: 1.0 }, 
+          uGlassChromaticAberration: { value: 1.0 }, 
+          uGlassBubbleClarity: { value: 1.0 }, 
+          uGlassEdgeGlow: { value: 1.0 }, 
+          uGlassLiquidFlow: { value: 1.0 }
+        },
+        vertexShader, 
+        fragmentShader
+      });
+
+      scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), shaderMaterialRef.current));
+
+      // Load all textures
+      const loader = new THREE.TextureLoader();
+      const loadedTextures = await Promise.all(
+        HERO_SLIDES.map((slide) => new Promise((resolve) => {
+          loader.load(slide.image, (t: any) => {
+            t.minFilter = t.magFilter = THREE.LinearFilter;
+            t.userData = { size: new THREE.Vector2(t.image.width, t.image.height) };
+            resolve(t);
+          });
+        }))
+      );
+      
+      texturesRef.current = loadedTextures;
+
+      // Set initial textures
+      if (loadedTextures.length > 0) {
+        shaderMaterialRef.current.uniforms.uTexture1.value = loadedTextures[0];
+        shaderMaterialRef.current.uniforms.uTexture1Size.value = loadedTextures[0].userData.size;
+      }
+
+      // Render loop
+      const render = () => {
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+      };
+      render();
+
+      // Handle Resize
+      const handleResize = () => {
+        if (!canvasRef.current) return;
+        renderer.setSize(window.innerWidth, canvasRef.current.clientHeight);
+        shaderMaterialRef.current.uniforms.uResolution.value.set(window.innerWidth, canvasRef.current.clientHeight);
+      };
+      window.addEventListener("resize", handleResize);
+
+      return () => window.removeEventListener("resize", handleResize);
+    };
+
+    loadScripts();
+  }, [prefersReducedMotion]);
+
+  // --- 2. HANDLE TRANSITIONS WHEN activeSlide CHANGES ---
+  useEffect(() => {
+    if (prefersReducedMotion || !shaderMaterialRef.current || texturesRef.current.length === 0) return;
+    
+    const gsap = (window as any).gsap;
+    const material = shaderMaterialRef.current;
+    const targetTexture = texturesRef.current[activeSlide];
+
+    // Prevent re-triggering if already on target (initial load)
+    if (material.uniforms.uTexture1.value === targetTexture) return;
+
+    isTransitioningRef.current = true;
+    
+    // Kill any ongoing transition immediately
+    if (gsap) gsap.killTweensOf(material.uniforms.uProgress);
+
+    material.uniforms.uTexture2.value = targetTexture;
+    material.uniforms.uTexture2Size.value = targetTexture.userData.size;
+
+    if (gsap) {
+      gsap.fromTo(material.uniforms.uProgress, 
+        { value: 0 },
+        {
+          value: 1,
+          duration: HERO_TRANSITION_DURATION,
+          ease: "power2.inOut",
+          onComplete: () => {
+            material.uniforms.uTexture1.value = targetTexture;
+            material.uniforms.uTexture1Size.value = targetTexture.userData.size;
+            material.uniforms.uProgress.value = 0;
+            isTransitioningRef.current = false;
+          }
+        }
+      );
+    }
+  }, [activeSlide, prefersReducedMotion]);
+
+  // --- 3. AUTO SLIDER TIMER ---
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
+      if (!isTransitioningRef.current) {
+        setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
+      }
     }, HERO_SLIDE_DURATION);
 
     return () => window.clearTimeout(timer);
   }, [activeSlide]);
 
-  const goToSlide = (index: number) => setActiveSlide(index);
+  // Navigation Logic (Blocks rapid clicking during transition for perfect animation)
+  const goToSlide = (index: number) => {
+    if (!isTransitioningRef.current && activeSlide !== index) setActiveSlide(index);
+  };
   const goToPrevious = () => {
-    setActiveSlide((current) => (current === 0 ? HERO_SLIDES.length - 1 : current - 1));
+    if (!isTransitioningRef.current) setActiveSlide((current) => (current === 0 ? HERO_SLIDES.length - 1 : current - 1));
   };
   const goToNext = () => {
-    setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
+    if (!isTransitioningRef.current) setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
   };
 
   return (
     <div className="w-full bg-slate-50" dir="rtl">
       <section className="relative w-full h-[690px] lg:h-[760px] xl:h-[840px] flex items-center overflow-hidden bg-slate-950">
-        <div className="absolute inset-0 z-0">
-          <AnimatePresence initial={false} mode="popLayout">
-            <motion.img
-              key={HERO_SLIDES[activeSlide].image}
-              src={HERO_SLIDES[activeSlide].image}
-              alt={HERO_SLIDES[activeSlide].alt}
-              initial={{
-                x: "-10%",
-                scale: 1.12,
-                opacity: 0,
-                clipPath: "polygon(100% 0, 100% 0, 100% 100%, 100% 100%)",
-              }}
-              animate={{
-                x: "0%",
-                scale: 1,
-                opacity: 1,
-                clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
-              }}
-              exit={{
-                x: "8%",
-                scale: 1.04,
-                opacity: 0,
-                clipPath: "polygon(0 0, 0 0, 0 100%, 0 100%)",
-              }}
-              transition={{ duration: 1.05, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0 h-full w-full object-cover object-center"
-            />
-          </AnimatePresence>
+        
+        {/* --- WEBGL BACKGROUND --- */}
+        <div className="absolute inset-0 z-0 bg-slate-950">
+          {/* Static fallback if reduced motion is preferred or while loading */}
+          {prefersReducedMotion ? (
+             <img 
+               src={HERO_SLIDES[activeSlide].image} 
+               alt="Fallback Background" 
+               className="absolute inset-0 h-full w-full object-cover object-center opacity-60"
+             />
+          ) : (
+            <canvas ref={canvasRef} className="absolute inset-0 h-full w-full object-cover z-0"></canvas>
+          )}
 
+          {/* Overlays to ensure text remains highly readable */}
           <motion.div
             key={`wash-${activeSlide}`}
             initial={{ opacity: 0.2 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
-            className="absolute inset-0 bg-[radial-gradient(circle_at_72%_42%,rgba(0,122,85,0.42),transparent_32%),linear-gradient(90deg,rgba(3,7,18,0.26),rgba(3,7,18,0.72)_52%,rgba(3,7,18,0.95))]"
+            className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_72%_42%,rgba(0,122,85,0.42),transparent_32%),linear-gradient(90deg,rgba(3,7,18,0.26),rgba(3,7,18,0.72)_52%,rgba(3,7,18,0.95))] pointer-events-none"
           />
-          <div className="absolute inset-0 bg-slate-950/20 mix-blend-multiply"></div>
+          <div className="absolute inset-0 z-10 bg-slate-950/20 mix-blend-multiply pointer-events-none"></div>
           <div
-            className="absolute inset-0 opacity-[0.09]"
+            className="absolute inset-0 z-10 opacity-[0.09] pointer-events-none"
             style={{
               backgroundImage:
                 "linear-gradient(rgba(255,255,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px)",
@@ -224,10 +418,11 @@ export const Hero = () => {
           />
         </div>
 
+        {/* --- UI CONTROLS --- */}
         <button
           onClick={goToPrevious}
           aria-label="الشريحة السابقة"
-          className="absolute right-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-slate-950/30 text-white backdrop-blur-md hover:border-[#CA8A04] hover:bg-slate-950/50 hover:text-[#CA8A04] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30 sm:h-12 sm:w-12 xl:right-8"
+          className="absolute right-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-slate-950/30 text-white backdrop-blur-md hover:border-[#CA8A04] hover:bg-slate-950/50 hover:text-[#CA8A04] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30 sm:h-12 sm:w-12 xl:right-8 transition-colors"
         >
           <ChevronRight size={22} />
         </button>
@@ -235,13 +430,15 @@ export const Hero = () => {
         <button
           onClick={goToNext}
           aria-label="الشريحة التالية"
-          className="absolute left-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-slate-950/30 text-white backdrop-blur-md hover:border-[#CA8A04] hover:bg-slate-950/50 hover:text-[#CA8A04] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30 sm:h-12 sm:w-12 xl:left-8"
+          className="absolute left-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-slate-950/30 text-white backdrop-blur-md hover:border-[#CA8A04] hover:bg-slate-950/50 hover:text-[#CA8A04] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30 sm:h-12 sm:w-12 xl:left-8 transition-colors"
         >
           <ChevronLeft size={22} />
         </button>
 
+        {/* --- TEXT CONTENT & THUMBNAILS --- */}
         <div className="relative z-20 w-full max-w-7xl mx-auto px-6 pt-20 text-white">
           <motion.div 
+            key={`content-${activeSlide}`} // Re-triggers text animation on slide change
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
@@ -255,10 +452,8 @@ export const Hero = () => {
               منظومة اعتراف متعدد الأطراف تربط <strong className="font-bold text-white">جهات التعيين الحكومية العربية</strong> بمعايير <strong className="font-bold text-white">دولية معتمدة</strong> — لضمان مصداقية شهادات الحلال وحماية المستهلك المسلم في كل الأسواق، من الدول العربية إلى كل دول العالم.
             </p>
             
-            {/* CTA Buttons (Keeping Industrial Style) */}
+            {/* CTA Buttons */}
             <div className="mt-8 xl:mt-12 flex flex-col md:flex-row items-start gap-4 xl:gap-6">
-              
-              {/* Primary Button: Governmental Entities */}
               <div className="flex flex-col gap-2 w-full md:w-auto">
                 <span className="text-[#CA8A04] text-xs xl:text-sm font-semibold tracking-wide px-1 flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#CA8A04] "></span>
@@ -266,14 +461,13 @@ export const Hero = () => {
                 </span>
                 
                 <Link to="/join-program" className="btn-primary w-full md:w-auto h-[54px] xl:h-[60px] text-sm xl:text-base group">
-                 الإنضمام لبرنامج
+                  الانضمام الى البرنامج
                   <div className="w-6 h-6 rounded-sm bg-black/20 flex items-center justify-center">
                     <ArrowLeft size={16} className="group-hover:text-[#CA8A04] transition-colors" />
                   </div>
                 </Link>
               </div>
 
-              {/* Secondary Button: Suppliers & Business Sector */}
               <div className="flex flex-col gap-2 w-full md:w-auto md:mt-[22px] xl:mt-[26px]">
                 <Link to="/certificate-verification" className="btn-gold w-full md:w-auto h-[54px] xl:h-[60px] text-sm xl:text-base group !bg-slate-900/40  !border-2 !border-[#CA8A04] !text-white ">
                   طلب ترخيص العلامة للموردين
@@ -282,7 +476,6 @@ export const Hero = () => {
                   </div>
                 </Link>
               </div>
-
             </div>
           </motion.div>
 
@@ -332,20 +525,14 @@ export const Hero = () => {
         </div>
       </section>
 
-      {/* Intro Section - Industrial Styling (User Liked This) */}
+      {/* Intro Section - Industrial Styling */}
       <section className="relative z-10 py-20 lg:py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]">
-        {/* Subtle grid pattern background */}
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16 items-center">
             
-          
-
-            {/* Text Content */}
             <div className="flex flex-col items-start text-right">
-            
-
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-black mb-6 xl:mb-8 tracking-tight text-stone-800 leading-tight">
                 ماذا يقدم{" "}
                 <span className="text-[#007A55] drop-shadow-[0_1px_1px_rgba(255,255,255,1)]">
@@ -355,9 +542,6 @@ export const Hero = () => {
               </h1>
 
               <div className="p-6 xl:p-8 rounded-xl shadow-[var(--shadow-ind-card)] border border-stone-200 relative">
-                {/* Structural highlight */}
-                
-                
                 <p className="text-base lg:text-lg text-justify leading-relaxed text-stone-600 font-medium">
                   يعمل البرنامج على ضمان{" "}
                   <strong className="text-stone-900 font-black">حماية المستهلك المسلم</strong>{" "}
@@ -373,7 +557,7 @@ export const Hero = () => {
                 </p>
               </div>
             </div>
-  {/* Image (Visual Left in LTR / Right in RTL) */}
+
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}

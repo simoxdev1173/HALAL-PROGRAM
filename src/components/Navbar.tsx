@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Lang = "ar" | "en";
@@ -12,6 +12,7 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
+  const navigate = useNavigate();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
@@ -25,6 +26,25 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = searchQuery.trim();
+    const params = new URLSearchParams();
+
+    if (query) {
+      params.set("type", "license");
+      params.set("q", query);
+    }
+
+    setIsSearchOpen(false);
+    navigate(`/certificate-verification${query ? `?${params.toString()}` : ""}`);
+  };
+
+  const goToCertificateVerification = () => {
+    setIsSearchOpen(false);
+    navigate("/certificate-verification");
+  };
 
   // Keyboard shortcut to close search modal
   useEffect(() => {
@@ -42,31 +62,30 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           name: "عن البرنامج",
           path: "/about-us",
           children: [
-            { text: "نظرة عامة", href: "/about-us" },
-            { text: "أهداف البرنامج", href: "/#about" },
-            { text: "منظومة الخدمات", href: "/#join" },
+            { text: "التعريف", href: "/program-definition" },
+            { text: "الأهداف", href: "/program-goals" },
+            { text: "مجال التطبيق", href: "/program-scope" },
           ],
         },
         {
           name: "الانضمام للبرنامج",
           path: "/join-program",
           children: [
-            { text: "آلية الانضمام", href: "/join-program" },
+            { text: "شروط الانضمام", href: "/join-program" },
             { text: "الدول المنضمة", href: "/joined-countries" },
-            { text: "النماذج والوثائق", href: "/documents" },
+            { text: "الجهات المعنية بقطاع الحلال في الدول العربية", href: "/joined-countries" },
           ],
         },
-        { name: "الجهات المعنية الحلال في الدول العربية ", path: "/joined-countries" },
-        { name: "التحقق من شهادة", path: "/certificate-verification" },  
+        { name: "شهادة وعلامة حلال", path: "/documents" },
       ],
       mega: {
         links: {
           title: "روابط هامة",
           items: [
-            { text: "الدول المنضمة للبرنامج", href: "/joined-countries" },
-            { text: "آلية الانضمام للبرنامج", href: "/join-program" },
-            { text: "تكاليف الحصول على الشهادة", href: "/join-program" },
-            { text: "شروط استخدام العلامة", href: "/documents" },  
+            { text: "التعريف بالبرنامج", href: "/program-definition" },
+            { text: "شروط الانضمام", href: "/join-program" },
+            { text: "الدول المنضمة", href: "/joined-countries" },
+            { text: "شهادة وعلامة حلال", href: "/documents" },
             { text: "محرك البحث والتحقق", href: "/certificate-verification" }
           ]
         },
@@ -74,74 +93,76 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           title: "أسئلة شائعة",
           items: [
             { q: "من يحق له الانضمام؟", a: "جهات التعيين الحكومية في الدول العربية." },
-            { q: "ما هي مدة صلاحية الترخيص؟", a: "ثلاث سنوات مع إمكانية التجديد." },
-            { q: "كيف يتم التحقق من الشهادة؟", a: "عن طريق مسح رمز الاستجابة السريعة أو إدخال رقم الشهادة في محرك البحث." }
+            { q: "كيف أصل للتحقق من الشهادة؟", a: "من شريط البحث في أعلى الصفحة أو بإدخال رقم الشهادة في محرك البحث." },
+            { q: "أين توجد وثائق الشهادة والعلامة؟", a: "ضمن مدخل شهادة وعلامة حلال في شريط التنقل." }
           ]
         },
         contact: {
           title: "تواصل معنا",
-          desc: "لأي استفسارات إضافية تتعلق بعمليات الحصول على الشهادة، يرجى التواصل معنا.",
+          desc: "لأي استفسارات إضافية تتعلق بالبرنامج أو الشهادة والعلامة، يرجى التواصل معنا.",
           email: "halal@aidsmo.org",
           btn: "إرسال رسالة"
         }
       },
-      searchPlaceholder: "ابحث في البرنامج...",
-      searchModalTitle: "البحث السريع",
-      searchSuggestions: ["كيفية الانضمام", "التراخيص", "الوثائق المطلوبة"],
+      searchPlaceholder: "تحقق من شهادة أو ابحث في البرنامج...",
+      searchModalTitle: "البحث والتحقق",
+      searchAction: "التحقق من شهادة حلال",
+      searchInputLabel: "رقم شهادة الحلال أو عبارة البحث",
+      searchSuggestions: ["شروط الانضمام", "الدول المنضمة", "شهادة وعلامة حلال", "الجهات المعنية بقطاع الحلال"],
       menuBtn: "القائمة"
     },
     en: {
       links: [
         {
-          name: "About",
+          name: "About Program",
           path: "/about-us",
           children: [
-            { text: "Overview", href: "/about-us" },
-            { text: "Program Goals", href: "/#about" },
-            { text: "Services", href: "/#join" },
+            { text: "Definition", href: "/program-definition" },
+            { text: "Objectives", href: "/program-goals" },
+            { text: "Scope of Application", href: "/program-scope" },
           ],
         },
         {
           name: "Join Program",
           path: "/join-program",
           children: [
-            { text: "How to Join", href: "/join-program" },
+            { text: "Joining Requirements", href: "/join-program" },
             { text: "Joined Countries", href: "/joined-countries" },
-            { text: "Forms & Documents", href: "/documents" },
+            { text: "Halal Sector Authorities in Arab Countries", href: "/joined-countries" },
           ],
         },
-        { name: "Joined Countries", path: "/joined-countries" },
-        { name: "Verification", path: "/certificate-verification" },
-        { name: "Directory", path: "/documents" },
+        { name: "Halal Certificate & Mark", path: "/documents" },
       ],
       mega: {
         links: {
           title: "Important Links",
           items: [
+            { text: "Program Definition", href: "/program-definition" },
+            { text: "Joining Requirements", href: "/join-program" },
             { text: "Joined Countries", href: "/joined-countries" },
-            { text: "How to Join", href: "/join-program" },
-            { text: "Certification Costs", href: "/join-program" },
-            { text: "Label Usage Terms", href: "/documents" },
-            { text: "Verification Engine", href: "/certificate-verification" }        
+            { text: "Halal Certificate & Mark", href: "/documents" },
+            { text: "Verification Engine", href: "/certificate-verification" }
           ]        },
         faq: {
           title: "FAQ",
           items: [
             { q: "Who can join?", a: "Governmental accreditation bodies in Arab countries." },
-            { q: "License validity?", a: "Three years, subject to renewal." },
-            { q: "How to verify a certificate?", a: "By scanning the QR code or entering the certificate number in the search engine." }
+            { q: "How do I verify a certificate?", a: "Use the search bar or enter the certificate number in the verification engine." },
+            { q: "Where are certificate and mark documents?", a: "Open Halal Certificate & Mark from the top navigation." }
           ]
         },
         contact: {
           title: "Contact Us",
-          desc: "For any additional inquiries regarding certification, please contact us.",
+          desc: "For any additional inquiries regarding the program, certificate, or mark, please contact us.",
           email: "halal@aidsmo.org",
           btn: "Send Message"
         }
       },
-      searchPlaceholder: "Search program...",
-      searchModalTitle: "Quick Search",
-      searchSuggestions: ["How to join", "Licenses", "Required Documents"],
+      searchPlaceholder: "Verify a certificate or search the program...",
+      searchModalTitle: "Search & Verification",
+      searchAction: "Verify Halal Certificate",
+      searchInputLabel: "Halal certificate number or search query",
+      searchSuggestions: ["Joining Requirements", "Joined Countries", "Halal Certificate & Mark", "Halal Sector Authorities"],
       menuBtn: "Menu"
     }
   };
@@ -170,13 +191,13 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           setIsLangOpen(false);
         }}
       >
-        <div className="max-w-7xl mx-auto px-6 h-20 lg:h-24 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-20 lg:h-24 flex items-center gap-4">
           
-          {/* Logo & Desktop Links Grouped to fix spacing */}
-          <div className="flex items-center gap-6 xl:gap-10 h-full z-40 min-w-0">
+          {/* Logo Zone */}
+          <div className="relative flex h-full w-0 shrink-0 items-center z-40">
             {/* BIG ROUND LOGO - Scaled for different screens */}
-            <Link to="/" className="relative group">
-               <div className="absolute top-[-10px] lg:top-[-16px] left-1/2 -translate-x-1/2 w-24 h-24 lg:w-32 xl:w-36 lg:h-32 xl:h-36 bg-white rounded-full shadow-[var(--shadow-ind-floating)] border border-stone-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 active:scale-95 z-99 overflow-hidden">
+            <Link to="/" className="relative group h-full w-0">
+               <div className="absolute top-[4px] lg:top-[6px] xl:top-[4px] left-1/2 -translate-x-1/2 w-24 h-24 lg:w-32 xl:w-36 lg:h-32 xl:h-36 bg-white rounded-full shadow-[var(--shadow-ind-floating)] border border-stone-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 active:scale-95 z-99 overflow-hidden">
                   <div className="absolute inset-0 bg-stone-50/50 ind-recessed rounded-full m-1"></div>
                   <img 
                     src="/logo.svg" 
@@ -185,76 +206,74 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                   />
                </div>
             </Link>
+          </div>
 
-            {/* Desktop Links (Tactile tags) - Added margin to account for the big logo */}
-            <div 
-              className={`hidden lg:flex items-center h-full min-w-0 ${isRtl ? 'mr-22 xl:mr-30' : 'ml-24 xl:ml-36'}`}
-            >
-              <ul className="flex items-center gap-1 h-full">
-                {d.links.map((link, i) => (
-                  <li
-                    key={i}
-                    className="relative h-full flex items-center"
-                    onMouseEnter={() => setActiveDropdown(link.children ? link.name : null)}
-                  >
-                    {link.path.startsWith("/#") ? (
-                      <a 
-                        href={link.path}
-                        className="relative px-3 xl:px-4 py-2 rounded-md text-[11px] xl:text-[12px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5"
-                      >
-                        {link.name}
-                        {link.children && (
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={activeDropdown === link.name ? "rotate-180 transition-transform" : "transition-transform"}>
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                          </svg>
-                        )}
-                      </a>
-                    ) : (
-                      <Link 
-                        to={link.path}
-                        className="relative px-3 xl:px-4 py-2 rounded-md text-[11px] xl:text-[12px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5"
-                      >
-                        {link.name}
-                        {link.children && (
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={activeDropdown === link.name ? "rotate-180 transition-transform" : "transition-transform"}>
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                          </svg>
-                        )}
-                      </Link>
-                    )}
-
-                    <AnimatePresence>
-                      {link.children && activeDropdown === link.name && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                          transition={{ duration: 0.18, ease: customEase }}
-                          className={`absolute top-[calc(100%-12px)] ${isRtl ? "right-0" : "left-0"} w-64 rounded-xl border border-stone-200 bg-[#FAF9F6] p-2 shadow-[var(--shadow-ind-floating)] z-50`}
-                        >
-                          {link.children.map((item, idx) => {
-                            const itemClass = "flex items-center gap-3 rounded-lg bg-white px-4 py-3 text-[13px] font-black text-stone-700 shadow-[var(--shadow-ind-card)] hover:text-[#007A55] hover:shadow-[var(--shadow-ind-floating)] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] transition-all";
-                            const dot = <span className="h-2 w-2 rounded-full bg-[#CA8A04] shadow-inner" />;
-
-                            return item.href.startsWith("/#") || item.href.startsWith("http") ? (
-                              <a key={idx} href={item.href} className={itemClass}>
-                                {dot}
-                                {item.text}
-                              </a>
-                            ) : (
-                              <Link key={idx} to={item.href} className={itemClass}>
-                                {dot}
-                                {item.text}
-                              </Link>
-                            );
-                          })}
-                        </motion.div>
+          {/* Centered Desktop Links Zone */}
+          <div className="hidden lg:flex flex-1 items-center justify-center h-full min-w-0 px-2 xl:px-6">
+            <ul className="flex items-center justify-center gap-1 h-full">
+              {d.links.map((link, i) => (
+                <li
+                  key={i}
+                  className="relative h-full flex items-center"
+                  onMouseEnter={() => setActiveDropdown(link.children ? link.name : null)}
+                >
+                  {link.path.startsWith("/#") ? (
+                    <a 
+                      href={link.path}
+                      className="relative px-3 xl:px-4 py-2 rounded-md text-[11px] xl:text-[12px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5"
+                    >
+                      {link.name}
+                      {link.children && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={activeDropdown === link.name ? "rotate-180 transition-transform" : "transition-transform"}>
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
                       )}
-                    </AnimatePresence>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                    </a>
+                  ) : (
+                    <Link 
+                      to={link.path}
+                      className="relative px-3 xl:px-4 py-2 rounded-md text-[11px] xl:text-[12px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5"
+                    >
+                      {link.name}
+                      {link.children && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={activeDropdown === link.name ? "rotate-180 transition-transform" : "transition-transform"}>
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      )}
+                    </Link>
+                  )}
+
+                  <AnimatePresence>
+                    {link.children && activeDropdown === link.name && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                        transition={{ duration: 0.18, ease: customEase }}
+                        className={`absolute top-[calc(100%-12px)] ${isRtl ? "right-0" : "left-0"} w-80 rounded-xl border border-stone-200 bg-[#FAF9F6] p-2 shadow-[var(--shadow-ind-floating)] z-50`}
+                      >
+                        {link.children.map((item, idx) => {
+                          const itemClass = "flex items-center gap-3 rounded-lg bg-white px-4 py-3 text-[13px] font-black text-stone-700 shadow-[var(--shadow-ind-card)] hover:text-[#007A55] hover:shadow-[var(--shadow-ind-floating)] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] transition-all";
+                          const dot = <span className="h-2 w-2 rounded-full bg-[#CA8A04] shadow-inner" />;
+
+                          return item.href.startsWith("/#") || item.href.startsWith("http") ? (
+                            <a key={idx} href={item.href} className={itemClass}>
+                              {dot}
+                              {item.text}
+                            </a>
+                          ) : (
+                            <Link key={idx} to={item.href} className={itemClass}>
+                              {dot}
+                              {item.text}
+                            </Link>
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* Right Side Actions */}
@@ -356,7 +375,8 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             ></motion.div>
 
             {/* Modal Body */}
-            <motion.div 
+            <motion.form
+              onSubmit={handleSearchSubmit}
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -364,20 +384,31 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
               className="relative w-full max-w-2xl bg-[#FAF9F6] rounded-xl shadow-[var(--shadow-ind-floating)] border border-stone-300 overflow-hidden flex flex-col"
             >
               {/* Input Area (Deep Recess) */}
-              <div className="flex items-center px-6 py-5 bg-stone-100 ind-recessed rounded-none border-b border-stone-300 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.05)]">
+              <div className="flex flex-wrap items-center gap-3 px-6 py-5 bg-stone-100 ind-recessed rounded-none border-b border-stone-300 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.05)]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#007A55]">
                   <circle cx="11" cy="11" r="8"></circle>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
+                <label htmlFor="navbar-certificate-search" className="sr-only">
+                  {d.searchInputLabel}
+                </label>
                 <input 
+                  id="navbar-certificate-search"
                   type="text" 
                   autoFocus
                   placeholder={d.searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 px-5 text-lg font-mono font-bold bg-transparent outline-none text-stone-800 placeholder-stone-400 focus-visible:shadow-none"
+                  className="min-w-[180px] flex-1 px-5 text-lg font-mono font-bold bg-transparent outline-none text-stone-800 placeholder-stone-400 focus-visible:shadow-none"
                 />
+                <button
+                  type="submit"
+                  className="w-full sm:w-auto px-4 py-2 bg-[#007A55] shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] hover:-translate-y-[1px] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] text-white rounded-md text-xs font-black tracking-widest transition-all border border-[#007A55]"
+                >
+                  {d.searchAction}
+                </button>
                 <button 
+                  type="button"
                   onClick={() => setIsSearchOpen(false)}
                   className="px-4 py-2 bg-white shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] hover:-translate-y-[1px] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] text-stone-600 rounded-md text-xs font-black tracking-widest transition-all uppercase border border-stone-200"
                 >
@@ -402,8 +433,15 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                     </button>
                   ))}
                 </div>
+                <button
+                  type="button"
+                  onClick={goToCertificateVerification}
+                  className="mt-6 w-full rounded-lg border border-[#007A55]/20 bg-[#007A55]/5 px-5 py-4 text-sm font-black text-[#007A55] shadow-[var(--shadow-ind-card)] hover:bg-[#007A55] hover:text-white"
+                >
+                  {d.searchAction}
+                </button>
               </div>
-            </motion.div>
+            </motion.form>
           </div>
         )}
       </AnimatePresence>

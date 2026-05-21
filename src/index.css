@@ -59,6 +59,9 @@
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
   --ease-mechanical: cubic-bezier(0.175, 0.885, 0.32, 1.275);
   --duration-normal: 300ms;
+
+  --font-heading-ar: 'Noto Kufi Arabic', sans-serif;
+  --font-body-ar: 'Noto Sans Arabic', sans-serif;
 }
 
 @layer base {
@@ -77,12 +80,12 @@
   body {
     @apply text-slate-900 antialiased selection:bg-[var(--brand-primary)] selection:text-white;
     background-color: #fff;
-    font-family: 'Readex Pro', sans-serif;
+    font-family: var(--font-body-ar);
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply tracking-tight font-bold;
-    font-family: 'Readex Pro', sans-serif;
+    font-family: var(--font-heading-ar);
   }
 }
 
