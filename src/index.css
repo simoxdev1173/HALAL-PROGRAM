@@ -60,7 +60,7 @@
   --ease-mechanical: cubic-bezier(0.175, 0.885, 0.32, 1.275);
   --duration-normal: 300ms;
 
-  --font-heading-ar: 'Noto Kufi Arabic', sans-serif;
+  --font-heading-ar: 'Almarai', sans-serif;
   --font-body-ar: 'Noto Sans Arabic', sans-serif;
 }
 
@@ -84,8 +84,9 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply tracking-tight font-bold;
+    @apply font-bold;
     font-family: var(--font-heading-ar);
+    letter-spacing: 0;
   }
 }
 

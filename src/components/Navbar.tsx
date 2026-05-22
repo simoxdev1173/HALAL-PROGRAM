@@ -76,7 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             { text: "الجهات المعنية بقطاع الحلال في الدول العربية", href: "/halal-sector-authorities" },
           ],
         },
-        { name: "شهادة وعلامة حلال", path: "/documents" },
+        { name: "شهادة وعلامة حلال", path: "/#" },
       ],
       mega: {
         links: {
@@ -85,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             { text: "التعريف بالبرنامج", href: "/program-definition" },
             { text: "شروط الانضمام", href: "/join-program" },
             { text: "الدول المنضمة", href: "/joined-countries" },
-            { text: "شهادة وعلامة حلال", href: "/documents" },
+            { text: "شهادة وعلامة حلال", href: "/#" },
             { text: "محرك البحث والتحقق", href: "/certificate-verification" }
           ]
         },
@@ -131,7 +131,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             { text: "Halal Sector Authorities in Arab Countries", href: "/halal-sector-authorities" },
           ],
         },
-        { name: "Halal Certificate & Mark", path: "/documents" },
+        { name: "Halal Certificate & Mark", path: "/#" },
       ],
       mega: {
         links: {
@@ -140,7 +140,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             { text: "Program Definition", href: "/program-definition" },
             { text: "Joining Requirements", href: "/join-program" },
             { text: "Joined Countries", href: "/joined-countries" },
-            { text: "Halal Certificate & Mark", href: "/documents" },
+            { text: "Halal Certificate & Mark", href: "/#" },
             { text: "Verification Engine", href: "/certificate-verification" }
           ]        },
         faq: {
@@ -148,7 +148,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           items: [
             { q: "Who can join?", a: "Governmental accreditation bodies in Arab countries." },
             { q: "How do I verify a certificate?", a: "Use the search bar or enter the certificate number in the verification engine." },
-            { q: "Where are certificate and mark documents?", a: "Open Halal Certificate & Mark from the top navigation." }
+            { q: "Where are certificate and mark #?", a: "Open Halal Certificate & Mark from the top navigation." }
           ]
         },
         contact: {

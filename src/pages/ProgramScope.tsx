@@ -16,13 +16,14 @@ import {
 const sectors = [
   { name: "اللحوم ومنتجاتها", detail: "ذبحاً وتصنيعاً والمنتجات الغذائية ذات الأصل الحيواني.", icon: Beef, image: "/domains/meat.jpg" },
   { name: "العصائر والمشروبات", detail: "المشروبات والمنتجات السائلة المشمولة باشتراطات الحلال.", icon: CupSoda, image: "/domains/drinks.jpg" },
-  { name: "الأدوية", detail: "المنتجات الدوائية التي تتطلب تحققاً من المكونات والعمليات.", icon: Pill, image: "/workflow/w-2.png" },
-  { name: "مستحضرات التجميل", detail: "المنتجات التجميلية والعناية الشخصية ذات الصلة بالحلال.", icon: Sparkles, image: "/workflow/w-3.png" },
-  { name: "خدمات الحلال", detail: "الخدمات المرتبطة بسلاسل القيمة والتشغيل الحلال.", icon: Briefcase, image: "/section-bg-1.jpeg" },
+  { name: "الأدوية", detail: "المنتجات الدوائية التي تتطلب تحققاً من المكونات والعمليات.", icon: Pill, image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=800" },
+  { name: "مستحضرات التجميل", detail: "المنتجات التجميلية والعناية الشخصية ذات الصلة بالحلال.", icon: Sparkles, image: "https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&q=80&w=800" },
+  { name: "خدمات الحلال", detail: "الخدمات المرتبطة بسلاسل القيمة والتشغيل الحلال.", icon: Briefcase, image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=800" },
   { name: "المنتجات المحفوظة", detail: "المنتجات التي تحفظ في درجة حرارة الغرفة.", icon: Package, image: "/domains/prod.webp" },
   { name: "المكملات الغذائية", detail: "مكملات التغذية وما يتصل بها من مكونات وعمليات إنتاج.", icon: TestTube, image: "/domains/added.jpg" },
-  { name: "السياحة الحلال", detail: "الخدمات والأنشطة السياحية المطابقة لاشتراطات الحلال.", icon: PlaneTakeoff, image: "/slider/i-1.jpeg" },
+  { name: "السياحة الحلال", detail: "الخدمات والأنشطة السياحية المطابقة لاشتراطات الحلال.", icon: PlaneTakeoff, image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=800" },
 ];
+
 
 export default function ProgramScope() {
   return (
@@ -77,10 +78,7 @@ export default function ProgramScope() {
         <div className="relative z-10 mx-auto max-w-7xl px-6">
           <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-xs font-black text-[#007A55] shadow-[var(--shadow-ind-sharp)]">
-                <ShieldCheck size={16} />
-                الأولويات التطبيقية
-              </div>
+              
               <h2 className="text-3xl font-black text-slate-900 lg:text-5xl">القطاعات المشمولة</h2>
             </div>
             <p className="max-w-2xl text-sm font-bold leading-7 text-slate-600 lg:text-base">
@@ -126,24 +124,108 @@ export default function ProgramScope() {
           <img src="/workflow/w-4.png" alt="" className="h-full w-full object-cover opacity-12" />
           <div className="absolute inset-0 bg-gradient-to-bl from-[#1C4C2A]/80 via-slate-950/92 to-slate-950" />
         </div>
-        <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="relative z-10 mx-auto max-w-4xl text-center"
-        >
-          <h2 className="text-3xl font-black leading-tight text-white lg:text-5xl">
-            استكمل قراءة منظومة البرنامج
-          </h2>
-          <div className="mt-10 flex w-full flex-col justify-center gap-4 sm:flex-row">
-            <Link to="/program-goals" className="flex min-h-12 items-center justify-center rounded-xl bg-[#CA8A04] px-7 py-4 text-sm font-black text-slate-950 shadow-[var(--shadow-ind-floating)] hover:-translate-y-0.5">
-              العودة إلى الأهداف
-            </Link>
-            <Link to="/program-definition" className="flex min-h-12 items-center justify-center rounded-xl border border-white/15 bg-white/10 px-7 py-4 text-sm font-black text-white shadow-[var(--shadow-ind-card)] backdrop-blur hover:bg-white hover:text-[#1C4C2A]">
-              العودة إلى التعريف
-            </Link>
+   <motion.div
+  initial={{ opacity: 0, y: 28 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true }}
+  className="relative z-10 mx-auto max-w-5xl text-center"
+>
+  <h2 className="text-3xl font-black leading-tight text-white lg:text-5xl">
+    استكمل قراءة منظومة البرنامج
+  </h2>
+
+  <div className="mt-10 grid w-full grid-cols-1 gap-5 lg:grid-cols-2">
+    <Link
+      to="/program-goals"
+      className="group relative min-h-[230px] overflow-hidden rounded-[2rem] border border-[#CA8A04]/35 bg-slate-950 p-7 text-white shadow-[var(--shadow-ind-floating)] transition-all duration-500 hover:-translate-y-1 hover:border-[#CA8A04]/80 hover:shadow-[0_28px_80px_rgba(202,138,4,0.24)] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30"
+    >
+      <img
+        src="/workflow/w-2.png"
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover opacity-45 transition duration-700 ease-out group-hover:scale-110 group-hover:opacity-60"
+      />
+
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-[#CA8A04]/25 transition duration-500 group-hover:from-slate-950/95 group-hover:via-slate-950/55" />
+
+      <div
+        className="absolute inset-0 opacity-15"
+        style={{
+          backgroundImage:
+            "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+          backgroundSize: "30px 30px",
+        }}
+      />
+
+      <div className="absolute -left-24 top-0 h-full w-24 skew-x-[-18deg] bg-white/18 blur-sm transition-transform duration-700 ease-out group-hover:translate-x-[760px]" />
+      <div className="absolute bottom-0 right-0 h-1 w-0 bg-[#CA8A04] transition-all duration-500 group-hover:w-full" />
+
+      <div className="relative z-10 flex h-full flex-col justify-between text-right">
+        <span className="w-fit rounded-full border border-white/15 bg-white/12 px-4 py-2 text-xs font-black text-[#CA8A04] shadow-[var(--shadow-ind-sharp)] backdrop-blur">
+          أهداف البرنامج
+        </span>
+
+        <div>
+          <h3 className="text-3xl font-black lg:text-4xl">
+            العودة إلى الأهداف
+          </h3>
+
+          <p className="mt-4 max-w-xl text-sm font-bold leading-7 text-stone-200">
+            عد إلى صفحة الأهداف للاطلاع على الغايات الأساسية للبرنامج ودوره في دعم منظومة الحلال العربية.
+          </p>
+
+          <div className="mt-6 flex items-center gap-3 text-sm font-black text-[#CA8A04]">
+            <span>عرض الأهداف</span>
           </div>
-        </motion.div>
+        </div>
+      </div>
+    </Link>
+
+    <Link
+      to="/program-definition"
+      className="group relative min-h-[230px] overflow-hidden rounded-[2rem] border border-white/12 bg-slate-950 p-7 text-white shadow-[var(--shadow-ind-card)] transition-all duration-500 hover:-translate-y-1 hover:border-[#007A55]/70 hover:shadow-[0_28px_80px_rgba(0,122,85,0.22)] focus:outline-none focus:ring-4 focus:ring-[#007A55]/30"
+    >
+      <img
+        src="/workflow/w-3.png"
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover opacity-42 transition duration-700 ease-out group-hover:scale-110 group-hover:opacity-58"
+      />
+
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-[#1C4C2A]/78 to-slate-950/30 transition duration-500 group-hover:via-[#1C4C2A]/58" />
+
+      <div
+        className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage:
+            "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+          backgroundSize: "30px 30px",
+        }}
+      />
+
+      <div className="absolute -left-24 top-0 h-full w-24 skew-x-[-18deg] bg-white/16 blur-sm transition-transform duration-700 ease-out group-hover:translate-x-[760px]" />
+      <div className="absolute bottom-0 right-0 h-1 w-0 bg-[#007A55] transition-all duration-500 group-hover:w-full" />
+
+      <div className="relative z-10 flex h-full flex-col justify-between text-right">
+        <span className="w-fit rounded-full border border-white/15 bg-white/12 px-4 py-2 text-xs font-black text-white shadow-[var(--shadow-ind-sharp)] backdrop-blur">
+          التعريف بالبرنامج
+        </span>
+
+        <div>
+          <h3 className="text-3xl font-black lg:text-4xl">
+            العودة إلى التعريف
+          </h3>
+
+          <p className="mt-4 max-w-xl text-sm font-bold leading-7 text-stone-200">
+            عد إلى صفحة التعريف للتعرف على أساس البرنامج ومنظومة الاعتراف متعدد الأطراف.
+          </p>
+
+          <div className="mt-6 flex items-center gap-3 text-sm font-black text-white">
+            <span>العودة للتعريف</span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  </div>
+</motion.div>
       </section>
     </main>
   );

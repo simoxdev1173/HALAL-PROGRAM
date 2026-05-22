@@ -106,7 +106,7 @@ function App() {
             @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Cairo:wght@400;500;600;700;800;900&family=Changa:wght@400;500;600;700;800&family=El+Messiri:wght@400;500;600;700&family=Harmattan:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Lalezar&family=Lateef:wght@400;500;600;700;800&family=Mada:wght@400;500;600;700;900&family=Markazi+Text:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Parastoo:wght@400;700&family=Rakkas&family=Readex+Pro:wght@200;300;400;500;600;700&family=Reem+Kufi:wght@400;500;600;700&family=Rubik:wght@400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800;900&display=swap');
             
             :root {
-              --font-heading-ar: 'Noto Kufi Arabic', sans-serif;
+              --font-heading-ar: 'Almarai', sans-serif;
               --font-body-ar: 'Noto Sans Arabic', sans-serif;
               font-family: var(--font-body-ar);
             }
@@ -118,6 +118,7 @@ function App() {
             h1, h2, h3, h4, h5, h6 {
               font-family: var(--font-heading-ar);
               font-weight: 700;
+              letter-spacing: 0;
             }
             
             /* Professional transitions */

@@ -551,7 +551,7 @@ export const Hero = () => {
                   اللازمة لمثل هذا المجال. نحن نضع أسس{" "}
                   <strong className="text-stone-900 font-black">منظومة اعتراف متعدد الأطراف</strong>{" "}
                   لضمان{" "}
-                  <strong className="text-stone-900 font-black border-b-2 border-[#CA8A04]/50 pb-0.5">تسهيل التبادل التجاري</strong>{" "}
+                  <strong className="text-[#CA8A04] font-black underline decoration-[#CA8A04]/30 underline-offset-4 decoration-2">تسهيل التبادل التجاري</strong>{" "}
                   بين الدول العربية، مع التأكد من مطابقة المنتجات العالمية{" "}
                   <strong className="text-stone-900 font-black">للمتطلبات الفنية والمواصفات القياسية العربية</strong>.
                 </p>

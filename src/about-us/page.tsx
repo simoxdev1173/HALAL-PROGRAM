@@ -107,7 +107,7 @@ export default function AboutProgram() {
                 <div className="relative h-full overflow-hidden rounded-[1.5rem] bg-slate-900 shadow-[inset_0_10px_40px_rgba(0,0,0,0.2)]">
                   <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.05)_50%)] bg-[length:100%_4px] pointer-events-none z-10" />
                   <img
-                    src="/about-us-card.png"
+                    src="/about-us-card-1.png"
                     alt="البرنامج العربي للحلال"
                     className="h-full w-full object-cover transition-transform duration-1000 hover:scale-105"
                   />
@@ -144,16 +144,99 @@ export default function AboutProgram() {
             بعد التعريف العام، يمكن متابعة أهداف البرنامج أو استعراض مجالات تطبيقه المعتمدة.
           </p>
 
-          <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
-            <Link to="/program-goals" className="flex min-h-12 items-center justify-center gap-3 rounded-xl bg-[#CA8A04] px-7 py-4 text-sm font-black text-slate-950 shadow-[var(--shadow-ind-floating)] hover:-translate-y-0.5">
-              عرض أهداف البرنامج
-              <ArrowLeft size={18} />
-            </Link>
-            <Link to="/program-scope" className="flex min-h-12 items-center justify-center gap-3 rounded-xl border border-white/15 bg-white/10 px-7 py-4 text-sm font-black text-white shadow-[var(--shadow-ind-card)] backdrop-blur hover:bg-white hover:text-[#1C4C2A]">
-              مجالات التطبيق
-              <ArrowLeft size={18} />
-            </Link>
-          </div>
+         <div className="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-2">
+  <Link
+    to="/program-goals"
+    className="group relative min-h-[240px] overflow-hidden rounded-[2rem] border border-[#CA8A04]/35 bg-slate-950 p-7 text-white shadow-[var(--shadow-ind-floating)] transition-all duration-500 hover:-translate-y-1 hover:border-[#CA8A04]/80 hover:shadow-[0_28px_80px_rgba(202,138,4,0.24)] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30"
+  >
+    <img
+      src="/workflow/w-2.png"
+      alt=""
+      className="absolute inset-0 h-full w-full object-cover opacity-45 transition duration-700 ease-out group-hover:scale-110 group-hover:opacity-60"
+    />
+
+    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-[#CA8A04]/25 transition duration-500 group-hover:from-slate-950/95 group-hover:via-slate-950/55" />
+
+    <div
+      className="absolute inset-0 opacity-15"
+      style={{
+        backgroundImage:
+          "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+        backgroundSize: "30px 30px",
+      }}
+    />
+
+    <div className="absolute -left-24 top-0 h-full w-24 skew-x-[-18deg] bg-white/18 blur-sm transition-transform duration-700 ease-out group-hover:translate-x-[760px]" />
+    <div className="absolute bottom-0 right-0 h-1 w-0 bg-[#CA8A04] transition-all duration-500 group-hover:w-full" />
+
+    <div className="relative z-10 flex h-full flex-col justify-between">
+      <span className="w-fit rounded-full border border-white/15 bg-white/12 px-4 py-2 text-xs font-black text-[#CA8A04] shadow-[var(--shadow-ind-sharp)] backdrop-blur">
+        أهداف البرنامج
+      </span>
+
+      <div>
+        <h3 className="text-3xl font-black lg:text-4xl">
+          عرض أهداف البرنامج
+        </h3>
+
+        <p className="mt-4 max-w-xl text-sm font-bold leading-7 text-stone-200">
+          تعرف على الأهداف الأساسية للبرنامج العربي للحلال ودوره في حماية المستهلك وتعزيز الثقة في شهادات الحلال.
+        </p>
+
+        <div className="mt-6 flex items-center gap-3 text-sm font-black text-[#CA8A04]">
+          <span>استعراض الأهداف</span>
+          <ArrowLeft size={18} className="transition-transform duration-300 group-hover:-translate-x-1" />
+        </div>
+      </div>
+    </div>
+  </Link>
+
+  <Link
+    to="/program-scope"
+    className="group relative min-h-[240px] overflow-hidden rounded-[2rem] border border-white/12 bg-slate-950 p-7 text-white shadow-[var(--shadow-ind-card)] transition-all duration-500 hover:-translate-y-1 hover:border-[#007A55]/70 hover:shadow-[0_28px_80px_rgba(0,122,85,0.22)] focus:outline-none focus:ring-4 focus:ring-[#007A55]/30"
+  >
+    <img
+      src="/workflow/w-3.png"
+      alt=""
+      className="absolute inset-0 h-full w-full object-cover opacity-42 transition duration-700 ease-out group-hover:scale-110 group-hover:opacity-58"
+    />
+
+    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-[#1C4C2A]/78 to-slate-950/30 transition duration-500 group-hover:via-[#1C4C2A]/58" />
+
+    <div
+      className="absolute inset-0 opacity-10"
+      style={{
+        backgroundImage:
+          "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+        backgroundSize: "30px 30px",
+      }}
+    />
+
+    <div className="absolute -left-24 top-0 h-full w-24 skew-x-[-18deg] bg-white/16 blur-sm transition-transform duration-700 ease-out group-hover:translate-x-[760px]" />
+    <div className="absolute bottom-0 right-0 h-1 w-0 bg-[#007A55] transition-all duration-500 group-hover:w-full" />
+
+    <div className="relative z-10 flex h-full flex-col justify-between">
+      <span className="w-fit rounded-full border border-white/15 bg-white/12 px-4 py-2 text-xs font-black text-white shadow-[var(--shadow-ind-sharp)] backdrop-blur">
+        مجالات التطبيق
+      </span>
+
+      <div>
+        <h3 className="text-3xl font-black lg:text-4xl">
+          مجالات التطبيق
+        </h3>
+
+        <p className="mt-4 max-w-xl text-sm font-bold leading-7 text-stone-200">
+          استعرض المنتجات والقطاعات المشمولة ضمن مجال تطبيق البرنامج والمنظومة الفنية المعتمدة.
+        </p>
+
+        <div className="mt-6 flex items-center gap-3 text-sm font-black text-white">
+          <span>عرض المجالات</span>
+          <ArrowLeft size={18} className="transition-transform duration-300 group-hover:-translate-x-1" />
+        </div>
+      </div>
+    </div>
+  </Link>
+</div>
         </motion.div>
       </section>
 

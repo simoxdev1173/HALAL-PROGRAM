@@ -7,6 +7,7 @@ type FontOption = {
 };
 
 const HEADING_FONTS: FontOption[] = [
+  { name: "Almarai", family: "'Almarai'", note: "واضح وقوي للعناوين الكبيرة" },
   { name: "Noto Kufi Arabic", family: "'Noto Kufi Arabic'", note: "رسمي وقوي للعناوين" },
   { name: "Changa", family: "'Changa'", note: "حديث وواضح" },
   { name: "Cairo", family: "'Cairo'", note: "متوازن ومألوف" },
@@ -35,6 +36,7 @@ const BODY_FONTS: FontOption[] = [
 ];
 
 const STORAGE_KEY = "halal-font-preview";
+const PREVIOUS_DEFAULT_HEADING = "'Noto Kufi Arabic'";
 
 type FontState = {
   heading: string;
@@ -46,13 +48,22 @@ const DEFAULT_FONTS: FontState = {
   body: BODY_FONTS[0].family,
 };
 
+const normalizeSavedFonts = (savedFonts: Partial<FontState>): FontState => ({
+  ...DEFAULT_FONTS,
+  ...savedFonts,
+  heading:
+    savedFonts.heading === PREVIOUS_DEFAULT_HEADING || !savedFonts.heading
+      ? DEFAULT_FONTS.heading
+      : savedFonts.heading,
+});
+
 export default function FontSwitcher() {
   const [isLauncherVisible, setIsLauncherVisible] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [fonts, setFonts] = useState<FontState>(() => {
     try {
       const saved = window.localStorage.getItem(STORAGE_KEY);
-      return saved ? { ...DEFAULT_FONTS, ...JSON.parse(saved) } : DEFAULT_FONTS;
+      return saved ? normalizeSavedFonts(JSON.parse(saved)) : DEFAULT_FONTS;
     } catch {
       return DEFAULT_FONTS;
     }
@@ -110,7 +121,7 @@ export default function FontSwitcher() {
                 setIsPanelOpen(false);
                 setIsLauncherVisible(false);
               }}
-              className="rounded-md bg-white px-3 py-2 text-xs font-black text-stone-500 shadow-[var(--shadow-ind-card)] hover:text-[#007A55]"
+              className="rounded-md bg-white px-3 py-2 text-xs font-black text-stone-500 shadow-[var(--shadow-ind-card)] cursor-pointer hover:text-[#007A55]"
             >
               إخفاء
             </button>
@@ -151,8 +162,10 @@ export default function FontSwitcher() {
           </div>
 
           <div className="mt-5 rounded-lg bg-white p-4 shadow-[var(--shadow-ind-card)]">
-            <p className="text-2xl font-black leading-tight text-stone-900">البرنامج العربي للحلال</p>
-            <p className="mt-2 text-sm font-bold leading-relaxed text-stone-600">
+            <p className="text-2xl font-black leading-tight text-stone-900" style={{ fontFamily: "var(--font-heading-ar)" }}>
+              البرنامج العربي للحلال
+            </p>
+            <p className="mt-2 text-sm font-bold leading-relaxed text-stone-600" style={{ fontFamily: "var(--font-body-ar)" }}>
               نموذج سريع لمعاينة وضوح النصوص الصغيرة داخل الواجهة.
             </p>
           </div>
