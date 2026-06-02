@@ -1,10 +1,16 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 type Lang = "ar" | "en";
+type NavLink = {
+  name: string;
+  path: string;
+  children?: { text: string; href: string }[];
+};
 
 interface NavbarProps {
   lang: Lang;
@@ -12,10 +18,10 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isLangOpen, setIsLangOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
@@ -167,13 +173,26 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
     }
   };
 
-  const d = menuData[lang];
+  void menuData;
+  const navLanguages = t("nav.languages", { returnObjects: true }) as Record<Lang, string>;
+  const d = {
+    links: t("nav.links", { returnObjects: true }) as NavLink[],
+    searchPlaceholder: t("nav.searchPlaceholder"),
+    searchModalTitle: t("nav.searchModalTitle"),
+    searchAction: t("nav.searchAction"),
+    searchInputLabel: t("nav.searchInputLabel"),
+    searchSuggestions: t("nav.searchSuggestions", { returnObjects: true }) as string[],
+    menuBtn: t("nav.menuBtn"),
+  };
   const isRtl = lang === "ar";
 
   const languages: { name: string; code: Lang }[] = [
-    { name: "عربي", code: "ar" },
-    { name: "إنجليزي", code: "en" }
+    { name: navLanguages.ar, code: "ar" },
+    { name: navLanguages.en, code: "en" }
   ];
+  const switchLanguage = () => {
+    setLang(lang === "ar" ? "en" : "ar");
+  };
 
   const customEase: [number, number, number, number] = [0.175, 0.885, 0.32, 1.275]; // Mechanical easing
 
@@ -188,39 +207,38 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
         dir={isRtl ? "rtl" : "ltr"}
         onMouseLeave={() => {
           setActiveDropdown(null);
-          setIsLangOpen(false);
         }}
       >
-        <div className="max-w-7xl mx-auto px-6 h-20 lg:h-24 flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 lg:h-24 flex items-center gap-3 xl:gap-4">
           
           {/* Logo Zone */}
-          <div className="relative flex h-full w-0 shrink-0 items-center z-40">
+          <div className="relative flex h-full w-24 sm:w-28 lg:w-32 xl:w-36 shrink-0 items-center z-40">
             {/* BIG ROUND LOGO - Scaled for different screens */}
-            <Link to="/" className="relative group h-full w-0">
-               <div className="absolute top-[4px] lg:top-[6px] xl:top-[4px] left-1/2 -translate-x-1/2 w-24 h-24 lg:w-32 xl:w-36 lg:h-32 xl:h-36 bg-white rounded-full shadow-[var(--shadow-ind-floating)] border border-stone-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 active:scale-95 z-99 overflow-hidden">
+            <Link to="/" className="relative group block h-full w-full" aria-label="Arab Halal Program home">
+               <div className="absolute top-[4px] lg:top-[6px] xl:top-[4px] left-1/2 -translate-x-1/2 w-24 h-24 lg:w-30 xl:w-34 lg:h-30 xl:h-34 bg-white rounded-full shadow-[var(--shadow-ind-floating)] border border-stone-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 active:scale-95 z-40 overflow-hidden">
                   <div className="absolute inset-0 bg-stone-50/50 ind-recessed rounded-full m-1"></div>
                   <img 
                     src="/logo.svg" 
                     alt="Logo" 
-                    className="relative z-99 w-16 lg:w-32 xl:w-34 h-auto object-contain shrink-0"
+                    className="relative z-40 w-16 lg:w-24 xl:w-28 h-auto object-contain shrink-0"
                   />
                </div>
             </Link>
           </div>
 
           {/* Centered Desktop Links Zone */}
-          <div className="hidden lg:flex flex-1 items-center justify-center h-full min-w-0 px-2 xl:px-6">
-            <ul className="flex items-center justify-center gap-1 h-full">
+          <div className="hidden lg:flex flex-1 items-center justify-center h-full min-w-0 px-1 xl:px-3">
+            <ul className="flex min-w-0 items-center justify-center gap-1 h-full">
               {d.links.map((link, i) => (
                 <li
                   key={i}
-                  className="relative h-full flex items-center"
+                  className="relative h-full flex min-w-0 items-center"
                   onMouseEnter={() => setActiveDropdown(link.children ? link.name : null)}
                 >
                   {link.path.startsWith("/#") ? (
                     <a 
                       href={link.path}
-                      className="relative px-3 xl:px-4 py-2 rounded-md text-[11px] xl:text-[12px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5"
+                      className="relative px-2.5 xl:px-3.5 py-2 rounded-md text-[10px] xl:text-[11px] 2xl:text-[12px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-wider cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5"
                     >
                       {link.name}
                       {link.children && (
@@ -232,7 +250,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                   ) : (
                     <Link 
                       to={link.path}
-                      className="relative px-3 xl:px-4 py-2 rounded-md text-[11px] xl:text-[12px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-widest cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5"
+                      className="relative px-2.5 xl:px-3.5 py-2 rounded-md text-[10px] xl:text-[11px] 2xl:text-[12px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-wider cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5"
                     >
                       {link.name}
                       {link.children && (
@@ -277,19 +295,19 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center gap-3 z-20 shrink-0">
+          <div className="flex items-center gap-2 xl:gap-3 z-20 shrink-0">
           
             
             {/* Search Placeholder Button (Recessed Well) */}
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className="hidden sm:flex items-center gap-3 px-5 py-2.5 ind-recessed group cursor-text"
+              className="hidden sm:flex xl:min-w-[210px] max-w-[240px] items-center gap-3 px-3 xl:px-4 py-2.5 ind-recessed group cursor-text"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-400 group-hover:text-[#007A55] transition-colors">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-              <span className="text-xs font-bold tracking-wide w-36 text-start text-stone-400 font-mono uppercase">
+              <span className="hidden xl:block min-w-0 flex-1 truncate text-[11px] font-bold tracking-wide text-start text-stone-500 font-mono uppercase">
                 {d.searchPlaceholder}
               </span>
             </button>
@@ -305,49 +323,41 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
               </svg>
             </button>
 
-            {/* Language Switcher (Physical Toggle) */}
+            {/* Language Switcher (3D Physical Toggle) */}
             <div className="relative hidden sm:block">
               <button 
-                onClick={() => setIsLangOpen(!isLangOpen)}
-                className={`w-16 h-[42px] transition-all rounded-md flex items-center justify-center gap-1.5 font-bold text-[12px] tracking-wider border ${isLangOpen ? 'shadow-[var(--shadow-ind-pressed)] bg-stone-100 text-[#007A55] border-transparent translate-y-[1px]' : 'bg-white text-stone-600 shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] border-white/40 hover:-translate-y-[1px]'}`}
+                type="button"
+                onClick={switchLanguage}
+                aria-label={lang === "ar" ? "Switch language to English" : "تبديل اللغة إلى العربية"}
+                dir="ltr"
+                className="group relative h-[44px] w-[106px] overflow-hidden rounded-xl border border-stone-300 bg-stone-100 p-1 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.10),inset_-2px_-2px_4px_rgba(255,255,255,0.9),var(--shadow-ind-card)] outline-none transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.08),var(--shadow-ind-floating)] focus-visible:ring-4 focus-visible:ring-[#CA8A04]/30"
               >
-                {lang.toUpperCase()}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={isLangOpen ? "rotate-180 transition-transform" : "transition-transform"}>
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
+                <span className="absolute inset-x-2 top-1 h-2 rounded-full bg-white/70 shadow-[inset_0_-1px_1px_rgba(0,0,0,0.08)]" />
+                <span className="relative z-10 grid h-full grid-cols-2 items-center rounded-lg text-center text-[11px] font-black tracking-widest">
+                  <span className={lang === "ar" ? "text-white drop-shadow-sm" : "text-stone-700"}>AR</span>
+                  <span className={lang === "en" ? "text-white drop-shadow-sm" : "text-stone-700"}>EN</span>
+                </span>
+                <motion.span
+                  layout
+                  className="absolute top-1 bottom-1 w-[48px] rounded-lg border border-[#006747]/70 bg-[linear-gradient(145deg,#009164,#006747)] shadow-[4px_5px_10px_rgba(0,0,0,0.18),inset_1px_1px_2px_rgba(255,255,255,0.35),inset_-2px_-2px_4px_rgba(0,0,0,0.24)]"
+                  animate={{ x: lang === "ar" ? 0 : 50 }}
+                  transition={{ type: "spring", stiffness: 360, damping: 28 }}
+                  style={{ left: 4 }}
+                >
+                  <span className="absolute left-1 right-1 top-1 h-2 rounded-full bg-white/25" />
+                  <span className="absolute inset-0 rounded-lg ring-1 ring-white/10" />
+                </motion.span>
               </button>
-
-              <AnimatePresence>
-                {isLangOpen && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.2, ease: customEase }}
-                    className={`absolute top-full mt-3 ${isRtl ? 'left-0' : 'right-0'} w-36 bg-[#FAF9F6] rounded-lg shadow-[var(--shadow-ind-floating)] border border-stone-200 p-2 overflow-hidden z-50`}
-                  >
-                    {languages.map((l) => (
-                      <button
-                        key={l.code}
-                        onClick={() => { setLang(l.code); setIsLangOpen(false); }}
-                        className={`w-full px-4 py-2.5 text-sm flex items-center justify-between rounded transition-all duration-150 active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] ${lang === l.code ? 'bg-[#007A55] text-white shadow-[var(--shadow-ind-floating)] font-black' : 'text-stone-600 bg-white shadow-[var(--shadow-ind-card)] hover:-translate-y-[1px] hover:shadow-[var(--shadow-ind-floating)] font-bold mb-2 last:mb-0'}`}
-                      >
-                        {l.name}
-                        {lang === l.code && <div className="w-2 h-2 bg-white rounded-full shadow-[var(--shadow-ind-glow-primary)]"></div>}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
             <img
               src="/aidsmo.png"
               alt="AIDSMO"
-              className="hidden xl:block h-18 w-auto object-contain rounded px-2 py-1"
+              className="hidden 2xl:block h-14 w-auto max-w-[128px] object-contain rounded px-2 py-1"
             />
             {/* Mobile Hamburger Button */}
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
+              aria-label={d.menuBtn}
               className="lg:hidden p-3 bg-white shadow-[var(--shadow-ind-card)] text-stone-600 rounded-md active:shadow-[var(--shadow-ind-pressed)] active:translate-y-[2px] transition-all"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -8,7 +8,6 @@ import {
   Package,
   Pill,
   PlaneTakeoff,
-  ShieldCheck,
   Sparkles,
   TestTube,
 } from "lucide-react";

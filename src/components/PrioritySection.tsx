@@ -10,8 +10,12 @@ import {
   FileText 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const ExploreSectors = () => {
+  const { t, i18n } = useTranslation();
+  const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
+  const sectorNames = t("scopeSection.sectors", { returnObjects: true }) as string[];
   const sectors = [
     { 
       id: 1, 
@@ -64,7 +68,7 @@ const ExploreSectors = () => {
   ];
 
   return (
-    <section className="relative py-16 lg:py-24 bg-slate-950 overflow-hidden border-y border-stone-800" dir="rtl">
+    <section className="relative py-16 lg:py-24 bg-slate-950 overflow-hidden border-y border-stone-800" dir={isRtl ? "rtl" : "ltr"}>
       
       {/* Background Image & Overlay from previous version */}
       <div className="absolute inset-0 z-0">
@@ -86,7 +90,7 @@ const ExploreSectors = () => {
           
           <div className="inline-flex items-center justify-center gap-3 mb-6">
                <div className="w-12 h-1 bg-white/10 rounded-full shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"></div>
-               <span className="px-4 py-1.5 text-[10px] lg:text-xs font-mono font-bold uppercase tracking-widest text-[#CA8A04] rounded bg-white/5 backdrop-blur-md shadow-[var(--shadow-ind-sharp)] border border-white/10">القطاعات المستهدفة</span>
+               <span className="px-4 py-1.5 text-[10px] lg:text-xs font-mono font-bold uppercase tracking-widest text-[#CA8A04] rounded bg-white/5 backdrop-blur-md shadow-[var(--shadow-ind-sharp)] border border-white/10">{t("scopeSection.eyebrow")}</span>
                <div className="w-12 h-1 bg-white/10 rounded-full shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"></div>
           </div>
 
@@ -96,7 +100,7 @@ const ExploreSectors = () => {
             viewport={{ once: true }}
             className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black text-white tracking-tight leading-tight mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
           >
-            مجال تطبيق <span className="text-[#007A55]">البرنامج</span>
+            {t("scopeSection.titleBefore")} <span className="text-[#007A55]">{t("scopeSection.titleHighlight")}</span>
           </motion.h2>
 
           <motion.p 
@@ -106,7 +110,7 @@ const ExploreSectors = () => {
             transition={{ delay: 0.2 }}
             className="text-sm md:text-base lg:text-lg text-stone-300 font-medium max-w-3xl leading-relaxed"
           >
-            يُطبَق هذا البرنامج على كافة <strong className="font-black text-white">المنتجات</strong> التي تتطلب استيفاء <strong className="font-black text-white">اشتراطات الحلال</strong> وفقاً <strong className="font-black text-white">لأحكام الشريعة الإسلامية</strong>، والمشار إليها بالتفصيل في المرجع الفني:
+            {t("scopeSection.desc")}
           </motion.p>
 
           <motion.a 
@@ -142,7 +146,7 @@ const ExploreSectors = () => {
                 <div className="absolute top-10 left-4 right-4 bottom-14 bg-stone-900 rounded-lg overflow-hidden border-none z-10 transition-all duration-500 group-hover:shadow-[inset_2px_2px_10px_rgba(0,0,0,0.5)] shadow-[inset_1px_1px_4px_rgba(0,0,0,0.5)]">
                   <img 
                     src={sector.image} 
-                    alt={sector.name} 
+                    alt={sectorNames[index] ?? sector.name} 
                     className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110  opacity-90 group-hover:grayscale-0 group-hover:opacity-100"
                   />
                   <div className="absolute inset-0 bg-stone-900/40 group-hover:bg-transparent transition-colors duration-500"></div>
@@ -162,7 +166,7 @@ const ExploreSectors = () => {
                 {/* Sector Name Label */}
                 <div className="absolute bottom-4 left-0 right-0 text-center z-20 px-2">
                   <p className="text-sm font-black text-white tracking-tight transition-colors duration-300 group-hover:text-[#CA8A04]">
-                    {sector.name}
+                    {sectorNames[index] ?? sector.name}
                   </p>
                 </div>
               </motion.a>

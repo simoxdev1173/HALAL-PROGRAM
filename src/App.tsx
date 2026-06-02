@@ -1,7 +1,9 @@
 // App.js
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navbar from "./components/Navbar";
+import FloatingBreadcrumb from "./components/FloatingBreadcrumb";
 import ArabHalalProgram from "./components/ArabHalalProgram";
 import CompanySearch from "./components/CompanySearch";
 import AccreditationWorkflow from "./components/AccreditationWorkflow";
@@ -42,7 +44,9 @@ const ScrollToHash = () => {
 
 const Home = () => (
   <main>
-    <Hero />
+    <section id="home">
+      <Hero />
+    </section>
     <section id="about">
        <ArabHalalProgram />
     </section>
@@ -52,8 +56,12 @@ const Home = () => (
     <section id="join">
        <AccreditationWorkflow />
     </section>
-    <CompanySearch />
-    <InternationalRecognition />
+    <section id="verify">
+      <CompanySearch />
+    </section>
+    <section id="recognition">
+      <InternationalRecognition />
+    </section>
     <section id="directory">
        <OfficialMarkAndDocuments />
     </section>
@@ -64,13 +72,20 @@ const Home = () => (
 );
 
 function App() {
-  const [lang, setLang] = useState<"ar" | "en">("ar");
+  const { i18n } = useTranslation();
+  const lang = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("en") ? "en" : "ar";
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = lang;
+    document.documentElement.dataset.lang = lang;
+    document.body.dir = lang === "ar" ? "rtl" : "ltr";
   }, [lang]);
+
+  const setLang = (nextLang: "ar" | "en") => {
+    void i18n.changeLanguage(nextLang);
+  };
 
   return (
     <Router>
@@ -80,9 +95,10 @@ function App() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className={`min-h-screen bg-white ${lang === 'ar' ? 'font-arabic' : 'font-sans'}`}
+          className={`min-h-screen bg-white lang-shell ${lang === 'ar' ? 'font-arabic' : 'font-english'}`}
         >
           <Navbar lang={lang} setLang={setLang} />
+          <FloatingBreadcrumb />
           
           <Routes>
             <Route path="/" element={<Home />} />
@@ -103,20 +119,46 @@ function App() {
           <FontSwitcher />
 
           <style>{`
-            @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Cairo:wght@400;500;600;700;800;900&family=Changa:wght@400;500;600;700;800&family=El+Messiri:wght@400;500;600;700&family=Harmattan:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Lalezar&family=Lateef:wght@400;500;600;700;800&family=Mada:wght@400;500;600;700;900&family=Markazi+Text:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Parastoo:wght@400;700&family=Rakkas&family=Readex+Pro:wght@200;300;400;500;600;700&family=Reem+Kufi:wght@400;500;600;700&family=Rubik:wght@400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800;900&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Afacad:wght@400;500;600;700;800&family=Almarai:wght@300;400;700;800&family=Cairo:wght@400;500;600;700;800;900&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Readex+Pro:wght@200;300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800;900&display=swap');
             
             :root {
               --font-heading-ar: 'Almarai', sans-serif;
               --font-body-ar: 'Noto Sans Arabic', sans-serif;
+              --font-heading-en: 'Fraunces', Georgia, serif;
+              --font-body-en: 'Afacad', sans-serif;
               font-family: var(--font-body-ar);
             }
 
-            .font-arabic, .font-sans { 
+            .lang-shell {
+              transition: font-family 240ms ease, letter-spacing 240ms ease;
+            }
+
+            .font-arabic { 
               font-family: var(--font-body-ar); 
             }
+
+            .font-english {
+              font-family: var(--font-body-en);
+            }
             
-            h1, h2, h3, h4, h5, h6 {
+            .font-arabic h1,
+            .font-arabic h2,
+            .font-arabic h3,
+            .font-arabic h4,
+            .font-arabic h5,
+            .font-arabic h6 {
               font-family: var(--font-heading-ar);
+              font-weight: 700;
+              letter-spacing: 0;
+            }
+
+            .font-english h1,
+            .font-english h2,
+            .font-english h3,
+            .font-english h4,
+            .font-english h5,
+            .font-english h6 {
+              font-family: var(--font-heading-en);
               font-weight: 700;
               letter-spacing: 0;
             }

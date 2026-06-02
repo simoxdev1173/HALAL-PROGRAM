@@ -62,6 +62,8 @@
 
   --font-heading-ar: 'Almarai', sans-serif;
   --font-body-ar: 'Noto Sans Arabic', sans-serif;
+  --font-heading-en: 'Fraunces', Georgia, serif;
+  --font-body-en: 'Afacad', sans-serif;
 }
 
 @layer base {
@@ -81,6 +83,7 @@
     @apply text-slate-900 antialiased selection:bg-[var(--brand-primary)] selection:text-white;
     background-color: #fff;
     font-family: var(--font-body-ar);
+    transition: font-family 240ms ease;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -88,6 +91,28 @@
     font-family: var(--font-heading-ar);
     letter-spacing: 0;
   }
+}
+
+[data-lang="en"] body {
+  font-family: var(--font-body-en);
+}
+
+[data-lang="en"] h1,
+[data-lang="en"] h2,
+[data-lang="en"] h3,
+[data-lang="en"] h4,
+[data-lang="en"] h5,
+[data-lang="en"] h6 {
+  font-family: var(--font-heading-en);
+}
+
+[data-lang="ar"] h1,
+[data-lang="ar"] h2,
+[data-lang="ar"] h3,
+[data-lang="ar"] h4,
+[data-lang="ar"] h5,
+[data-lang="ar"] h6 {
+  font-family: var(--font-heading-ar);
 }
 
 @utility btn-base {

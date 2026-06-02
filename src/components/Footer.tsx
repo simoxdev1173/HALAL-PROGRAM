@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { 
   Mail, 
   Phone, 
@@ -17,6 +18,7 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
   const isRtl = lang === 'ar';
+  const { t } = useTranslation();
 
   const content = {
     ar: {
@@ -37,7 +39,6 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
           { name: "عن البرنامج", href: "/about-us" },
           { name: "التحقق من شهادة", href: "/#standards" },
           { name: "الانضمام للبرنامج", href: "/join-program" },
-          { name: "النماذج والوثائق", href: "/#directory" },
         ]
       },
       support: {
@@ -73,7 +74,6 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
           { name: "About Us", href: "/about-us" },
           { name: "Verification", href: "/#standards" },
           { name: "Accreditation", href: "/#join" },
-          { name: "Directory", href: "/#directory" },
         ]
       },
       support: {
@@ -93,7 +93,24 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
     }
   };
 
-  const d = content[lang];
+  const fallback = content[lang];
+  const translatedFooter = t("footer", { returnObjects: true }) as Partial<typeof fallback> & {
+    cta?: Partial<typeof fallback.cta> & { online?: string };
+    brand?: Partial<typeof fallback.brand>;
+    links?: Partial<typeof fallback.links>;
+    support?: Partial<typeof fallback.support>;
+    contact?: Partial<typeof fallback.contact>;
+  };
+  const d = {
+    ...fallback,
+    ...translatedFooter,
+    cta: { ...fallback.cta, ...translatedFooter.cta },
+    brand: { ...fallback.brand, ...translatedFooter.brand },
+    links: { ...fallback.links, ...translatedFooter.links },
+    support: { ...fallback.support, ...translatedFooter.support },
+    contact: { ...fallback.contact, ...translatedFooter.contact },
+  };
+  const onlineLabel = (d.cta as typeof fallback.cta & { online?: string }).online ?? d.cta.btn1;
 
   return (
     <footer dir={isRtl ? 'rtl' : 'ltr'} className="w-full bg-[#FAF9F6] pt-10 lg:pt-12 sm:pt-16 pb-6 px-4 sm:px-6 relative z-10 flex flex-col border-t border-stone-200">
@@ -124,28 +141,28 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
           <div className="relative z-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-8 xl:gap-12">
             
             {/* Text Content */}
-            <div className="flex-grow text-center lg:text-right order-2 lg:order-1">
+            <div className={`min-w-0 flex-grow order-2 lg:order-1 text-center ${isRtl ? "lg:text-right" : "lg:text-left"}`}>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#CA8A04]/30 bg-[#CA8A04]/10 backdrop-blur-md mb-4 lg:mb-6">
                 <Sparkles size={10} className="text-[#CA8A04]" />
-                <span className="text-[#CA8A04] text-[8px] lg:text-[9px] font-black uppercase tracking-[0.2em]">
+                <span className="text-[#CA8A04] text-[8px] lg:text-[9px] font-black uppercase tracking-[0.16em]">
                   {d.cta.badge}
                 </span>
               </div>
               
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-black text-white mb-3 lg:mb-4 leading-tight tracking-tight">
+              <h2 className={`text-xl md:text-2xl lg:text-3xl font-black text-white mb-3 lg:mb-4 leading-tight tracking-tight ${isRtl ? "lg:text-right" : "lg:text-left"}`}>
                 {d.cta.title}
               </h2>
-              <p className="text-white/70 text-xs lg:text-sm md:text-base font-light leading-relaxed mb-6 lg:mb-8 max-w-lg lg:ml-0 lg:mr-0 mx-auto border-r-2 border-[#CA8A04] pr-4 bg-gradient-to-l from-white/5 to-transparent py-2">
+              <p className={`text-white/75 text-xs md:text-sm lg:text-base font-light leading-relaxed mb-6 lg:mb-8 max-w-lg lg:mx-0 mx-auto border-[#CA8A04] py-2 ${isRtl ? "lg:text-right border-r-2 pr-4 bg-gradient-to-l from-white/5 to-transparent" : "lg:text-left border-l-2 pl-4 bg-gradient-to-r from-white/5 to-transparent"}`}>
                 {d.cta.desc}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center lg:justify-start">
                 <button 
                   onClick={onChatOpen}
-                  className="flex items-center justify-center gap-3 px-6 lg:px-8 py-3 lg:py-4 rounded-full bg-[#CA8A04] text-[#004D36] font-black text-xs lg:text-sm hover:bg-white transition-all shadow-[0_15px_30px_-5px_rgba(238,180,34,0.3)] group overflow-hidden relative cursor-pointer active:translate-y-[2px]"
+                  className="flex max-w-full items-center justify-center gap-3 px-6 lg:px-8 py-3 lg:py-4 rounded-full bg-[#CA8A04] text-[#004D36] font-black text-xs lg:text-sm hover:bg-white transition-all shadow-[0_15px_30px_-5px_rgba(238,180,34,0.3)] group overflow-hidden relative cursor-pointer active:translate-y-[2px] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/30"
                 >
                   <MessageSquareText size={16}  />
-                  <span>{d.cta.btn1}</span>
+                  <span className="min-w-0 truncate">{d.cta.btn1}</span>
                   <ChevronLeft size={14} className={`${isRtl ? "group-hover:-translate-x-1" : "rotate-180 group-hover:translate-x-1"} transition-transform`} />
                 </button>
               </div>
@@ -168,7 +185,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 lg:h-2.5 w-2 lg:w-2.5 bg-emerald-500"></span>
                 </div>
-                <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest">متصل للرد</span>
+                <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest">{onlineLabel}</span>
               </div>
             </div>
 
@@ -182,7 +199,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
           
           {/* Brand Signature */}
           <div className="flex flex-col gap-6 h-full pt-0">
-            <div className="flex flex-col gap-6 items-start lg:items-start">
+            <div className={`flex flex-col gap-6 ${isRtl ? "items-end lg:items-end" : "items-start lg:items-start"}`}>
               <img src="/logo.svg" alt="Logo" className="h-28 lg:h-36 xl:h-40 w-auto object-contain object-right mb-2" />
               <div className="space-y-1">
                 <h3 className="text-xl lg:text-2xl font-black tracking-tight text-[#004D36]">
@@ -194,7 +211,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
 
           {/* Navigation Groups */}
           <div className="flex flex-col h-full pt-0">
-            <h4 className="text-[10px] lg:text-xs font-black uppercase tracking-widest text-[#004D36] mb-8 border-r-2 border-[#CA8A04] pr-2 mt-2">
+            <h4 className={`text-[10px] lg:text-xs font-black uppercase tracking-widest text-[#004D36] mb-8 mt-2 ${isRtl ? "border-r-2 border-[#CA8A04] pr-2 text-right" : "border-l-2 border-[#CA8A04] pl-2 text-left"}`}>
               {d.links.title}
             </h4>
             <ul className="space-y-3 lg:space-y-4">
@@ -211,7 +228,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
 
           {/* Contact Details */}
           <div className="flex flex-col h-full pt-0">
-            <h4 className="text-[10px] lg:text-xs font-black uppercase tracking-widest text-[#004D36] mb-8 border-r-2 border-[#CA8A04] pr-2 mt-2">
+            <h4 className={`text-[10px] lg:text-xs font-black uppercase tracking-widest text-[#004D36] mb-8 mt-2 ${isRtl ? "border-r-2 border-[#CA8A04] pr-2 text-right" : "border-l-2 border-[#CA8A04] pl-2 text-left"}`}>
               {d.contact.title}
             </h4>
             <div className="space-y-5 lg:space-y-7">
@@ -254,7 +271,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
           {/* Support Form */}
           <div className="flex flex-col h-full pt-0">
             <div className="mt-2 bg-white/50 backdrop-blur-sm p-5 lg:p-6 rounded-2xl lg:rounded-3xl border border-stone-200 shadow-sm flex-grow">
-              <h4 className="text-[10px] lg:text-xs font-black uppercase tracking-widest text-[#004D36] mb-6 border-r-2 border-[#CA8A04] pr-2">
+              <h4 className={`text-[10px] lg:text-xs font-black uppercase tracking-widest text-[#004D36] mb-6 ${isRtl ? "border-r-2 border-[#CA8A04] pr-2 text-right" : "border-l-2 border-[#CA8A04] pl-2 text-left"}`}>
                 {d.support.title}
               </h4>
               <form className="space-y-3 lg:space-y-4" onSubmit={(e) => e.preventDefault()}>
@@ -262,21 +279,21 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
                   <input 
                     type="text" 
                     placeholder={d.support.name}
-                    className="w-full px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg lg:rounded-xl border border-stone-200 focus:border-[#CA8A04] focus:ring-1 focus:ring-[#CA8A04] outline-none transition-all bg-white text-[10px] lg:text-xs font-bold"
+                    className={`w-full px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg lg:rounded-xl border border-stone-200 focus:border-[#CA8A04] focus:ring-1 focus:ring-[#CA8A04] outline-none transition-all bg-white text-[10px] lg:text-xs font-bold ${isRtl ? "text-right" : "text-left"}`}
                   />
                 </div>
                 <div>
                   <input 
                     type="email" 
                     placeholder={d.support.email}
-                    className="w-full px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg lg:rounded-xl border border-stone-200 focus:border-[#CA8A04] focus:ring-1 focus:ring-[#CA8A04] outline-none transition-all bg-white text-[10px] lg:text-xs font-bold"
+                    className={`w-full px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg lg:rounded-xl border border-stone-200 focus:border-[#CA8A04] focus:ring-1 focus:ring-[#CA8A04] outline-none transition-all bg-white text-[10px] lg:text-xs font-bold ${isRtl ? "text-right" : "text-left"}`}
                   />
                 </div>
                 <div>
                   <textarea 
                     placeholder={d.support.message}
                     rows={2}
-                    className="w-full px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg lg:rounded-xl border border-stone-200 focus:border-[#CA8A04] focus:ring-1 focus:ring-[#CA8A04] outline-none transition-all bg-white text-[10px] lg:text-xs font-bold resize-none"
+                    className={`w-full px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg lg:rounded-xl border border-stone-200 focus:border-[#CA8A04] focus:ring-1 focus:ring-[#CA8A04] outline-none transition-all bg-white text-[10px] lg:text-xs font-bold resize-none ${isRtl ? "text-right" : "text-left"}`}
                   ></textarea>
                 </div>
                 <button className="w-full bg-[#004D36] text-white py-2.5 lg:py-3 rounded-lg lg:rounded-xl font-black text-[10px] lg:text-xs hover:bg-[#003827] transition-all shadow-lg shadow-emerald-900/10 active:translate-y-[1px]">

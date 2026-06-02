@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, HelpCircle, ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface FAQItem {
   question: string;
@@ -36,6 +37,10 @@ const faqs: FAQItem[] = [
 ];
 
 const FAQSection: React.FC = () => {
+  const { t, i18n } = useTranslation();
+  const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
+  const translatedFaqs = t("faq.items", { returnObjects: true }) as FAQItem[];
+  const displayFaqs = translatedFaqs.length ? translatedFaqs : faqs;
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const toggleFAQ = (index: number) => {
@@ -43,7 +48,7 @@ const FAQSection: React.FC = () => {
   };
 
   return (
-    <section className="relative py-16 lg:py-24 px-6 md:px-12 overflow-hidden border-y border-stone-800" dir="rtl">
+    <section className="relative py-16 lg:py-24 px-6 md:px-12 overflow-hidden border-y border-stone-800" dir={isRtl ? "rtl" : "ltr"}>
       
       {/* Background Image & Overlay from previous version */}
       <div className="absolute inset-0 z-0">
@@ -66,7 +71,7 @@ const FAQSection: React.FC = () => {
             
             <div className="inline-flex items-center gap-3 mb-6">
                <div className="w-8 h-1 bg-white/10 rounded-full shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"></div>
-               <span className="px-3 py-1 text-[9px] lg:text-[10px] font-mono font-bold uppercase tracking-widest text-[#CA8A04] rounded bg-white/5 backdrop-blur-md shadow-[var(--shadow-ind-sharp)] border border-white/10">الدعم الفني</span>
+               <span className="px-3 py-1 text-[9px] lg:text-[10px] font-mono font-bold uppercase tracking-widest text-[#CA8A04] rounded bg-white/5 backdrop-blur-md shadow-[var(--shadow-ind-sharp)] border border-white/10">{t("faq.eyebrow")}</span>
             </div>
 
             <motion.h2 
@@ -75,11 +80,11 @@ const FAQSection: React.FC = () => {
               viewport={{ once: true }}
               className="text-2xl md:text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
             >
-              الأسئلة <span className="text-[#007A55]">الشائعة</span>
+              {t("faq.titleBefore")} <span className="text-[#007A55]">{t("faq.titleHighlight")}</span>
             </motion.h2>
             
             <p className="text-stone-300 text-sm lg:text-base leading-relaxed mb-8 max-w-sm font-medium">
-              إجابات رسمية وموثوقة حول آليات عمل البرنامج العربي للحلال، شروط الانضمام، والتفاصيل المالية والقانونية.
+              {t("faq.desc")}
             </p>
 
             <motion.div 
@@ -92,13 +97,13 @@ const FAQSection: React.FC = () => {
                 <HelpCircle size={20} className="lg:w-6 lg:h-6" strokeWidth={2} />
               </div>
               <div>
-                <h4 className="text-sm lg:text-base font-black text-white mb-2">لديك استفسارات أخرى؟</h4>
+                <h4 className="text-sm lg:text-base font-black text-white mb-2">{t("faq.contactTitle")}</h4>
                 <p className="text-xs lg:text-sm text-stone-300 mb-6 leading-relaxed font-medium">
-                  فريقنا الفني متاح للرد على أي استفسارات تتعلق بعمليات التفتيش أو المصادقة.
+                  {t("faq.contactDesc")}
                 </p>
                 <a href="mailto:halal@aidsmo.org" className="btn-gold w-fit text-[10px] lg:text-xs group uppercase tracking-widest px-5 py-2.5 lg:px-6 lg:py-3 border border-[#CA8A04] bg-transparent text-[#CA8A04] hover:bg-[#CA8A04] hover:text-white transition-all">
-                  راسلنا عبر البريد 
-                  <ArrowLeft size={14} className="lg:w-4 lg:h-4 group-hover:-translate-x-1 transition-transform" />
+                  {t("faq.contactCta")} 
+                  <ArrowLeft size={14} className={`lg:w-4 lg:h-4 transition-transform ${isRtl ? "group-hover:-translate-x-1" : "rotate-180 group-hover:translate-x-1"}`} />
                 </a>
               </div>
             </motion.div>
@@ -106,14 +111,14 @@ const FAQSection: React.FC = () => {
 
           {/* --- RIGHT COLUMN --- */}
           <div className="lg:col-span-8 flex flex-col gap-3 lg:gap-4">
-              {faqs.map((faq, index) => {
+              {displayFaqs.map((faq, index) => {
                 const isOpen = openIndex === index;
                 return (
                   <div key={index} className={`bg-white/5 backdrop-blur-sm border transition-all duration-300 rounded-xl overflow-hidden group ${isOpen ? 'border-[#007A55]/50 bg-white/10' : 'border-white/10 hover:border-white/20'}`}>
                     
                     <button
                       onClick={() => toggleFAQ(index)}
-                      className="w-full p-4 lg:p-6 flex items-center justify-between gap-4 lg:gap-6 text-right cursor-pointer"
+                      className={`w-full p-4 lg:p-6 flex items-center justify-between gap-4 lg:gap-6 cursor-pointer ${isRtl ? "text-right" : "text-left"}`}
                     >
                       <h3 className={`text-sm md:text-base lg:text-lg font-black transition-colors ${isOpen ? 'text-[#007A55]' : 'text-slate-200 group-hover:text-white'}`}>
                         {faq.question}

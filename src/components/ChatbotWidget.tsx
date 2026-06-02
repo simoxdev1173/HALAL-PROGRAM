@@ -1,6 +1,6 @@
-
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface Message {
   id: number;
@@ -8,22 +8,30 @@ interface Message {
   sender: "user" | "bot";
 }
 
-export const ChatbotWidget = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (val: boolean) => void }) => {
-  const [messages, setMessages] = useState<Message[]>([
-    { id: 1, text: "مرحباً بك! أنا مساعدك الذكي في البرنامج العربي للحلال. كيف يمكنني مساعدتك اليوم؟", sender: "bot" }
+export const ChatbotWidget = ({
+  isOpen,
+  setIsOpen,
+}: {
+  isOpen: boolean;
+  setIsOpen: (val: boolean) => void;
+}) => {
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("en") ? "en" : "ar";
+  const isRtl = lang === "ar";
+  const dockSide = isRtl ? "left-4 sm:left-8" : "right-4 sm:right-8";
+  const [messages, setMessages] = useState<Message[]>(() => [
+    { id: 1, text: t("chatbot.initial"), sender: "bot" },
   ]);
   const [input, setInput] = useState("");
   const [showGreeting, setShowGreeting] = useState(false);
 
-  // Trigger the greeting bubble to appear shortly after load
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       if (!isOpen) setShowGreeting(true);
     }, 2000);
-    return () => clearTimeout(timer);
+    return () => window.clearTimeout(timer);
   }, [isOpen]);
 
-  // Hide greeting on scroll to prevent covering content
   useEffect(() => {
     const handleScroll = () => {
       if (showGreeting) setShowGreeting(false);
@@ -33,20 +41,17 @@ export const ChatbotWidget = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpe
   }, [showGreeting]);
 
   const handleSend = () => {
-    if (!input.trim()) return;
-    
-    const userMsg: Message = { id: Date.now(), text: input, sender: "user" };
-    setMessages(prev => [...prev, userMsg]);
+    const trimmed = input.trim();
+    if (!trimmed) return;
+
+    setMessages((prev) => [...prev, { id: Date.now(), text: trimmed, sender: "user" }]);
     setInput("");
 
-    // Simple simulated bot response
-    setTimeout(() => {
-      const botMsg: Message = { 
-        id: Date.now() + 1, 
-        text: "شكراً لتواصلك. فريقنا يعمل حالياً على معالجة استفسارك. هل ترغب في الاطلاع على الدليل الفني للبرنامج؟", 
-        sender: "bot" 
-      };
-      setMessages(prev => [...prev, botMsg]);
+    window.setTimeout(() => {
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, text: t("chatbot.reply"), sender: "bot" },
+      ]);
     }, 1000);
   };
 
@@ -55,78 +60,73 @@ export const ChatbotWidget = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpe
     setShowGreeting(false);
   };
 
+  const userAlign = isRtl ? "justify-start" : "justify-end";
+  const botAlign = isRtl ? "justify-end" : "justify-start";
+  const renderedMessages = messages.map((msg) =>
+    msg.id === 1 && msg.sender === "bot" ? { ...msg, text: t("chatbot.initial") } : msg
+  );
+
   return (
-    <div className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-[100]" dir="rtl">
-      
-      {/* Floating Trigger & Greeting Bubble */}
+    <div className={`fixed bottom-4 ${dockSide} sm:bottom-8 z-[100]`} dir={isRtl ? "rtl" : "ltr"}>
       <div className="relative flex items-center">
         <AnimatePresence>
           {!isOpen && (
             <>
-              {/* The Greeting Bubble (Floats to the Left in RTL) */}
               {showGreeting && (
                 <motion.div
-                  initial={{ opacity: 0, x: 20, scale: 0.9 }}
+                  initial={{ opacity: 0, x: isRtl ? -20 : 20, scale: 0.9 }}
                   animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: 10, scale: 0.9 }}
+                  exit={{ opacity: 0, x: isRtl ? -10 : 10, scale: 0.9 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
-                  className="absolute right-[115%] mr-4 w-max max-w-[260px] bg-white p-4 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] border border-stone-100 flex items-start gap-3 cursor-pointer group"
+                  className={`absolute w-max max-w-[min(260px,calc(100vw-7rem))] cursor-pointer rounded-2xl border border-stone-100 bg-white p-4 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] ${isRtl ? "left-[115%] ml-4" : "right-[115%] mr-4"}`}
                   onClick={handleOpenChat}
                 >
-                  {/* Close Button for Bubble */}
-                  <button 
+                  <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowGreeting(false);
                     }}
-                    className="absolute -top-2 -left-2 w-6 h-6 bg-white border border-stone-200 rounded-full shadow-sm flex items-center justify-center text-[10px] text-stone-400 hover:text-stone-600 hover:bg-stone-50 transition-colors z-20"
+                    aria-label={t("common.close")}
+                    className={`absolute -top-2 ${isRtl ? "-right-2" : "-left-2"} z-20 flex h-6 w-6 items-center justify-center rounded-full border border-stone-200 bg-white text-[10px] text-stone-500 shadow-sm transition-colors hover:bg-stone-50 hover:text-stone-700`}
                   >
-                    ✕
+                    x
                   </button>
-
-                  {/* CSS Pointer Triangle pointing to the right */}
-                  <div className="absolute top-1/2 -translate-y-1/2 -right-2 w-4 h-4 bg-white rotate-45 border-t border-r border-stone-100 rounded-sm"></div>
-                  
-                  {/* Online Indicator Dot */}
-                  <div className="relative mt-1.5 flex h-2.5 w-2.5 shrink-0">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#007A55] opacity-40"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#007A55]"></span>
-                  </div>
-                  
-                  <div className="flex flex-col">
-                    <span className="text-xs font-black text-[#004D36] mb-1 tracking-wider uppercase">مساعد البرنامج</span>
-                    <p className="text-sm text-stone-600 leading-relaxed font-medium">
-                      مرحباً! أنا المساعد الذكي، هل تحتاج إلى مساعدة؟
-                    </p>
+                  <div className={`absolute top-1/2 h-4 w-4 -translate-y-1/2 rotate-45 rounded-sm bg-white ${isRtl ? "-left-2 border-b border-l border-stone-100" : "-right-2 border-r border-t border-stone-100"}`} />
+                  <div className="flex items-start gap-3">
+                    <div className="relative mt-1.5 flex h-2.5 w-2.5 shrink-0">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#007A55] opacity-40" />
+                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#007A55]" />
+                    </div>
+                    <div className="flex min-w-0 flex-col">
+                      <span className="mb-1 text-xs font-black uppercase tracking-wider text-[#004D36]">
+                        {t("chatbot.bubbleTitle")}
+                      </span>
+                      <p className="text-sm font-medium leading-relaxed text-stone-600">
+                        {t("chatbot.bubbleText")}
+                      </p>
+                    </div>
                   </div>
                 </motion.div>
               )}
 
-              {/* Main Avatar Button */}
               <motion.button
+                type="button"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleOpenChat}
-                className="relative flex items-center justify-center group z-10 focus:outline-none"
+                aria-label={t("chatbot.title")}
+                className="group relative z-10 flex items-center justify-center rounded-full focus:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/30"
               >
-                {/* Subtle outer glow */}
-                <div className="absolute inset-0 rounded-full bg-[#007A55]/20 scale-110 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-all duration-500 blur-xl"></div>
-
-                {/* Avatar Container - Perfectly circular with clean shadow */}
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-white bg-white shadow-[0_10px_30px_-5px_rgba(0,77,54,0.3)] overflow-hidden relative z-10 transition-transform duration-300">
-                  <img 
-                    src="/ai-l.png" 
-                    alt="AI Assistant" 
-                    className="w-full h-full object-cover bg-[#FAF9F6]"
-                  />
+                <div className="absolute inset-0 scale-110 rounded-full bg-[#007A55]/20 opacity-0 blur-xl transition-all duration-500 group-hover:animate-pulse group-hover:opacity-100" />
+                <div className="relative z-10 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-white shadow-[0_10px_30px_-5px_rgba(0,77,54,0.3)] transition-transform duration-300 sm:h-20 sm:w-20">
+                  <img src="/ai-l.png" alt={t("chatbot.alt")} className="h-full w-full bg-[#FAF9F6] object-cover" />
                 </div>
-
-                {/* Chat Icon Badge - Makes it strictly look like a button */}
-                <div className="absolute -bottom-1 -left-1 sm:-bottom-2 sm:-left-2 w-7 h-7 sm:w-9 sm:h-9 bg-[#EEB422] border-[3px] border-white rounded-full flex items-center justify-center shadow-lg z-20 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3 sm:w-4 sm:h-4 text-[#004D36]">
-                    <path fillRule="evenodd" d="M4.804 21.644A6.707 6.707 0 006 21.75a6.721 6.721 0 003.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9 0-5.03-4.428-9-9.75-9s-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 01-.814 1.686.75.75 0 00.44 1.223zM8.25 10.875a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25zM10.875 12a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.875-1.125a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z" clipRule="evenodd" />
+                <div className={`absolute -bottom-1 ${isRtl ? "-right-1 sm:-right-2" : "-left-1 sm:-left-2"} z-20 flex h-7 w-7 items-center justify-center rounded-full border-[3px] border-white bg-[#EEB422] shadow-lg transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110 sm:-bottom-2 sm:h-9 sm:w-9`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3 text-[#004D36] sm:h-4 sm:w-4">
+                    <path fillRule="evenodd" d="M4.804 21.644A6.707 6.707 0 0 0 6 21.75a6.721 6.721 0 0 0 3.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9s-4.428-9-9.75-9-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 0 1-.814 1.686.75.75 0 0 0 .44 1.223ZM8.25 10.875a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25ZM10.875 12a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Zm4.875-1.125a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25Z" clipRule="evenodd" />
                   </svg>
                 </div>
               </motion.button>
@@ -135,83 +135,75 @@ export const ChatbotWidget = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpe
         </AnimatePresence>
       </div>
 
-      {/* Chat Window */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 40, scale: 0.95, transformOrigin: "bottom right" }}
+            initial={{ opacity: 0, y: 40, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.95 }}
             transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
-            className="w-[calc(100vw-3rem)] sm:w-[400px] h-[600px] max-h-[85vh] bg-[#FAF9F6] rounded-3xl sm:rounded-[2.5rem] shadow-[0_30px_80px_-15px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col border border-stone-200 fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-[100]"
+            style={{ transformOrigin: isRtl ? "bottom left" : "bottom right" }}
+            className={`fixed bottom-4 ${dockSide} z-[100] flex h-[600px] max-h-[85vh] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-3xl border border-stone-200 bg-[#FAF9F6] shadow-[0_30px_80px_-15px_rgba(0,0,0,0.3)] sm:bottom-8 sm:w-[400px] sm:rounded-[2.5rem]`}
           >
-            {/* Header */}
-            <div className="bg-gradient-to-br from-[#004D36] to-[#007A55] p-6 relative flex-shrink-0 shadow-md z-10">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white/20 shadow-inner bg-white/10 p-0.5">
-                      <img 
-                        src="/ai-l.png" 
-                        alt="AI Avatar" 
-                        className="w-full h-full object-cover rounded-full bg-white"
-                      />
+            <div className="relative z-10 flex-shrink-0 bg-gradient-to-br from-[#004D36] to-[#007A55] p-6 shadow-md">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex min-w-0 items-center gap-4">
+                  <div className="relative shrink-0">
+                    <div className="h-14 w-14 overflow-hidden rounded-full border-2 border-white/20 bg-white/10 p-0.5 shadow-inner">
+                      <img src="/ai-l.png" alt={t("chatbot.alt")} className="h-full w-full rounded-full bg-white object-cover" />
                     </div>
-                    {/* Active Status Dot */}
-                    <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#EEB422] border-2 border-[#004D36] rounded-full shadow-sm"></div>
+                    <div className={`absolute bottom-0 ${isRtl ? "right-0" : "left-0"} h-3.5 w-3.5 rounded-full border-2 border-[#004D36] bg-[#EEB422] shadow-sm`} />
                   </div>
-                  
-                  <div className="flex flex-col">
-                    <h3 className="text-white font-bold text-lg sm:text-xl tracking-tight">المساعد الذكي</h3>
-                    <span className="text-[#EEB422] text-[10px] sm:text-xs font-black uppercase tracking-[0.1em] opacity-90">
-                      متصل الآن
+                  <div className="flex min-w-0 flex-col">
+                    <h3 className="truncate text-lg font-bold tracking-tight text-white sm:text-xl">{t("chatbot.title")}</h3>
+                    <span className="truncate text-[10px] font-black uppercase tracking-[0.1em] text-[#EEB422] opacity-90 sm:text-xs">
+                      {t("chatbot.online")}
                     </span>
                   </div>
                 </div>
-
-                {/* Unicode Close Button */}
-                <button 
+                <button
+                  type="button"
                   onClick={() => setIsOpen(false)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-all text-sm font-light shadow-sm"
+                  aria-label={t("common.close")}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-light text-white/90 shadow-sm transition-all hover:bg-white/20 hover:text-white"
                 >
-                  ✕
+                  x
                 </button>
               </div>
             </div>
 
-            {/* Messages Area */}
-            <div className="flex-grow overflow-y-auto p-5 sm:p-6 space-y-5 bg-stone-50">
-              {messages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.sender === "user" ? "justify-start" : "justify-end"}`}>
-                  <div className={`max-w-[85%] p-4 text-sm leading-relaxed ${
-                    msg.sender === "user" 
-                      ? "bg-[#004D36] text-white rounded-2xl rounded-tr-sm shadow-md" 
-                      : "bg-white text-slate-700 rounded-2xl rounded-tl-sm shadow-sm border border-stone-200 font-medium"
-                  }`}>
+            <div className="flex-grow space-y-5 overflow-y-auto bg-stone-50 p-5 sm:p-6">
+              {renderedMessages.map((msg) => (
+                <div key={msg.id} className={`flex ${msg.sender === "user" ? userAlign : botAlign}`}>
+                  <div
+                    className={`max-w-[85%] p-4 text-sm leading-relaxed ${
+                      msg.sender === "user"
+                        ? "rounded-2xl rounded-tr-sm bg-[#004D36] text-white shadow-md"
+                        : "rounded-2xl rounded-tl-sm border border-stone-200 bg-white font-medium text-slate-700 shadow-sm"
+                    }`}
+                  >
                     {msg.text}
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Input Area */}
-            <div className="p-4 sm:p-5 bg-white border-t border-stone-200 flex-shrink-0">
+            <div className="flex-shrink-0 border-t border-stone-200 bg-white p-4 sm:p-5">
               <div className="flex items-center gap-2 sm:gap-3">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  placeholder="اكتب استفسارك هنا..."
-                  className="flex-grow bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#EEB422]/40 focus:border-[#EEB422] transition-all placeholder:text-stone-400"
+                  placeholder={t("chatbot.input")}
+                  className={`min-w-0 flex-grow rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm transition-all placeholder:text-stone-400 focus:border-[#EEB422] focus:outline-none focus:ring-2 focus:ring-[#EEB422]/40 ${isRtl ? "text-right" : "text-left"}`}
                 />
-                
-                {/* Text-based Send Button */}
-                <button 
+                <button
+                  type="button"
                   onClick={handleSend}
-                  className="bg-[#004D36] text-white px-5 sm:px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#007A55] transition-all shadow-md shrink-0 active:scale-95 flex items-center justify-center"
+                  className="flex shrink-0 items-center justify-center rounded-xl bg-[#004D36] px-5 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-[#007A55] active:scale-95 sm:px-6"
                 >
-                  إرسال
+                  {t("chatbot.send")}
                 </button>
               </div>
             </div>

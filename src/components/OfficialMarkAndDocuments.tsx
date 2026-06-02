@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, X, ShieldCheck, ArrowLeft, Search, Copy, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface DocumentItem {
   id: string;
@@ -13,6 +14,8 @@ interface DocumentItem {
 }
 
 const OfficialMarkAndDocuments: React.FC = () => {
+  const { t, i18n } = useTranslation();
+  const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
   const [selectedDoc, setSelectedDoc] = useState<DocumentItem | null>(null);
   const [copiedHex, setCopiedHex] = useState<string | null>(null);
 
@@ -40,32 +43,22 @@ const OfficialMarkAndDocuments: React.FC = () => {
     setTimeout(() => setCopiedHex(null), 2000);
   };
 
+  const translatedColors = t("officialDocs.colorsList", { returnObjects: true }) as { name: string }[];
   const brandColors = [
-    { name: "الأخضر الرسمي", hex: "#1C4C2A", cmyk: "C87 M43 Y91 K47" },
-    { name: "الذهبي الرسمي", hex: "#CA8A04", cmyk: "C8 M29 Y94 K1" },
+    { name: translatedColors[0]?.name ?? "Official green", hex: "#1C4C2A", cmyk: "C87 M43 Y91 K47" },
+    { name: translatedColors[1]?.name ?? "Official gold", hex: "#CA8A04", cmyk: "C8 M29 Y94 K1" },
   ];
 
-  const documents: DocumentItem[] = [
-    {
-      id: "certificate",
-      title: "شهادة الحلال العربية الموحدة",
-      subtitle: "نموذج الملحق رقم (3)",
-      description: "الوثيقة الرسمية التي تُمنح للمنشآت والمجازر التي اجتازت كافة مراحل التفتيش والتدقيق الفني.",
-      image: "/certificate-template.png",
-      code: "AR-HALAL-CERT-03",
-    },
-    {
-      id: "license",
-      title: "ترخيص استخدام علامة الحلال",
-      subtitle: "نموذج الملحق رقم (7)",
-      description: "عقد الترخيص القانوني الذي يحدد ضوابط وضع العلامة على المنتجات والعبوات التجارية.",
-      image: "/licence-template.png",
-      code: "AR-HALAL-LIC-07",
-    },
-  ];
+  const translatedDocuments = t("officialDocs.documents", { returnObjects: true }) as Omit<DocumentItem, "id" | "image" | "code">[];
+  const documents: DocumentItem[] = translatedDocuments.map((doc, index) => ({
+    id: index === 0 ? "certificate" : "license",
+    ...doc,
+    image: index === 0 ? "/certificate-template.png" : "/licence-template.png",
+    code: index === 0 ? "AR-HALAL-CERT-03" : "AR-HALAL-LIC-07",
+  }));
 
   return (
-  <section className="relative z-10 py-20 lg:py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]">
+  <section className="relative z-10 py-20 lg:py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]" dir={isRtl ? "rtl" : "ltr"}>
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
 
       <div className="max-w-7xl mx-auto w-full relative z-10">
@@ -74,7 +67,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
         <div className="mb-12 lg:mb-16 flex flex-col items-center text-center">
           <div className="inline-flex items-center justify-center gap-3 mb-6">
                <div className="w-12 h-1 bg-stone-200 rounded-full shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)]"></div>
-               <span className="px-4 py-1.5 text-[10px] lg:text-xs font-mono font-bold uppercase tracking-widest text-[#007A55] rounded bg-white shadow-[var(--shadow-ind-sharp)] border border-stone-200">الوثائق الرسمية</span>
+               <span className="px-4 py-1.5 text-[10px] lg:text-xs font-mono font-bold uppercase tracking-widest text-[#007A55] rounded bg-white shadow-[var(--shadow-ind-sharp)] border border-stone-200">{t("officialDocs.eyebrow")}</span>
                <div className="w-12 h-1 bg-stone-200 rounded-full shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)]"></div>
           </div>
           <motion.h2 
@@ -83,7 +76,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
             viewport={{ once: true }}
             className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6"
           >
-            الهوية البصرية <span className="text-[#007A55]">والنماذج الرسمية</span>
+            {t("officialDocs.titleBefore")} <span className="text-[#007A55]">{t("officialDocs.titleHighlight")}</span>
           </motion.h2>
         </div>
 
@@ -99,13 +92,13 @@ const OfficialMarkAndDocuments: React.FC = () => {
                <img src="/halal-mark.svg" alt="Halal Mark" className="w-28 lg:w-32 xl:w-44 h-auto drop-shadow-xl" />
              </div>
 
-             <div className="relative z-10 flex-grow text-center md:text-right flex flex-col md:block items-center">
+             <div className={`relative z-10 flex-grow text-center flex flex-col md:block items-center ${isRtl ? "md:text-right" : "md:text-left"}`}>
                <div className="flex items-center gap-2 mb-3 lg:mb-4 bg-emerald-50 border border-emerald-100 text-[#007A55] w-fit px-3 py-1 text-[9px] lg:text-[10px] font-bold uppercase tracking-widest rounded-full">
-                 <ShieldCheck size={12} /> علامة رسمية مسجلة
+                 <ShieldCheck size={12} /> {t("officialDocs.markBadge")}
                </div>
-               <h3 className="text-xl lg:text-2xl font-black text-slate-900 mb-3 lg:mb-4">علامة الحلال العربية</h3>
+               <h3 className="text-xl lg:text-2xl font-black text-slate-900 mb-3 lg:mb-4">{t("officialDocs.markTitle")}</h3>
                <p className="text-sm lg:text-base text-slate-500 font-medium leading-relaxed max-w-lg">
-                 تمثل هذه العلامة الضمان الرسمي للجودة والمطابقة للشريعة الإسلامية، وهي ملكية حصرية للمنظمة العربية للتنمية الصناعية والتقييس والتعدين.
+                 {t("officialDocs.markDesc")}
                </p>
              </div>
           </div>
@@ -113,12 +106,12 @@ const OfficialMarkAndDocuments: React.FC = () => {
           <div className="lg:col-span-4 bg-white border border-stone-200 p-6 lg:p-8 flex flex-col justify-between relative cursor-default rounded-sm shadow-sm">
             <div>
               <div className="flex items-center justify-between mb-4 lg:mb-6 border-b border-stone-100 pb-4">
-                 <h4 className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">المواصفات الفنية</h4>
+                 <h4 className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t("officialDocs.specs")}</h4>
                  <div className="w-2 h-2 rounded-full bg-[#007A55] shadow-[0_0_5px_rgba(0,122,85,0.8)]"></div>
               </div>
               <div className="space-y-4 lg:space-y-6">
                 <div>
-                  <p className="text-[9px] lg:text-[10px] font-bold text-stone-500 mb-2 lg:mb-3">الألوان المعتمدة (انقر للنسخ)</p>
+                  <p className="text-[9px] lg:text-[10px] font-bold text-stone-500 mb-2 lg:mb-3">{t("officialDocs.colors")}</p>
                   <div className="flex flex-col gap-2 lg:gap-3">
                     {brandColors.map(c => (
                       <button 
@@ -140,7 +133,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
                   </div>
                 </div>
                 <div className="pt-3 lg:pt-4 border-t border-stone-100">
-                  <p className="text-[9px] lg:text-[10px] font-bold text-stone-500 mb-1.5">الخطوط المعتمدة</p>
+                  <p className="text-[9px] lg:text-[10px] font-bold text-stone-500 mb-1.5">{t("officialDocs.fonts")}</p>
                   <p className="text-[11px] lg:text-xs font-bold text-slate-800" dir="ltr">AXt Manal Bold / Helvetica</p>
                 </div>
               </div>
@@ -190,8 +183,8 @@ const OfficialMarkAndDocuments: React.FC = () => {
                 </p>
                 
                 <div className="mt-auto flex items-center gap-2 text-[10px] lg:text-xs font-bold text-[#007A55] group-hover:gap-3 transition-all duration-300">
-                  <span>فتح للتحقق</span>
-                  <ArrowLeft size={12} className="lg:w-3.5 lg:h-3.5" />
+                  <span>{t("officialDocs.open")}</span>
+                  <ArrowLeft size={12} className={`lg:w-3.5 lg:h-3.5 ${isRtl ? "" : "rotate-180"}`} />
                 </div>
               </div>
             </motion.div>
@@ -211,11 +204,11 @@ const OfficialMarkAndDocuments: React.FC = () => {
               className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[100]" 
             />
             <motion.div
-              initial={{ x: '100%', boxShadow: '-20px 0 50px rgba(0,0,0,0)' }} 
+              initial={{ x: isRtl ? '100%' : '-100%', boxShadow: '-20px 0 50px rgba(0,0,0,0)' }} 
               animate={{ x: 0, boxShadow: '-20px 0 50px rgba(0,0,0,0.15)' }} 
-              exit={{ x: '100%', boxShadow: '-20px 0 50px rgba(0,0,0,0)' }}
+              exit={{ x: isRtl ? '100%' : '-100%', boxShadow: '-20px 0 50px rgba(0,0,0,0)' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-full max-w-md xl:max-w-lg bg-white z-[101] flex flex-col"
+              className={`fixed top-0 h-full w-full max-w-md xl:max-w-lg bg-white z-[101] flex flex-col ${isRtl ? "right-0" : "left-0"}`}
             >
               <div className="p-5 lg:p-6 border-b border-stone-100 flex items-center justify-between bg-white sticky top-0 z-10">
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
@@ -245,20 +238,20 @@ const OfficialMarkAndDocuments: React.FC = () => {
                 >
                    <div>
                      <h5 className="text-[9px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                       <ShieldCheck size={12} className="lg:w-3.5 lg:h-3.5" /> الأهمية القانونية
+                       <ShieldCheck size={12} className="lg:w-3.5 lg:h-3.5" /> {t("officialDocs.legalTitle")}
                      </h5>
                      <p className="text-[11px] lg:text-xs text-slate-600 leading-relaxed font-light">
-                       هذا النموذج محمي بموجب قوانين الملكية الفكرية، ويُعتبر المرجع الوحيد المعتمد من قبل المنظمة لضمان جودة ومصداقية شهادات الحلال. لا يُسمح بتعديله أو استخدامه دون إذن رسمي.
+                       {t("officialDocs.legalText")}
                      </p>
                    </div>
                    
                    <div className="grid grid-cols-2 gap-3">
                      <div className="p-3 bg-white border border-slate-200 rounded-sm shadow-sm flex flex-col justify-center">
-                        <p className="text-[8px] lg:text-[9px] font-bold text-slate-400 mb-1">الرقم المرجعي</p>
+                        <p className="text-[8px] lg:text-[9px] font-bold text-slate-400 mb-1">{t("common.referenceNumber")}</p>
                         <p className="text-[9px] lg:text-[10px] font-mono font-bold tracking-tighter text-slate-800">{selectedDoc.code}</p>
                      </div>
                      <div className="p-3 bg-white border border-stone-200 rounded-sm shadow-sm flex flex-col justify-center">
-                        <p className="text-[8px] lg:text-[9px] font-bold text-slate-400 mb-1">صيغة الملف</p>
+                        <p className="text-[8px] lg:text-[9px] font-bold text-slate-400 mb-1">{t("common.fileFormat")}</p>
                         <p className="text-[9px] lg:text-[10px] font-bold uppercase text-slate-800">Standard PDF / 300 DPI</p>
                      </div>
                    </div>
@@ -270,8 +263,8 @@ const OfficialMarkAndDocuments: React.FC = () => {
                 className="p-4 border-t border-slate-200 bg-white"
               >
                 <button className="btn-primary w-full group h-[54px] text-sm">
-                  تحميل النموذج المعتمد
-                  <div className="w-6 h-6 rounded bg-black/10 flex items-center justify-center shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] ml-auto">
+                  {t("officialDocs.download")}
+                  <div className={`w-6 h-6 rounded bg-black/10 flex items-center justify-center shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] ${isRtl ? "ml-auto" : "mr-auto"}`}>
                     <Download size={14} className="group-hover:-translate-y-0.5 transition-transform" /> 
                   </div>
                 </button>

@@ -137,16 +137,13 @@ const statusConfig = {
 
 const CertificateVerification: React.FC = () => {
   const location = useLocation();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(() => new URLSearchParams(location.search).get("q") ?? "");
   const [activeCategory, setActiveCategory] = useState<string>("الكل");
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
 
   const categories = ["الكل", ...Array.from(new Set(MOCK_DATA.map(item => item.category)))];
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const q = params.get("q");
-    if (q) setQuery(q);
     window.scrollTo(0, 0);
   }, [location.search]);
 

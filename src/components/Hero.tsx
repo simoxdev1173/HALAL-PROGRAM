@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "framer-motion";
 import { 
   Building2, 
@@ -63,6 +64,50 @@ const HERO_SLIDES = [
 
 const HERO_SLIDE_DURATION = 6800;
 const HERO_TRANSITION_DURATION = 2.5; // Adjusted to match the WebGL shader duration
+
+type Vector2Like = { set: (x: number, y: number) => void };
+type MutableUniform<T> = { value: T };
+type TextureLike = {
+  image: { width: number; height: number };
+  userData: { size: Vector2Like };
+  minFilter: unknown;
+  magFilter: unknown;
+};
+type ShaderMaterialLike = {
+  uniforms: {
+    uTexture1: MutableUniform<TextureLike | null>;
+    uTexture2: MutableUniform<TextureLike | null>;
+    uProgress: MutableUniform<number>;
+    uResolution: MutableUniform<Vector2Like>;
+    uTexture1Size: MutableUniform<Vector2Like>;
+    uTexture2Size: MutableUniform<Vector2Like>;
+    [key: string]: MutableUniform<unknown>;
+  };
+};
+type RendererLike = {
+  setSize: (width: number, height: number) => void;
+  setPixelRatio: (ratio: number) => void;
+  render: (scene: unknown, camera: unknown) => void;
+};
+type ThreeNamespace = {
+  Scene: new () => { add: (object: unknown) => void };
+  OrthographicCamera: new (...args: number[]) => unknown;
+  WebGLRenderer: new (options: { canvas: HTMLCanvasElement; antialias: boolean; alpha: boolean }) => RendererLike;
+  ShaderMaterial: new (options: Record<string, unknown>) => ShaderMaterialLike;
+  Mesh: new (...args: unknown[]) => unknown;
+  PlaneGeometry: new (...args: number[]) => unknown;
+  TextureLoader: new () => { load: (src: string, onLoad: (texture: TextureLike) => void) => void };
+  Vector2: new (x: number, y: number) => Vector2Like;
+  LinearFilter: unknown;
+};
+type GsapNamespace = {
+  killTweensOf: (target: unknown) => void;
+  fromTo: (target: unknown, fromVars: Record<string, unknown>, toVars: Record<string, unknown>) => void;
+};
+type WebGLWindow = Window & typeof globalThis & {
+  THREE?: ThreeNamespace;
+  gsap?: GsapNamespace;
+};
 
 /* ---------- ACTION CARDS COMPONENT ---------- */
 export function ActionCards() {
@@ -148,26 +193,30 @@ export function ActionCards() {
 
 /* ---------- MAIN LAYOUT ---------- */
 export const Hero = () => {
+  const { t, i18n } = useTranslation();
   const [activeSlide, setActiveSlide] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
+  const slideAlts = t("hero.slides", { returnObjects: true }) as { alt: string }[];
 
   // --- WEBGL REFS ---
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const shaderMaterialRef = useRef<any>(null);
-  const texturesRef = useRef<any[]>([]);
+  const shaderMaterialRef = useRef<ShaderMaterialLike | null>(null);
+  const texturesRef = useRef<TextureLike[]>([]);
   const isTransitioningRef = useRef(false);
-  const rendererRef = useRef<any>(null);
+  const rendererRef = useRef<RendererLike | null>(null);
 
   // --- 1. LOAD EXTERNAL SCRIPTS & INIT THREE.JS ---
   useEffect(() => {
     if (prefersReducedMotion) return; // Fallback handled by CSS if reduced motion
 
     const loadScripts = async () => {
-      const loadScript = (src: string, globalName: string) => new Promise<void>((res, rej) => {
-        if ((window as any)[globalName]) { res(); return; }
+      const webglWindow = window as WebGLWindow;
+      const loadScript = (src: string, globalName: "gsap" | "THREE") => new Promise<void>((res, rej) => {
+        if (webglWindow[globalName]) { res(); return; }
         if (document.querySelector(`script[src="${src}"]`)) {
           const check = setInterval(() => {
-            if ((window as any)[globalName]) { clearInterval(check); res(); }
+            if (webglWindow[globalName]) { clearInterval(check); res(); }
           }, 50);
           return;
         }
@@ -188,7 +237,7 @@ export const Hero = () => {
     };
 
     const initWebGL = async () => {
-      const THREE = (window as any).THREE;
+      const THREE = (window as WebGLWindow).THREE;
       if (!canvasRef.current || !THREE) return;
 
       // Setup Scene
@@ -285,8 +334,8 @@ export const Hero = () => {
       // Load all textures
       const loader = new THREE.TextureLoader();
       const loadedTextures = await Promise.all(
-        HERO_SLIDES.map((slide) => new Promise<any>((resolve) => {
-          loader.load(slide.image, (t: any) => {
+        HERO_SLIDES.map((slide) => new Promise<TextureLike>((resolve) => {
+          loader.load(slide.image, (t) => {
             t.minFilter = t.magFilter = THREE.LinearFilter;
             t.userData = { size: new THREE.Vector2(t.image.width, t.image.height) };
             resolve(t);
@@ -311,7 +360,7 @@ export const Hero = () => {
 
       // Handle Resize
       const handleResize = () => {
-        if (!canvasRef.current) return;
+        if (!canvasRef.current || !shaderMaterialRef.current) return;
         renderer.setSize(window.innerWidth, canvasRef.current.clientHeight);
         shaderMaterialRef.current.uniforms.uResolution.value.set(window.innerWidth, canvasRef.current.clientHeight);
       };
@@ -327,7 +376,7 @@ export const Hero = () => {
   useEffect(() => {
     if (prefersReducedMotion || !shaderMaterialRef.current || texturesRef.current.length === 0) return;
     
-    const gsap = (window as any).gsap;
+    const gsap = (window as WebGLWindow).gsap;
     const material = shaderMaterialRef.current;
     const targetTexture = texturesRef.current[activeSlide];
 
@@ -383,7 +432,7 @@ export const Hero = () => {
   };
 
   return (
-    <div className="w-full bg-slate-50" dir="rtl">
+    <div className="w-full bg-slate-50 transition-[direction] duration-300" dir={isRtl ? "rtl" : "ltr"}>
       <section className="relative w-full h-[690px] lg:h-[760px] xl:h-[840px] flex items-center overflow-hidden bg-slate-950">
         
         {/* --- WEBGL BACKGROUND --- */}
@@ -392,7 +441,7 @@ export const Hero = () => {
           {prefersReducedMotion ? (
              <img 
                src={HERO_SLIDES[activeSlide].image} 
-               alt="Fallback Background" 
+               alt={slideAlts[activeSlide]?.alt ?? ""}
                className="absolute inset-0 h-full w-full object-cover object-center opacity-60"
              />
           ) : (
@@ -421,18 +470,18 @@ export const Hero = () => {
         {/* --- UI CONTROLS --- */}
         <button
           onClick={goToPrevious}
-          aria-label="الشريحة السابقة"
-          className="absolute right-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-slate-950/30 text-white backdrop-blur-md hover:border-[#CA8A04] hover:bg-slate-950/50 hover:text-[#CA8A04] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30 sm:h-12 sm:w-12 xl:right-8 transition-colors"
+          aria-label={t("hero.prev")}
+          className={`absolute top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-slate-950/30 text-white backdrop-blur-md hover:border-[#CA8A04] hover:bg-slate-950/50 hover:text-[#CA8A04] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30 sm:h-12 sm:w-12 transition-colors ${isRtl ? "right-3 xl:right-8" : "left-3 xl:left-8"}`}
         >
-          <ChevronRight size={22} />
+          {isRtl ? <ChevronRight size={22} /> : <ChevronLeft size={22} />}
         </button>
 
         <button
           onClick={goToNext}
-          aria-label="الشريحة التالية"
-          className="absolute left-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-slate-950/30 text-white backdrop-blur-md hover:border-[#CA8A04] hover:bg-slate-950/50 hover:text-[#CA8A04] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30 sm:h-12 sm:w-12 xl:left-8 transition-colors"
+          aria-label={t("hero.next")}
+          className={`absolute top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-slate-950/30 text-white backdrop-blur-md hover:border-[#CA8A04] hover:bg-slate-950/50 hover:text-[#CA8A04] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30 sm:h-12 sm:w-12 transition-colors ${isRtl ? "left-3 xl:left-8" : "right-3 xl:right-8"}`}
         >
-          <ChevronLeft size={22} />
+          {isRtl ? <ChevronLeft size={22} /> : <ChevronRight size={22} />}
         </button>
 
         {/* --- TEXT CONTENT & THUMBNAILS --- */}
@@ -445,11 +494,11 @@ export const Hero = () => {
             className="max-w-4xl"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-tight mb-6 drop-shadow-[0_16px_40px_rgba(0,0,0,.45)]">
-              البرنامج العربي <span className="text-[#CA8A04]">للحلال</span>
+              {t("hero.titlePrefix")} <span className="text-[#CA8A04]">{t("hero.titleHighlight")}</span>
             </h1>
             
-            <p className="text-base md:text-lg xl:text-xl text-slate-100 leading-relaxed font-medium max-w-2xl border-r-4 border-[#CA8A04] pr-5 bg-gradient-to-l from-white/10 to-transparent py-3 backdrop-blur-[2px]">
-              منظومة اعتراف متعدد الأطراف تربط <strong className="font-bold text-white">جهات التعيين الحكومية العربية</strong> بمعايير <strong className="font-bold text-white">دولية معتمدة</strong> — لضمان مصداقية شهادات الحلال وحماية المستهلك المسلم في كل الأسواق، من الدول العربية إلى كل دول العالم.
+            <p className={`text-base md:text-lg xl:text-xl text-slate-100 leading-relaxed font-medium max-w-2xl border-[#CA8A04] bg-gradient-to-l from-white/10 to-transparent py-3 backdrop-blur-[2px] ${isRtl ? "border-r-4 pr-5" : "border-l-4 pl-5"}`}>
+              {t("hero.description")}
             </p>
             
             {/* CTA Buttons */}
@@ -457,22 +506,22 @@ export const Hero = () => {
               <div className="flex flex-col gap-2 w-full md:w-auto">
                 <span className="text-[#CA8A04] text-xs xl:text-sm font-semibold tracking-wide px-1 flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#CA8A04] "></span>
-                  خاص بالجهات الحكومية المخولة وهيئات منح الشهادات
+                  {t("hero.governmentNote")}
                 </span>
                 
                 <Link to="/join-program" className="btn-primary w-full md:w-auto h-[54px] xl:h-[60px] text-sm xl:text-base group">
-                  الانضمام الى البرنامج
+                  {t("hero.joinCta")}
                   <div className="w-6 h-6 rounded-sm bg-black/20 flex items-center justify-center">
-                    <ArrowLeft size={16} className="group-hover:text-[#CA8A04] transition-colors" />
+                    <ArrowLeft size={16} className={`group-hover:text-[#CA8A04] transition-colors ${isRtl ? "" : "rotate-180"}`} />
                   </div>
                 </Link>
               </div>
 
               <div className="flex flex-col gap-2 w-full md:w-auto md:mt-[22px] xl:mt-[26px]">
                 <Link to="/certificate-verification" className="btn-gold w-full md:w-auto h-[54px] xl:h-[60px] text-sm xl:text-base group !bg-slate-900/40  !border-2 !border-[#CA8A04] !text-white ">
-                  طلب ترخيص العلامة للموردين
+                  {t("hero.licenseCta")}
                   <div className="w-6 h-6 rounded-sm bg-black/30 flex items-center justify-center shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]">
-                    <ArrowLeft size={16} className="text-[#CA8A04] group-hover:-translate-x-1 transition-transform" />
+                    <ArrowLeft size={16} className={`text-[#CA8A04] transition-transform ${isRtl ? "group-hover:-translate-x-1" : "rotate-180 group-hover:translate-x-1"}`} />
                   </div>
                 </Link>
               </div>
@@ -493,10 +542,10 @@ export const Hero = () => {
                   <button
                     key={slide.image}
                     onClick={() => goToSlide(index)}
-                    className={`group relative h-16 lg:h-20 overflow-hidden rounded-xl border text-right cursor-pointer transition-colors focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30 ${
+                    className={`group relative h-16 lg:h-20 overflow-hidden rounded-xl border cursor-pointer transition-colors focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/30 ${isRtl ? "text-right" : "text-left"} ${
                       isActive ? "border-[#CA8A04] bg-white/15" : "border-white/15 bg-white/5 hover:border-white/35"
                     }`}
-                    aria-label={`عرض الشريحة ${index + 1}`}
+                    aria-label={t("hero.showSlide", { number: index + 1 })}
                   >
                     <img
                       src={slide.image}
@@ -532,28 +581,18 @@ export const Hero = () => {
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16 items-center">
             
-            <div className="flex flex-col items-start text-right">
+            <div className={`flex flex-col items-start ${isRtl ? "text-right" : "text-left"}`}>
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-black mb-6 xl:mb-8 tracking-tight text-stone-800 leading-tight">
-                ماذا يقدم{" "}
+                {t("hero.introTitleBefore")}{" "}
                 <span className="text-[#007A55] drop-shadow-[0_1px_1px_rgba(255,255,255,1)]">
-                  البرنامج العربي للحلال
+                  {t("hero.introTitleHighlight")}
                 </span>{" "}
-                لك؟
+                {t("hero.introTitleAfter")}
               </h1>
 
               <div className="p-6 xl:p-8 rounded-xl shadow-[var(--shadow-ind-card)] border border-stone-200 relative">
                 <p className="text-base lg:text-lg text-justify leading-relaxed text-stone-600 font-medium">
-                  يعمل البرنامج على ضمان{" "}
-                  <strong className="text-stone-900 font-black">حماية المستهلك المسلم</strong>{" "}
-                  في الدول العربية وفي جميع دول العالم، ليس فقط من{" "}
-                  <strong className="text-stone-900 font-black">شهادات وعلامات الحلال المزورة</strong>، بل أيضاً من الشهادات والعلامات التي تمنحها جهات لا تتوفر فيها{" "}
-                  <strong className="text-[#CA8A04] font-black underline decoration-[#CA8A04]/30 underline-offset-4 decoration-2">شروط المهنية والشرعية والمصداقية</strong>{" "}
-                  اللازمة لمثل هذا المجال. نحن نضع أسس{" "}
-                  <strong className="text-stone-900 font-black">منظومة اعتراف متعدد الأطراف</strong>{" "}
-                  لضمان{" "}
-                  <strong className="text-[#CA8A04] font-black underline decoration-[#CA8A04]/30 underline-offset-4 decoration-2">تسهيل التبادل التجاري</strong>{" "}
-                  بين الدول العربية، مع التأكد من مطابقة المنتجات العالمية{" "}
-                  <strong className="text-stone-900 font-black">للمتطلبات الفنية والمواصفات القياسية العربية</strong>.
+                  {t("hero.introText")}
                 </p>
               </div>
             </div>
@@ -565,7 +604,7 @@ export const Hero = () => {
               className="relative p-3 lg:p-4 bg-white rounded-2xl shadow-[var(--shadow-ind-floating)] border border-stone-200"
             >
               <div className="relative z-10 rounded-xl overflow-hidden ind-recessed shadow-[inset_0_4px_10px_rgba(0,0,0,0.1)]">
-                <img src="/about-us-bg.png" alt="Editorial Visual" className="w-full h-auto grayscale-[20%] hover:grayscale-0 transition-all duration-700" />
+                <img src="/sous-hero.png" alt="Editorial Visual" className="w-full h-auto grayscale-[20%] hover:grayscale-0 transition-all duration-700" />
               </div>
             </motion.div>
           </div>

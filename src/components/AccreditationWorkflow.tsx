@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { 
   FileText, 
   Search, 
@@ -10,38 +11,19 @@ import {
 } from "lucide-react";
 
 const AccreditationWorkflow = () => {
-  const steps = [
-    {
-      id: "1",
-      title: "تقديم طلب الانضمام",
-      subtitle: "المرحلة الإجرائية",
-      description: "تقوم <strong class='text-stone-900 font-black'>جهات التعيين الحكومية</strong> بتقديم طلب رسمي للمنظمة مشفوعاً بكافة الوثائق القانونية والفنية.",
-      icon: FileText,
-      image: "/workflow/w-1.png",
-      delay: 0.1
-    },
-    {
-      id: "2",
-      title: "التقييم والقرار",
-      subtitle: "المراجعة الفنية",
-      description: "يخضع الطلب لتدقيق دقيق وفق مواصفات <strong class='text-stone-900 font-black'>ISO/IEC 17000</strong>، ويتم الرد خلال <strong class='text-[#007A55] font-black'>30 يوماً</strong> كحد أقصى.",
-      icon: Search,
-      image: "/workflow/w-2.png",
-      delay: 0.2
-    },
-    {
-      id: "3",
-      title: "وثيقة التعاون الفني",
-      subtitle: "الاعتماد الرسمي",
-      description: "عند القبول، يتم توقيع الاتفاقية لمنح حق استخدام <strong class='text-stone-900 font-black'>علامة الحلال العربية</strong> وتفويض الجهات التابعة.",
-      icon: Handshake,
-      image: "/workflow/w-3.png",
-      delay: 0.3
-    }
-  ];
+  const { t, i18n } = useTranslation();
+  const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
+  const translatedSteps = t("workflow.steps", { returnObjects: true }) as { title: string; subtitle: string; description: string }[];
+  const steps = translatedSteps.map((step, index) => ({
+    ...step,
+    id: String(index + 1),
+    icon: [FileText, Search, Handshake][index],
+    image: [`/workflow/w-1.png`, `/workflow/w-2.png`, `/workflow/w-3.png`][index],
+    delay: (index + 1) * 0.1,
+  }));
 
   return (
-    <section className="relative py-16 lg:py-24 bg-gradient-to-br from-[#fdfcfb] via-[#faf9f6] to-stone-50 overflow-hidden" dir="rtl">
+    <section className="relative py-16 lg:py-24 bg-gradient-to-br from-[#fdfcfb] via-[#faf9f6] to-stone-50 overflow-hidden" dir={isRtl ? "rtl" : "ltr"}>
       
       {/* Industrial noise overlay */}
       <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
@@ -56,17 +38,16 @@ const AccreditationWorkflow = () => {
           
           <div className="inline-flex items-center justify-center gap-3 mb-6">
                <div className="w-12 h-1 bg-stone-300 rounded-full shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"></div>
-               <span className="px-4 py-1.5 text-[10px] lg:text-xs font-mono font-bold uppercase tracking-widest text-[#007A55] rounded bg-white shadow-[var(--shadow-ind-sharp)] border border-stone-200">الإجراءات</span>
+               <span className="px-4 py-1.5 text-[10px] lg:text-xs font-mono font-bold uppercase tracking-widest text-[#007A55] rounded bg-white shadow-[var(--shadow-ind-sharp)] border border-stone-200">{t("workflow.eyebrow")}</span>
                <div className="w-12 h-1 bg-stone-300 rounded-full shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]"></div>
           </div>
 
           <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black text-stone-800 tracking-tight leading-tight mb-6 drop-shadow-[0_1px_1px_#ffffff]">
-            كيفية الانضمام <span className="text-[#007A55]">للبرنامج؟</span>
+            {t("workflow.titleBefore")} <span className="text-[#007A55]">{t("workflow.titleHighlight")}</span>
           </h2>
           
           <p className="text-sm md:text-base lg:text-lg text-stone-600 font-medium max-w-3xl mb-10 leading-relaxed">
-            نظام عالمي يضمن <strong className="text-stone-900 font-black">المصداقية الشرعية</strong> ويسهل 
-            <strong className="text-stone-900 font-black"> التبادل التجاري</strong> للمنتجات والخدمات عبر آلية اعتماد شفافة وموثوقة.
+            {t("workflow.desc")}
           </p>
 
           <motion.button 
@@ -74,7 +55,7 @@ const AccreditationWorkflow = () => {
             whileTap={{ y: 2 }}
             className="btn-primary group h-[54px] xl:h-[60px] text-sm xl:text-base"
           >
-            تحميل دليل وثائق البرنامج 
+            {t("workflow.download")} 
             <div className="w-7 h-7 xl:w-8 xl:h-8 rounded-sm bg-black/10 flex items-center justify-center shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)]">
               <Download size={16} className="group-hover:-translate-y-1 transition-transform" />
             </div>
@@ -180,16 +161,16 @@ const AccreditationWorkflow = () => {
 
           <div className="relative p-6 lg:p-10 xl:p-12 flex flex-col md:flex-row items-center justify-between gap-6 lg:gap-8 z-10">
             
-            <div className="flex-1 text-right max-w-3xl">
+            <div className={`flex-1 max-w-3xl ${isRtl ? "text-right" : "text-left"}`}>
               <div className="flex items-center gap-3 mb-4">
                  <div className="w-2.5 h-2.5 rounded-full bg-[#CA8A04] animate-pulse shadow-[0_0_10px_rgba(202,138,4,0.6)]"></div>
-                 <span className="text-[#CA8A04] font-mono text-[10px] lg:text-xs font-bold tracking-widest uppercase">ملاحظة هامة</span>
+                 <span className="text-[#CA8A04] font-mono text-[10px] lg:text-xs font-bold tracking-widest uppercase">{t("workflow.noteLabel")}</span>
               </div>
               <h4 className="text-xl lg:text-2xl font-black text-white mb-4">
-                تفويض القطاع الخاص والجهات غير الحكومية
+                {t("workflow.noteTitle")}
               </h4>
               <p className="text-stone-300 text-sm lg:text-base leading-relaxed font-medium">
-                يُمكن لجهة التعيين الحكومية <strong className="text-white font-black">تفويض جهات تقييم مطابقة خاصة</strong> للعمل تحت مظلتها، شريطة إبلاغ المنظمة كتابياً والالتزام بسداد التكاليف المقررة لضمان <strong className="text-[#CA8A04] font-black underline decoration-[#CA8A04]/30 underline-offset-4">نزاهة وشرعية</strong> علامة الحلال العربية.
+                {t("workflow.noteText")}
               </p>
             </div>
 
@@ -198,7 +179,7 @@ const AccreditationWorkflow = () => {
               whileTap={{ y: 2 }}
               className="flex items-center justify-center gap-3 px-6 lg:px-8 py-3.5 lg:py-4 rounded-xl border-2 border-[#CA8A04] bg-[#CA8A04]/10 backdrop-blur-md shadow-[var(--shadow-ind-floating)] text-white hover:bg-[#CA8A04] font-bold text-sm lg:text-base transition-all duration-300 whitespace-nowrap group/btn w-full md:w-auto shrink-0"
             >
-              الاطلاع على المتطلبات
+              {t("workflow.noteCta")}
               <div className="w-5 h-5 lg:w-6 lg:h-6 rounded-sm bg-black/30 flex items-center justify-center shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]">
                  <ArrowLeft size={14} className="text-[#CA8A04] group-hover/btn:-translate-x-1 transition-transform" />
               </div>
