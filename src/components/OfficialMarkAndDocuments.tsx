@@ -58,11 +58,10 @@ const OfficialMarkAndDocuments: React.FC = () => {
   }));
 
   return (
-  <section className="relative z-10 py-20 lg:py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]" dir={isRtl ? "rtl" : "ltr"}>
+  <section className="relative py-20 lg:py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]" dir={isRtl ? "rtl" : "ltr"}>
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
 
       <div className="max-w-7xl mx-auto w-full relative z-10">
-        
         {/* --- SECTION TITLE --- */}
         <div className="mb-12 lg:mb-16 flex flex-col items-center text-center">
           <div className="inline-flex items-center justify-center gap-3 mb-6">
@@ -80,7 +79,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
           </motion.h2>
         </div>
 
-        {/* --- ROW 1: BRAND IDENTITY BLOCK --- */}
+        {/* --- ROW 2: BRAND IDENTITY BLOCK --- */}
         <div className="mb-8 lg:mb-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
           <div className="lg:col-span-8 bg-[#F8F9FA] border border-stone-100 p-6 lg:p-8 flex flex-col md:flex-row items-center gap-6 lg:gap-8 relative cursor-default rounded-sm shadow-sm hover:shadow-md transition-shadow">
              
@@ -190,6 +189,7 @@ const OfficialMarkAndDocuments: React.FC = () => {
             </motion.div>
           ))}
         </div>
+
       </div>
 
       {/* --- SIDE PANEL PREVIEW (The Drawer) --- */}
@@ -201,14 +201,14 @@ const OfficialMarkAndDocuments: React.FC = () => {
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }}
               onClick={() => setSelectedDoc(null)}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[100]" 
+              className="fixed inset-0 z-[1000] bg-slate-900/40 backdrop-blur-md" 
             />
             <motion.div
               initial={{ x: isRtl ? '100%' : '-100%', boxShadow: '-20px 0 50px rgba(0,0,0,0)' }} 
               animate={{ x: 0, boxShadow: '-20px 0 50px rgba(0,0,0,0.15)' }} 
               exit={{ x: isRtl ? '100%' : '-100%', boxShadow: '-20px 0 50px rgba(0,0,0,0)' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className={`fixed top-0 h-full w-full max-w-md xl:max-w-lg bg-white z-[101] flex flex-col ${isRtl ? "right-0" : "left-0"}`}
+              className={`fixed top-0 z-[1001] h-full w-full max-w-md xl:max-w-lg bg-white flex flex-col ${isRtl ? "right-0" : "left-0"}`}
             >
               <div className="p-5 lg:p-6 border-b border-stone-100 flex items-center justify-between bg-white sticky top-0 z-10">
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>

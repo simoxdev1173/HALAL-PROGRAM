@@ -63,7 +63,7 @@ const HERO_SLIDES = [
 ];
 
 const HERO_SLIDE_DURATION = 6800;
-const HERO_TRANSITION_DURATION = 2.5; // Adjusted to match the WebGL shader duration
+const HERO_TRANSITION_DURATION = 1.45;
 
 type Vector2Like = { set: (x: number, y: number) => void };
 type MutableUniform<T> = { value: T };
@@ -195,9 +195,11 @@ export function ActionCards() {
 export const Hero = () => {
   const { t, i18n } = useTranslation();
   const [activeSlide, setActiveSlide] = useState(0);
+  const [isWebGLReady, setIsWebGLReady] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
   const slideAlts = t("hero.slides", { returnObjects: true }) as { alt: string }[];
+  const activeSlideRef = useRef(activeSlide);
 
   // --- WEBGL REFS ---
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -205,6 +207,10 @@ export const Hero = () => {
   const texturesRef = useRef<TextureLike[]>([]);
   const isTransitioningRef = useRef(false);
   const rendererRef = useRef<RendererLike | null>(null);
+
+  useEffect(() => {
+    activeSlideRef.current = activeSlide;
+  }, [activeSlide]);
 
   // --- 1. LOAD EXTERNAL SCRIPTS & INIT THREE.JS ---
   useEffect(() => {
@@ -345,10 +351,13 @@ export const Hero = () => {
       
       texturesRef.current = loadedTextures;
 
-      // Set initial textures
+      // Set initial textures to the latest selected slide. This handles clicks made
+      // while the external WebGL scripts/textures are still loading after refresh.
       if (loadedTextures.length > 0) {
-        shaderMaterialRef.current.uniforms.uTexture1.value = loadedTextures[0];
-        shaderMaterialRef.current.uniforms.uTexture1Size.value = loadedTextures[0].userData.size;
+        const initialTexture = loadedTextures[activeSlideRef.current] ?? loadedTextures[0];
+        shaderMaterialRef.current.uniforms.uTexture1.value = initialTexture;
+        shaderMaterialRef.current.uniforms.uTexture1Size.value = initialTexture.userData.size;
+        setIsWebGLReady(true);
       }
 
       // Render loop
@@ -380,8 +389,8 @@ export const Hero = () => {
     const material = shaderMaterialRef.current;
     const targetTexture = texturesRef.current[activeSlide];
 
-    // Prevent re-triggering if already on target (initial load)
-    if (material.uniforms.uTexture1.value === targetTexture) return;
+    // Prevent re-triggering if already on target and no transition is active.
+    if (material.uniforms.uTexture1.value === targetTexture && material.uniforms.uProgress.value === 0) return;
 
     isTransitioningRef.current = true;
     
@@ -399,6 +408,7 @@ export const Hero = () => {
           duration: HERO_TRANSITION_DURATION,
           ease: "power2.inOut",
           onComplete: () => {
+            if (activeSlideRef.current !== activeSlide) return;
             material.uniforms.uTexture1.value = targetTexture;
             material.uniforms.uTexture1Size.value = targetTexture.userData.size;
             material.uniforms.uProgress.value = 0;
@@ -406,29 +416,32 @@ export const Hero = () => {
           }
         }
       );
+    } else {
+      material.uniforms.uTexture1.value = targetTexture;
+      material.uniforms.uTexture1Size.value = targetTexture.userData.size;
+      material.uniforms.uProgress.value = 0;
+      isTransitioningRef.current = false;
     }
   }, [activeSlide, prefersReducedMotion]);
 
   // --- 3. AUTO SLIDER TIMER ---
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      if (!isTransitioningRef.current) {
-        setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
-      }
+      setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
     }, HERO_SLIDE_DURATION);
 
     return () => window.clearTimeout(timer);
   }, [activeSlide]);
 
-  // Navigation Logic (Blocks rapid clicking during transition for perfect animation)
+  // Navigation logic stays responsive even while a transition is running.
   const goToSlide = (index: number) => {
-    if (!isTransitioningRef.current && activeSlide !== index) setActiveSlide(index);
+    if (activeSlide !== index) setActiveSlide(index);
   };
   const goToPrevious = () => {
-    if (!isTransitioningRef.current) setActiveSlide((current) => (current === 0 ? HERO_SLIDES.length - 1 : current - 1));
+    setActiveSlide((current) => (current === 0 ? HERO_SLIDES.length - 1 : current - 1));
   };
   const goToNext = () => {
-    if (!isTransitioningRef.current) setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
+    setActiveSlide((current) => (current + 1) % HERO_SLIDES.length);
   };
 
   return (
@@ -445,7 +458,17 @@ export const Hero = () => {
                className="absolute inset-0 h-full w-full object-cover object-center opacity-60"
              />
           ) : (
-            <canvas ref={canvasRef} className="absolute inset-0 h-full w-full object-cover z-0"></canvas>
+            <>
+              <img
+                src={HERO_SLIDES[activeSlide].image}
+                alt={slideAlts[activeSlide]?.alt ?? ""}
+                className="absolute inset-0 h-full w-full object-cover object-center opacity-60"
+              />
+              <canvas
+                ref={canvasRef}
+                className={`absolute inset-0 z-0 h-full w-full object-cover transition-opacity duration-300 ${isWebGLReady ? "opacity-100" : "opacity-0"}`}
+              ></canvas>
+            </>
           )}
 
           {/* Overlays to ensure text remains highly readable */}
