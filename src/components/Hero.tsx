@@ -65,48 +65,225 @@ const HERO_SLIDES = [
 const HERO_SLIDE_DURATION = 6800;
 const HERO_TRANSITION_DURATION = 1.45;
 
-type Vector2Like = { set: (x: number, y: number) => void };
-type MutableUniform<T> = { value: T };
-type TextureLike = {
-  image: { width: number; height: number };
-  userData: { size: Vector2Like };
-  minFilter: unknown;
-  magFilter: unknown;
+type HeroImage = HTMLImageElement;
+
+type WebGLHeroRenderer = {
+  render: (progress: number, fromIndex: number, toIndex: number) => void;
+  resize: () => void;
+  destroy: () => void;
 };
-type ShaderMaterialLike = {
-  uniforms: {
-    uTexture1: MutableUniform<TextureLike | null>;
-    uTexture2: MutableUniform<TextureLike | null>;
-    uProgress: MutableUniform<number>;
-    uResolution: MutableUniform<Vector2Like>;
-    uTexture1Size: MutableUniform<Vector2Like>;
-    uTexture2Size: MutableUniform<Vector2Like>;
-    [key: string]: MutableUniform<unknown>;
+
+const preloadImage = (src: string) =>
+  new Promise<HeroImage>((resolve, reject) => {
+    const image = new Image();
+    image.decoding = "async";
+    image.onload = async () => {
+      try {
+        await image.decode?.();
+      } catch {
+        // Decoding can reject for cached images in some browsers; onload is enough.
+      }
+      resolve(image);
+    };
+    image.onerror = () => reject(new Error(`Failed to preload ${src}`));
+    image.src = src;
+  });
+
+const createShader = (gl: WebGLRenderingContext, type: number, source: string) => {
+  const shader = gl.createShader(type);
+  if (!shader) throw new Error("Unable to create WebGL shader");
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    const message = gl.getShaderInfoLog(shader) || "Unknown shader compile error";
+    gl.deleteShader(shader);
+    throw new Error(message);
+  }
+  return shader;
+};
+
+const createProgram = (gl: WebGLRenderingContext, vertexSource: string, fragmentSource: string) => {
+  const program = gl.createProgram();
+  if (!program) throw new Error("Unable to create WebGL program");
+  const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexSource);
+  const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+  gl.deleteShader(vertexShader);
+  gl.deleteShader(fragmentShader);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    const message = gl.getProgramInfoLog(program) || "Unknown WebGL program link error";
+    gl.deleteProgram(program);
+    throw new Error(message);
+  }
+  return program;
+};
+
+const createWebGLTexture = (gl: WebGLRenderingContext, image: HeroImage) => {
+  const texture = gl.createTexture();
+  if (!texture) throw new Error("Unable to create WebGL texture");
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+  return texture;
+};
+
+const createHeroRenderer = (canvas: HTMLCanvasElement, images: HeroImage[]): WebGLHeroRenderer => {
+  const gl = canvas.getContext("webgl", {
+    alpha: false,
+    antialias: false,
+    depth: false,
+    stencil: false,
+    powerPreference: "high-performance",
+  });
+
+  if (!gl) throw new Error("WebGL is not available");
+
+  const vertexShader = `
+    attribute vec2 aPosition;
+    attribute vec2 aUv;
+    varying vec2 vUv;
+    void main() {
+      vUv = aUv;
+      gl_Position = vec4(aPosition, 0.0, 1.0);
+    }
+  `;
+
+  const fragmentShader = `
+    precision highp float;
+    uniform sampler2D uTexture1;
+    uniform sampler2D uTexture2;
+    uniform float uProgress;
+    uniform vec2 uResolution;
+    uniform vec2 uTexture1Size;
+    uniform vec2 uTexture2Size;
+    varying vec2 vUv;
+
+    vec2 getCoverUV(vec2 uv, vec2 textureSize) {
+      vec2 s = uResolution / textureSize;
+      float scale = max(s.x, s.y);
+      vec2 scaledSize = textureSize * scale;
+      vec2 offset = (uResolution - scaledSize) * 0.5;
+      return (uv * uResolution - offset) / scaledSize;
+    }
+
+    vec4 glassEffect(vec2 uv, float progress) {
+      vec2 uv1 = getCoverUV(uv, uTexture1Size);
+      vec2 uv2 = getCoverUV(uv, uTexture2Size);
+      float maxR = length(uResolution) * 0.85;
+      float br = progress * maxR;
+      vec2 p = uv * uResolution;
+      vec2 c = uResolution * 0.5;
+      float d = length(p - c);
+      float nd = d / max(br, 0.001);
+      float param = smoothstep(br + 3.0, br - 3.0, d);
+      vec4 oldImg = texture2D(uTexture1, uv1);
+      vec4 img;
+
+      if (param > 0.0) {
+        float ro = 0.08 * pow(smoothstep(0.3, 1.0, nd), 1.5);
+        vec2 dir = (d > 0.0) ? (p - c) / d : vec2(0.0);
+        vec2 distUV = uv2 - dir * ro;
+        distUV += vec2(sin(progress * 5.0 + nd * 10.0), cos(progress * 4.0 + nd * 8.0)) * 0.015 * nd * param;
+        float ca = 0.02 * pow(smoothstep(0.3, 1.0, nd), 1.2);
+        img = vec4(
+          texture2D(uTexture2, distUV + dir * ca * 1.2).r,
+          texture2D(uTexture2, distUV + dir * ca * 0.2).g,
+          texture2D(uTexture2, distUV - dir * ca * 0.8).b,
+          1.0
+        );
+        float rim = smoothstep(0.95, 1.0, nd) * (1.0 - smoothstep(1.0, 1.01, nd));
+        img.rgb += rim * 0.08;
+      } else {
+        img = texture2D(uTexture2, uv2);
+      }
+
+      if (progress > 0.95) {
+        img = mix(img, texture2D(uTexture2, uv2), (progress - 0.95) / 0.05);
+      }
+      return mix(oldImg, img, param);
+    }
+
+    void main() {
+      gl_FragColor = glassEffect(vUv, uProgress);
+    }
+  `;
+
+  const program = createProgram(gl, vertexShader, fragmentShader);
+  const quad = gl.createBuffer();
+  if (!quad) throw new Error("Unable to create WebGL buffer");
+  gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array([
+      -1, -1, 0, 0,
+       1, -1, 1, 0,
+      -1,  1, 0, 1,
+       1,  1, 1, 1,
+    ]),
+    gl.STATIC_DRAW
+  );
+
+  const textures = images.map((image) => createWebGLTexture(gl, image));
+  const aPosition = gl.getAttribLocation(program, "aPosition");
+  const aUv = gl.getAttribLocation(program, "aUv");
+  const uniforms = {
+    texture1: gl.getUniformLocation(program, "uTexture1"),
+    texture2: gl.getUniformLocation(program, "uTexture2"),
+    progress: gl.getUniformLocation(program, "uProgress"),
+    resolution: gl.getUniformLocation(program, "uResolution"),
+    texture1Size: gl.getUniformLocation(program, "uTexture1Size"),
+    texture2Size: gl.getUniformLocation(program, "uTexture2Size"),
   };
-};
-type RendererLike = {
-  setSize: (width: number, height: number) => void;
-  setPixelRatio: (ratio: number) => void;
-  render: (scene: unknown, camera: unknown) => void;
-};
-type ThreeNamespace = {
-  Scene: new () => { add: (object: unknown) => void };
-  OrthographicCamera: new (...args: number[]) => unknown;
-  WebGLRenderer: new (options: { canvas: HTMLCanvasElement; antialias: boolean; alpha: boolean }) => RendererLike;
-  ShaderMaterial: new (options: Record<string, unknown>) => ShaderMaterialLike;
-  Mesh: new (...args: unknown[]) => unknown;
-  PlaneGeometry: new (...args: number[]) => unknown;
-  TextureLoader: new () => { load: (src: string, onLoad: (texture: TextureLike) => void) => void };
-  Vector2: new (x: number, y: number) => Vector2Like;
-  LinearFilter: unknown;
-};
-type GsapNamespace = {
-  killTweensOf: (target: unknown) => void;
-  fromTo: (target: unknown, fromVars: Record<string, unknown>, toVars: Record<string, unknown>) => void;
-};
-type WebGLWindow = Window & typeof globalThis & {
-  THREE?: ThreeNamespace;
-  gsap?: GsapNamespace;
+
+  const resize = () => {
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const width = Math.max(1, Math.floor(canvas.clientWidth * dpr));
+    const height = Math.max(1, Math.floor(canvas.clientHeight * dpr));
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+      gl.viewport(0, 0, width, height);
+    }
+  };
+
+  const render = (progress: number, fromIndex: number, toIndex: number) => {
+    resize();
+    const fromImage = images[fromIndex] ?? images[0];
+    const toImage = images[toIndex] ?? images[0];
+    gl.useProgram(program);
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    gl.enableVertexAttribArray(aPosition);
+    gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 16, 0);
+    gl.enableVertexAttribArray(aUv);
+    gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, textures[fromIndex] ?? textures[0]);
+    gl.uniform1i(uniforms.texture1, 0);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, textures[toIndex] ?? textures[0]);
+    gl.uniform1i(uniforms.texture2, 1);
+    gl.uniform1f(uniforms.progress, progress);
+    gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
+    gl.uniform2f(uniforms.texture1Size, fromImage.naturalWidth || fromImage.width, fromImage.naturalHeight || fromImage.height);
+    gl.uniform2f(uniforms.texture2Size, toImage.naturalWidth || toImage.width, toImage.naturalHeight || toImage.height);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  };
+
+  return {
+    render,
+    resize,
+    destroy: () => {
+      textures.forEach((texture) => gl.deleteTexture(texture));
+      gl.deleteBuffer(quad);
+      gl.deleteProgram(program);
+    },
+  };
 };
 
 /* ---------- ACTION CARDS COMPONENT ---------- */
@@ -191,238 +368,140 @@ export function ActionCards() {
   );
 }
 
+const AnimateHeroLoader = ({ isVisible, isRtl }: { isVisible: boolean; isRtl: boolean }) => (
+  <motion.div
+    initial={false}
+    animate={{ opacity: isVisible ? 1 : 0, pointerEvents: isVisible ? "auto" : "none" }}
+    transition={{ duration: 0.35, ease: "easeOut" }}
+    className="fixed inset-0 z-[3000] flex items-center justify-center bg-[#FAF9F6] text-slate-950"
+    dir={isRtl ? "rtl" : "ltr"}
+    aria-hidden={!isVisible}
+  >
+    <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)", backgroundSize: "42px 42px" }} />
+    <div className="relative flex w-[min(88vw,420px)] flex-col items-center text-center">
+      <div className="relative mb-8 flex h-40 w-40 items-center justify-center rounded-full border border-stone-200 bg-white shadow-[var(--shadow-ind-floating)] sm:h-48 sm:w-48">
+        <motion.div
+          className="absolute inset-3 rounded-full border-4 border-[#007A55]/12 border-t-[#007A55]"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1.15, repeat: Infinity, ease: "linear" }}
+        />
+        <img src="/logo.svg" alt="" className="relative h-28 w-28 object-contain sm:h-36 sm:w-36" />
+      </div>
+      <h2 className="text-2xl font-black text-slate-950 sm:text-3xl">
+        {isRtl ? "جاري تحميل الموقع" : "Loading website"}
+      </h2>
+      <div className="mt-7 h-2 w-full max-w-xs overflow-hidden rounded-full bg-[#007A55]/12 shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)]">
+        <motion.div
+          className="h-full w-1/2 rounded-full bg-[#007A55]"
+          initial={{ x: isRtl ? "100%" : "-100%" }}
+          animate={{ x: isRtl ? "-100%" : "100%" }}
+          transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
+    </div>
+  </motion.div>
+);
+
 /* ---------- MAIN LAYOUT ---------- */
 export const Hero = () => {
   const { t, i18n } = useTranslation();
   const [activeSlide, setActiveSlide] = useState(0);
+  const [isHeroReady, setIsHeroReady] = useState(false);
   const [isWebGLReady, setIsWebGLReady] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
   const slideAlts = t("hero.slides", { returnObjects: true }) as { alt: string }[];
   const activeSlideRef = useRef(activeSlide);
-
-  // --- WEBGL REFS ---
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const shaderMaterialRef = useRef<ShaderMaterialLike | null>(null);
-  const texturesRef = useRef<TextureLike[]>([]);
-  const isTransitioningRef = useRef(false);
-  const rendererRef = useRef<RendererLike | null>(null);
+  const webGLRef = useRef<WebGLHeroRenderer | null>(null);
+  const currentTextureIndexRef = useRef(0);
+  const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     activeSlideRef.current = activeSlide;
   }, [activeSlide]);
 
-  // --- 1. LOAD EXTERNAL SCRIPTS & INIT THREE.JS ---
   useEffect(() => {
-    if (prefersReducedMotion) return; // Fallback handled by CSS if reduced motion
+    let isCancelled = false;
 
-    const loadScripts = async () => {
-      const webglWindow = window as WebGLWindow;
-      const loadScript = (src: string, globalName: "gsap" | "THREE") => new Promise<void>((res, rej) => {
-        if (webglWindow[globalName]) { res(); return; }
-        if (document.querySelector(`script[src="${src}"]`)) {
-          const check = setInterval(() => {
-            if (webglWindow[globalName]) { clearInterval(check); res(); }
-          }, 50);
+    const initHero = async () => {
+      try {
+        const images = await Promise.all(HERO_SLIDES.map((slide) => preloadImage(slide.image)));
+        if (isCancelled) return;
+
+        if (prefersReducedMotion || !canvasRef.current) {
+          setIsWebGLReady(false);
+          setIsHeroReady(true);
           return;
         }
-        const s = document.createElement('script');
-        s.src = src;
-        s.onload = () => { setTimeout(() => res(), 100); };
-        s.onerror = () => rej(new Error(`Failed to load ${src}`));
-        document.head.appendChild(s);
-      });
-      
-      try {
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js', 'gsap');
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', 'THREE');
-        initWebGL();
-      } catch (e) {
-        console.error('Failed to load WebGL scripts:', e);
-      }
-    };
 
-    const initWebGL = async () => {
-      const THREE = (window as WebGLWindow).THREE;
-      if (!canvasRef.current || !THREE) return;
-
-      // Setup Scene
-      const scene = new THREE.Scene();
-      const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-      const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current, antialias: false, alpha: false });
-      rendererRef.current = renderer;
-      renderer.setSize(window.innerWidth, canvasRef.current.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-      // Shaders
-      const vertexShader = `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
-      const fragmentShader = `
-        uniform sampler2D uTexture1, uTexture2;
-        uniform float uProgress;
-        uniform vec2 uResolution, uTexture1Size, uTexture2Size;
-        
-        // Settings strictly mapped to the "Glass/Default" preset from 21 Dev
-        uniform float uGlassRefractionStrength;
-        uniform float uGlassChromaticAberration;
-        uniform float uGlassBubbleClarity;
-        uniform float uGlassEdgeGlow;
-        uniform float uGlassLiquidFlow;
-        uniform float uSpeedMultiplier;
-        uniform float uDistortionStrength;
-        uniform float uGlobalIntensity;
-
-        varying vec2 vUv;
-
-        vec2 getCoverUV(vec2 uv, vec2 textureSize) {
-            vec2 s = uResolution / textureSize;
-            float scale = max(s.x, s.y);
-            vec2 scaledSize = textureSize * scale;
-            vec2 offset = (uResolution - scaledSize) * 0.5;
-            return (uv * uResolution - offset) / scaledSize;
+        const renderer = createHeroRenderer(canvasRef.current, images);
+        if (isCancelled) {
+          renderer.destroy();
+          return;
         }
 
-        vec4 glassEffect(vec2 uv, float progress) {
-            float time = progress * 5.0 * uSpeedMultiplier;
-            vec2 uv1 = getCoverUV(uv, uTexture1Size); vec2 uv2 = getCoverUV(uv, uTexture2Size);
-            float maxR = length(uResolution) * 0.85; float br = progress * maxR;
-            vec2 p = uv * uResolution; vec2 c = uResolution * 0.5;
-            float d = length(p - c); float nd = d / max(br, 0.001);
-            float param = smoothstep(br + 3.0, br - 3.0, d);
-            vec4 img;
-            
-            if (param > 0.0) {
-                 float ro = 0.08 * uGlassRefractionStrength * uDistortionStrength * uGlobalIntensity * pow(smoothstep(0.3 * uGlassBubbleClarity, 1.0, nd), 1.5);
-                 vec2 dir = (d > 0.0) ? (p - c) / d : vec2(0.0);
-                 vec2 distUV = uv2 - dir * ro;
-                 distUV += vec2(sin(time + nd * 10.0), cos(time * 0.8 + nd * 8.0)) * 0.015 * uGlassLiquidFlow * uSpeedMultiplier * nd * param;
-                 float ca = 0.02 * uGlassChromaticAberration * uGlobalIntensity * pow(smoothstep(0.3, 1.0, nd), 1.2);
-                 img = vec4(texture2D(uTexture2, distUV + dir * ca * 1.2).r, texture2D(uTexture2, distUV + dir * ca * 0.2).g, texture2D(uTexture2, distUV - dir * ca * 0.8).b, 1.0);
-                 
-                 if (uGlassEdgeGlow > 0.0) {
-                    float rim = smoothstep(0.95, 1.0, nd) * (1.0 - smoothstep(1.0, 1.01, nd));
-                    img.rgb += rim * 0.08 * uGlassEdgeGlow * uGlobalIntensity;
-                 }
-            } else { img = texture2D(uTexture2, uv2); }
-            
-            vec4 oldImg = texture2D(uTexture1, uv1);
-            if (progress > 0.95) img = mix(img, texture2D(uTexture2, uv2), (progress - 0.95) / 0.05);
-            return mix(oldImg, img, param);
-        }
-
-        void main() {
-            gl_FragColor = glassEffect(vUv, uProgress);
-        }
-      `;
-
-      shaderMaterialRef.current = new THREE.ShaderMaterial({
-        uniforms: {
-          uTexture1: { value: null }, 
-          uTexture2: { value: null }, 
-          uProgress: { value: 0 },
-          uResolution: { value: new THREE.Vector2(window.innerWidth, canvasRef.current.clientHeight) },
-          uTexture1Size: { value: new THREE.Vector2(1, 1) }, 
-          uTexture2Size: { value: new THREE.Vector2(1, 1) },
-          uGlobalIntensity: { value: 1.0 }, 
-          uSpeedMultiplier: { value: 1.0 }, 
-          uDistortionStrength: { value: 1.0 }, 
-          uGlassRefractionStrength: { value: 1.0 }, 
-          uGlassChromaticAberration: { value: 1.0 }, 
-          uGlassBubbleClarity: { value: 1.0 }, 
-          uGlassEdgeGlow: { value: 1.0 }, 
-          uGlassLiquidFlow: { value: 1.0 }
-        },
-        vertexShader, 
-        fragmentShader
-      });
-
-      scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), shaderMaterialRef.current));
-
-      // Load all textures
-      const loader = new THREE.TextureLoader();
-      const loadedTextures = await Promise.all(
-        HERO_SLIDES.map((slide) => new Promise<TextureLike>((resolve) => {
-          loader.load(slide.image, (t) => {
-            t.minFilter = t.magFilter = THREE.LinearFilter;
-            t.userData = { size: new THREE.Vector2(t.image.width, t.image.height) };
-            resolve(t);
-          });
-        }))
-      );
-      
-      texturesRef.current = loadedTextures;
-
-      // Set initial textures to the latest selected slide. This handles clicks made
-      // while the external WebGL scripts/textures are still loading after refresh.
-      if (loadedTextures.length > 0) {
-        const initialTexture = loadedTextures[activeSlideRef.current] ?? loadedTextures[0];
-        shaderMaterialRef.current.uniforms.uTexture1.value = initialTexture;
-        shaderMaterialRef.current.uniforms.uTexture1Size.value = initialTexture.userData.size;
+        webGLRef.current = renderer;
+        currentTextureIndexRef.current = activeSlideRef.current;
+        renderer.render(0, activeSlideRef.current, activeSlideRef.current);
         setIsWebGLReady(true);
+        setIsHeroReady(true);
+      } catch (error) {
+        console.error("Hero WebGL initialization failed:", error);
+        if (!isCancelled) {
+          setIsWebGLReady(false);
+          setIsHeroReady(true);
+        }
       }
-
-      // Render loop
-      const render = () => {
-        requestAnimationFrame(render);
-        renderer.render(scene, camera);
-      };
-      render();
-
-      // Handle Resize
-      const handleResize = () => {
-        if (!canvasRef.current || !shaderMaterialRef.current) return;
-        renderer.setSize(window.innerWidth, canvasRef.current.clientHeight);
-        shaderMaterialRef.current.uniforms.uResolution.value.set(window.innerWidth, canvasRef.current.clientHeight);
-      };
-      window.addEventListener("resize", handleResize);
-
-      return () => window.removeEventListener("resize", handleResize);
     };
 
-    loadScripts();
+    initHero();
+
+    return () => {
+      isCancelled = true;
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      webGLRef.current?.destroy();
+      webGLRef.current = null;
+    };
   }, [prefersReducedMotion]);
 
-  // --- 2. HANDLE TRANSITIONS WHEN activeSlide CHANGES ---
   useEffect(() => {
-    if (prefersReducedMotion || !shaderMaterialRef.current || texturesRef.current.length === 0) return;
-    
-    const gsap = (window as WebGLWindow).gsap;
-    const material = shaderMaterialRef.current;
-    const targetTexture = texturesRef.current[activeSlide];
+    const renderer = webGLRef.current;
+    if (prefersReducedMotion || !renderer || !isWebGLReady) return;
 
-    // Prevent re-triggering if already on target and no transition is active.
-    if (material.uniforms.uTexture1.value === targetTexture && material.uniforms.uProgress.value === 0) return;
-
-    isTransitioningRef.current = true;
-    
-    // Kill any ongoing transition immediately
-    if (gsap) gsap.killTweensOf(material.uniforms.uProgress);
-
-    material.uniforms.uTexture2.value = targetTexture;
-    material.uniforms.uTexture2Size.value = targetTexture.userData.size;
-
-    if (gsap) {
-      gsap.fromTo(material.uniforms.uProgress, 
-        { value: 0 },
-        {
-          value: 1,
-          duration: HERO_TRANSITION_DURATION,
-          ease: "power2.inOut",
-          onComplete: () => {
-            if (activeSlideRef.current !== activeSlide) return;
-            material.uniforms.uTexture1.value = targetTexture;
-            material.uniforms.uTexture1Size.value = targetTexture.userData.size;
-            material.uniforms.uProgress.value = 0;
-            isTransitioningRef.current = false;
-          }
-        }
-      );
-    } else {
-      material.uniforms.uTexture1.value = targetTexture;
-      material.uniforms.uTexture1Size.value = targetTexture.userData.size;
-      material.uniforms.uProgress.value = 0;
-      isTransitioningRef.current = false;
+    const fromIndex = currentTextureIndexRef.current;
+    const toIndex = activeSlide;
+    if (fromIndex === toIndex) {
+      renderer.render(0, toIndex, toIndex);
+      return;
     }
-  }, [activeSlide, prefersReducedMotion]);
+
+    if (animationFrameRef.current !== null) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+
+    const start = performance.now();
+    const duration = HERO_TRANSITION_DURATION * 1000;
+    const easeInOut = (value: number) => (value < 0.5 ? 2 * value * value : 1 - Math.pow(-2 * value + 2, 2) / 2);
+
+    const tick = (now: number) => {
+      const rawProgress = Math.min((now - start) / duration, 1);
+      const progress = easeInOut(rawProgress);
+      renderer.render(progress, fromIndex, toIndex);
+
+      if (rawProgress < 1) {
+        animationFrameRef.current = requestAnimationFrame(tick);
+      } else {
+        currentTextureIndexRef.current = toIndex;
+        renderer.render(0, toIndex, toIndex);
+        animationFrameRef.current = null;
+      }
+    };
+
+    animationFrameRef.current = requestAnimationFrame(tick);
+  }, [activeSlide, isWebGLReady, prefersReducedMotion]);
 
   // --- 3. AUTO SLIDER TIMER ---
   useEffect(() => {
@@ -432,6 +511,22 @@ export const Hero = () => {
 
     return () => window.clearTimeout(timer);
   }, [activeSlide]);
+
+  useEffect(() => {
+    if (!isWebGLReady) return;
+
+    const handleResize = () => {
+      const renderer = webGLRef.current;
+      const current = currentTextureIndexRef.current;
+      if (renderer) {
+        renderer.resize();
+        renderer.render(0, current, current);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isWebGLReady]);
 
   // Navigation logic stays responsive even while a transition is running.
   const goToSlide = (index: number) => {
@@ -446,6 +541,7 @@ export const Hero = () => {
 
   return (
     <div className="w-full bg-slate-50 transition-[direction] duration-300" dir={isRtl ? "rtl" : "ltr"}>
+      <AnimateHeroLoader isVisible={!isHeroReady} isRtl={isRtl} />
       <section className="relative w-full h-[690px] lg:h-[760px] xl:h-[840px] flex items-center overflow-hidden bg-slate-950">
         
         {/* --- WEBGL BACKGROUND --- */}
