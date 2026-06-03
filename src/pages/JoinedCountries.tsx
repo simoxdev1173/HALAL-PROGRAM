@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const StatusSeal = () => (
   <svg viewBox="0 0 72 72" className="h-16 w-16 text-[#CA8A04]" fill="none" aria-hidden="true">
@@ -10,8 +10,11 @@ const StatusSeal = () => (
 );
 
 export default function JoinedCountries() {
+  const { t, i18n } = useTranslation();
+  const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
+
   return (
-    <main className="min-h-screen overflow-hidden bg-[#FAF9F6] pt-24 font-arabic" dir="rtl">
+    <main className={`min-h-screen overflow-hidden bg-[#FAF9F6] pt-24 ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
       <section className="relative flex h-[50vh] min-h-[430px] items-center justify-center overflow-hidden border-b border-stone-300 bg-slate-950 px-6 text-center shadow-[var(--shadow-ind-card)] lg:h-[60vh] lg:min-h-[520px]">
         <motion.div
           initial={{ opacity: 0, scale: 1.05 }}
@@ -19,7 +22,7 @@ export default function JoinedCountries() {
           transition={{ duration: 1.3, ease: "easeOut" }}
           className="absolute inset-0"
         >
-          <img src="/slider/i-1.png" alt="الدول المنضمة" className="h-full w-full object-cover opacity-45" />
+          <img src="/slider/i-1.png" alt={isRtl ? "الدول المنضمة" : `${t("pages.countries.titleBefore")} ${t("pages.countries.titleHighlight")}`} className="h-full w-full object-cover opacity-45" />
           <div className="absolute inset-0 bg-slate-950/35 mix-blend-multiply" />
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/74 via-slate-950/18 to-[#FAF9F6]" />
         </motion.div>
@@ -31,7 +34,7 @@ export default function JoinedCountries() {
             transition={{ duration: 0.85, delay: 0.25 }}
             className="text-4xl font-black leading-tight text-white drop-shadow-[0_8px_24px_rgba(0,0,0,.45)] md:text-6xl lg:text-7xl"
           >
-            الدول <span className="text-[#CA8A04]">المنضمة</span>
+            {isRtl ? "الدول" : t("pages.countries.titleBefore")} <span className="text-[#CA8A04]">{isRtl ? "المنضمة" : t("pages.countries.titleHighlight")}</span>
           </motion.h1>
         </div>
       </section>
@@ -47,7 +50,7 @@ export default function JoinedCountries() {
           >
             
             <p className="max-w-2xl text-center text-sm font-bold leading-7 text-slate-600 lg:text-base">
-              هذه الصفحة مخصصة لعرض الدول التي تم اعتماد انضمامها رسمياً إلى البرنامج العربي للحلال.
+              {isRtl ? "هذه الصفحة مخصصة لعرض الدول التي تم اعتماد انضمامها رسمياً إلى البرنامج العربي للحلال." : t("pages.countries.desc")}
             </p>
           </motion.div>
 
@@ -68,7 +71,7 @@ export default function JoinedCountries() {
                 />
                 <StatusSeal />
               </div>
-              <h3 className="mt-8 text-3xl font-black text-slate-900 lg:text-5xl">سيتم تحديثها قريباً</h3>
+              <h3 className="mt-8 text-3xl font-black text-slate-900 lg:text-5xl">{isRtl ? "سيتم تحديثها قريباً" : t("pages.countries.emptyTitle")}</h3>
          
             </div>
           </motion.div>

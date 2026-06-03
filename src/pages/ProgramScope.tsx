@@ -1,5 +1,5 @@
-﻿import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   Beef,
   Briefcase,
@@ -25,11 +25,21 @@ const sectors = [
 
 
 export default function ProgramScope() {
+  const { t, i18n } = useTranslation();
+  const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
+  const translatedSectors = t("pages.programScope.sectors", { returnObjects: true }) as { name: string; detail: string }[];
+  const translatedStats = t("pages.programScope.stats", { returnObjects: true }) as [string, string][];
+  const displaySectors = sectors.map((sector, index) => ({
+    ...sector,
+    name: isRtl ? sector.name : translatedSectors[index]?.name ?? sector.name,
+    detail: isRtl ? sector.detail : translatedSectors[index]?.detail ?? sector.detail,
+  }));
+
   return (
-    <main className="min-h-screen bg-[#FAF9F6] pt-24 font-arabic overflow-hidden" dir="rtl">
+    <main className={`min-h-screen bg-[#FAF9F6] pt-24 ${isRtl ? "font-arabic" : "font-english"} overflow-hidden`} dir={isRtl ? "rtl" : "ltr"}>
       <section className="relative overflow-hidden bg-slate-950">
         <div className="absolute inset-0">
-          <img src="/section-1-bg.jpeg" alt="مجال تطبيق البرنامج" className="h-full w-full object-cover opacity-25" />
+          <img src="/section-1-bg.jpeg" alt={isRtl ? "مجال تطبيق البرنامج" : t("pages.programScope.heroAlt")} className="h-full w-full object-cover opacity-25" />
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-[#1C4C2A]/75 to-slate-950" />
         </div>
 
@@ -45,10 +55,10 @@ export default function ProgramScope() {
               AIDSMO 3042-2019 (GSO 2055-2)
             </div>
             <h1 className="text-4xl font-black leading-tight text-white md:text-6xl">
-              مجال تطبيق <span className="text-[#CA8A04]">البرنامج</span>
+              {isRtl ? "مجال تطبيق" : t("pages.programScope.titleBefore")} <span className="text-[#CA8A04]">{isRtl ? "البرنامج" : t("pages.programScope.titleHighlight")}</span>
             </h1>
             <p className="mt-8 text-base font-bold leading-9 text-stone-200 lg:text-xl">
-              يُطبَق هذا البرنامج على المنتجات المشار إليها في المواصفة القياسية العربية رقم: 2019-3042 AIDSMO (GSO2055-2) التي تتطلب استيفاء اشتراطات الحلال وفقاً لأحكام الشريعة الإسلامية.
+              {isRtl ? "يُطبَق هذا البرنامج على المنتجات المشار إليها في المواصفة القياسية العربية رقم: 2019-3042 AIDSMO (GSO2055-2) التي تتطلب استيفاء اشتراطات الحلال وفقاً لأحكام الشريعة الإسلامية." : t("pages.programScope.desc")}
             </p>
           </motion.div>
 
@@ -58,11 +68,14 @@ export default function ProgramScope() {
             transition={{ delay: 0.2 }}
             className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3"
           >
-            {[
-              ["المعيار المرجعي", "AIDSMO 3042-2019"],
-              ["المجالات ذات الأولوية", "8 مجالات"],
-              ["أساس التطبيق", "أحكام الشريعة الإسلامية"],
-            ].map(([label, value]) => (
+            {(isRtl
+              ? [
+                  ["المعيار المرجعي", "AIDSMO 3042-2019"],
+                  ["المجالات ذات الأولوية", "8 مجالات"],
+                  ["أساس التطبيق", "أحكام الشريعة الإسلامية"],
+                ]
+              : translatedStats
+            ).map(([label, value]) => (
               <div key={label} className="rounded-2xl border border-white/10 bg-white/10 p-5 shadow-[var(--shadow-ind-card)] backdrop-blur">
                 <p className="text-xs font-black text-stone-300">{label}</p>
                 <p className="mt-2 text-xl font-black text-white">{value}</p>
@@ -78,15 +91,15 @@ export default function ProgramScope() {
           <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               
-              <h2 className="text-3xl font-black text-slate-900 lg:text-5xl">القطاعات المشمولة</h2>
+              <h2 className="text-3xl font-black text-slate-900 lg:text-5xl">{isRtl ? "القطاعات المشمولة" : t("pages.programScope.included")}</h2>
             </div>
             <p className="max-w-2xl text-sm font-bold leading-7 text-slate-600 lg:text-base">
-              بصورة عامة تكون أولوية المجالات الخاصة بتطبيق البرنامج العربي للحلال كالآتي:
+              {isRtl ? "بصورة عامة تكون أولوية المجالات الخاصة بتطبيق البرنامج العربي للحلال كالآتي:" : t("pages.programScope.includedDesc")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {sectors.map((sector, index) => {
+            {displaySectors.map((sector, index) => {
               const Icon = sector.icon;
               return (
                 <motion.article

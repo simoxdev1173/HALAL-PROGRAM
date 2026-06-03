@@ -15,13 +15,16 @@ interface FeaturesProps {
   eyebrow?: string;
   title: string;
   subtitle?: string;
+  currentLabel?: string;
+  dir?: "rtl" | "ltr";
 }
 
-export function Features({ features, eyebrow, title, subtitle }: FeaturesProps) {
+export function Features({ features, eyebrow, title, subtitle, currentLabel = "المحور الحالي", dir = "rtl" }: FeaturesProps) {
   const [currentFeature, setCurrentFeature] = useState(0);
   const [progress, setProgress] = useState(0);
   const featureRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const isRtl = dir === "rtl";
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -60,7 +63,7 @@ export function Features({ features, eyebrow, title, subtitle }: FeaturesProps) 
   const activeFeature = features[currentFeature];
 
   return (
-     <section className="relative z-10 py-20 lg:py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]">
+     <section className="relative z-10 py-20 lg:py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]" dir={dir}>
         {/* Subtle grid pattern background */}
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
       <div className="relative z-10 mx-auto max-w-7xl">
@@ -100,7 +103,7 @@ export function Features({ features, eyebrow, title, subtitle }: FeaturesProps) 
                     setCurrentFeature(index);
                     setProgress(0);
                   }}
-                  className={`relative min-w-[270px] flex-shrink-0 rounded-2xl border p-4 text-right transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-[#007A55]/20 md:min-w-[360px] lg:min-w-0 ${
+                  className={`relative min-w-[270px] flex-shrink-0 rounded-2xl border p-4 ${isRtl ? "text-right" : "text-left"} transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-[#007A55]/20 md:min-w-[360px] lg:min-w-0 ${
                     isActive
                       ? "border-[#007A55]/30 bg-white shadow-[var(--shadow-ind-floating)]"
                       : "border-stone-200 bg-white/70 shadow-[var(--shadow-ind-card)] hover:border-[#007A55]/20 hover:bg-white"
@@ -165,7 +168,7 @@ export function Features({ features, eyebrow, title, subtitle }: FeaturesProps) 
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
                   <div className="absolute bottom-0 right-0 left-0 p-6">
-                    <p className="text-xs font-black text-[#CA8A04]">المحور الحالي</p>
+                    <p className="text-xs font-black text-[#CA8A04]">{currentLabel}</p>
                     <p className="mt-2 text-2xl font-black text-white">{activeFeature.title}</p>
                   </div>
                 </motion.div>

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const processSteps = [
   {
@@ -24,9 +25,39 @@ const processSteps = [
   },
 ];
 
+type JoinStep = {
+  title: string;
+  text: string;
+};
+
+type JoinCopy = {
+  badge: string;
+  titleBefore: string;
+  titleHighlight: string;
+  intro: string;
+  who: string;
+  p1: string;
+  p2: string;
+  processTitle: string;
+  steps: JoinStep[];
+  noteTitle: string;
+  note: string;
+  countries: string;
+  authorities: string;
+};
+
 export default function JoinProgram() {
+  const { t, i18n } = useTranslation();
+  const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
+  const join = t("pages.join", { returnObjects: true }) as JoinCopy;
+  const displaySteps = processSteps.map((step, index) => ({
+    number: step.number,
+    title: isRtl ? step.title : join.steps[index]?.title ?? step.title,
+    text: isRtl ? step.text : join.steps[index]?.text ?? step.text,
+  }));
+
   return (
-    <main className="min-h-screen overflow-hidden bg-[#FAF9F6] pt-24 font-arabic" dir="rtl">
+    <main className={`min-h-screen overflow-hidden bg-[#FAF9F6] pt-24 ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
       <section className="relative overflow-hidden bg-slate-950">
         <motion.div
           initial={{ opacity: 0, scale: 1.06 }}
@@ -34,7 +65,7 @@ export default function JoinProgram() {
           transition={{ duration: 1.2, ease: "easeOut" }}
           className="absolute inset-0"
         >
-          <img src="/slider/i-1.png" alt="شروط الانضمام للبرنامج" className="h-full w-full object-cover opacity-40" />
+          <img src="/slider/i-1.png" alt={isRtl ? "شروط الانضمام للبرنامج" : `${join.titleBefore} ${join.titleHighlight}`} className="h-full w-full object-cover opacity-40" />
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-[#1C4C2A]/74 to-[#FAF9F6]" />
         </motion.div>
 
@@ -47,13 +78,13 @@ export default function JoinProgram() {
           >
             <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-black text-[#CA8A04] shadow-[var(--shadow-ind-sharp)] backdrop-blur">
               <span className="h-2 w-2 rounded-full bg-[#CA8A04] shadow-[0_0_12px_rgba(202,138,4,.9)]" />
-              الانضمام للبرنامج
+              {isRtl ? "الانضمام للبرنامج" : join.badge}
             </div>
             <h1 className="text-4xl font-black leading-tight text-white md:text-6xl">
-              شروط <span className="text-[#CA8A04]">الانضمام</span>
+              {isRtl ? "شروط" : join.titleBefore} <span className="text-[#CA8A04]">{isRtl ? "الانضمام" : join.titleHighlight}</span>
             </h1>
             <p className="mt-7 max-w-3xl text-base font-bold leading-9 text-stone-100 lg:text-xl">
-              من له الحق في الانضمام للبرنامج وكيف تتم عملية الانضمام.
+              {isRtl ? "من له الحق في الانضمام للبرنامج وكيف تتم عملية الانضمام." : join.intro}
             </p>
           </motion.div>
         </div>
@@ -70,14 +101,14 @@ export default function JoinProgram() {
           >
             <div className="mb-8 flex items-center gap-4 border-b border-stone-200 pb-6">
               <span className="h-10 w-2 rounded-full bg-[#007A55] shadow-[var(--shadow-ind-sharp)]" />
-              <h2 className="text-2xl font-black text-slate-900 lg:text-4xl">من له الحق في الانضمام؟</h2>
+              <h2 className="text-2xl font-black text-slate-900 lg:text-4xl">{isRtl ? "من له الحق في الانضمام؟" : join.who}</h2>
             </div>
             <div className="space-y-6 text-justify text-base font-bold leading-9 text-slate-700 lg:text-lg">
               <p>
-                الجهات التي لها الحق في الانضمام إلى البرنامج هي جهات التعيين الحلال في الدول العربية الأعضاء الراغبة في تطبيق هذا البرنامج والراغبة في تفويضها لمنح علامة الحلال العربية، وجهات التعيين هي جهات حكومية مخوَّلة بتعيين جهات تقييم المطابقة في مجال الحلال أو تعليق تعيينها أو إلغائه.
+                {isRtl ? "الجهات التي لها الحق في الانضمام إلى البرنامج هي جهات التعيين الحلال في الدول العربية الأعضاء الراغبة في تطبيق هذا البرنامج والراغبة في تفويضها لمنح علامة الحلال العربية، وجهات التعيين هي جهات حكومية مخوَّلة بتعيين جهات تقييم المطابقة في مجال الحلال أو تعليق تعيينها أو إلغائه." : join.p1}
               </p>
               <p>
-                ويتم الانضمام إلى البرنامج العربي للحلال بتقديم طلب تشغيل البرنامج العربي للحلال إلى المنظمة مُرفقا به الوثائق المطلوبة، وتقوم المنظمة بتقييم الطلب وفقا للإجراءات المتَّبعة لديها، والرد على الطلب بالقبول أو الرفض خلال فترة شهر من تاريخ استلام الطلب، مع توضيح الأسباب في حالة الرفض. وعند قبول الطلب يتم توقيع وثيقة تعاون فني بين الطرفين وفقا لنموذج وثيقة التعاون الفني التي يمكن تحميلها من الموقع الإلكتروني.
+                {isRtl ? "ويتم الانضمام إلى البرنامج العربي للحلال بتقديم طلب تشغيل البرنامج العربي للحلال إلى المنظمة مُرفقا به الوثائق المطلوبة، وتقوم المنظمة بتقييم الطلب وفقا للإجراءات المتَّبعة لديها، والرد على الطلب بالقبول أو الرفض خلال فترة شهر من تاريخ استلام الطلب، مع توضيح الأسباب في حالة الرفض. وعند قبول الطلب يتم توقيع وثيقة تعاون فني بين الطرفين وفقا لنموذج وثيقة التعاون الفني التي يمكن تحميلها من الموقع الإلكتروني." : join.p2}
               </p>
             </div>
           </motion.article>
@@ -94,9 +125,9 @@ export default function JoinProgram() {
               <img src="/workflow/w-2.png" alt="" className="absolute inset-0 h-full w-full object-cover opacity-14" />
               <div className="absolute inset-0 bg-gradient-to-bl from-[#1C4C2A]/82 to-slate-950" />
               <div className="relative z-10">
-                <p className="text-lg font-black text-[#CA8A04]">كيف تتم عملية الانضمام</p>
+                <p className="text-lg font-black text-[#CA8A04]">{isRtl ? "كيف تتم عملية الانضمام" : join.processTitle}</p>
                 <div className="mt-5 space-y-4">
-                  {processSteps.map((step, index) => (
+                  {displaySteps.map((step, index) => (
                     <motion.div
                       key={step.number}
                       initial={{ opacity: 0, y: 16 }}
@@ -128,16 +159,16 @@ export default function JoinProgram() {
           viewport={{ once: true }}
           className="mx-auto max-w-7xl rounded-[2rem] border border-[#CA8A04]/30 bg-[#CA8A04]/10 p-7 shadow-[var(--shadow-ind-card)] lg:p-10"
         >
-          <h2 className="text-2xl font-black text-slate-900">ملاحظة</h2>
+          <h2 className="text-2xl font-black text-slate-900">{isRtl ? "ملاحظة" : join.noteTitle}</h2>
           <p className="mt-4 text-justify text-base font-bold leading-9 text-slate-700 lg:text-lg">
-            يمكن لجهة التعيين الحلال، الموقِّعة على وثيقة التعاون، تفويض جهات تقييم مطابقة غير حكومية في مجال معيَّن وفقاً لهذا البرنامج، على ان تقوم بإبلاغ المنظمة تحريرياً بذلك، وعلى جهة التعيين الحلال وجهات تقييم المطابقة غير الحكومية (التي تُعينها) مراعاة دفع التكاليف المنصوص عليه .
+            {isRtl ? "يمكن لجهة التعيين الحلال، الموقِّعة على وثيقة التعاون، تفويض جهات تقييم مطابقة غير حكومية في مجال معيَّن وفقاً لهذا البرنامج، على ان تقوم بإبلاغ المنظمة تحريرياً بذلك، وعلى جهة التعيين الحلال وجهات تقييم المطابقة غير الحكومية (التي تُعينها) مراعاة دفع التكاليف المنصوص عليه ." : join.note}
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link to="/joined-countries" className="flex min-h-12 items-center justify-center rounded-xl bg-[#007A55] px-7 py-4 text-sm font-black text-white shadow-[var(--shadow-ind-floating)] hover:-translate-y-0.5">
-              عرض الدول المنضمة
+              {isRtl ? "عرض الدول المنضمة" : join.countries}
             </Link>
             <Link to="/halal-sector-authorities" className="flex min-h-12 items-center justify-center rounded-xl border border-stone-200 bg-white px-7 py-4 text-sm font-black text-slate-800 shadow-[var(--shadow-ind-card)] hover:text-[#007A55]">
-              الجهات المعنية بقطاع الحلال
+              {isRtl ? "الجهات المعنية بقطاع الحلال" : join.authorities}
             </Link>
           </div>
         </motion.div>

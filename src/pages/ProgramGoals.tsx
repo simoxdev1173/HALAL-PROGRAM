@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Features } from "../components/ui/features";
 
 type PremiumIconProps = {
@@ -60,7 +60,7 @@ const goalFeatures = [
     icon: StandardSeal,
     title: "مطابقة المنتجات الأجنبية",
     description: "ضمان مطابقة المنتجات الأجنبية لمتطلبات مواصفات الحلال العربية.",
-    image: "/goals-slider/goals-3-1.png",
+    image: "/goals-slider/goals-3-3.png",
   },
   {
     id: 4,
@@ -75,8 +75,17 @@ const goalsTitle =
   "يهدف هذا البرنامج إلى تسهيل التبادل التجاري للمنتجات الحلال بين الدول العربية، وحماية المستهلك المسلم، وضمان مطابقة المنتجات الأجنبية لمتطلبات مواصفات الحلال العربية";
 
 export default function ProgramGoals() {
+  const { t, i18n } = useTranslation();
+  const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
+  const translatedFeatures = t("pages.goals.features", { returnObjects: true }) as { title: string; description: string }[];
+  const features = goalFeatures.map((feature, index) => ({
+    ...feature,
+    title: isRtl ? feature.title : translatedFeatures[index]?.title ?? feature.title,
+    description: isRtl ? feature.description : translatedFeatures[index]?.description ?? feature.description,
+  }));
+
   return (
-    <main className="min-h-screen bg-[#FAF9F6] pt-20 font-arabic overflow-hidden" dir="rtl">
+    <main className={`min-h-screen bg-[#FAF9F6] pt-20 ${isRtl ? "font-arabic" : "font-english"} overflow-hidden`} dir={isRtl ? "rtl" : "ltr"}>
  
          <section className="relative w-full h-[50vh] lg:h-[60vh] min-h-[400px] lg:min-h-[500px] overflow-hidden pt-20 flex items-center justify-center border-b border-stone-300 shadow-[var(--shadow-ind-card)]">
         <motion.div
@@ -87,7 +96,7 @@ export default function ProgramGoals() {
         >
           <img
             src="/about-us-bg.png"
-            alt="عن البرنامج العربي للحلال"
+            alt={isRtl ? "عن البرنامج العربي للحلال" : t("pages.about.hero")}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-slate-900/40 mix-blend-multiply"></div>
@@ -103,16 +112,18 @@ export default function ProgramGoals() {
          
             
             <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-tight tracking-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
-               أهداف <span className="text-[#CA8A04]">البرنامج العربي للحلال</span>
+              {isRtl ? "أهداف" : t("pages.goals.heroBefore")} <span className="text-[#CA8A04]">{isRtl ? "البرنامج العربي للحلال" : t("pages.goals.heroHighlight")}</span>
             </h1>
           </motion.div>
         </div>
 
       </section>
       <Features
-        eyebrow="أهداف"
-        title={goalsTitle}
-        features={goalFeatures}
+        eyebrow={isRtl ? "أهداف" : t("pages.goals.eyebrow")}
+        title={isRtl ? goalsTitle : t("pages.goals.title")}
+        features={features}
+        currentLabel={t("common.currentFocus")}
+        dir={isRtl ? "rtl" : "ltr"}
       />
 
     </main>
