@@ -49,15 +49,15 @@ const CTA_DATA = [
 
 const HERO_SLIDES = [
   {
-    image: "/slider/i-1.jpeg",
+    image: "/slider/slide-1.webp",
     alt: "منتجات غذائية وسلاسل توريد",
   },
   {
-    image: "/slider/i-2-2-2.jpeg",
+    image: "/slider/slide-2.webp",
     alt: "وثائق واعتماد رسمي",
   },
   {
-    image: "/slider/i-1.png",
+    image: "/slider/slide-3.webp",
     alt: "تجارة وأسواق عالمية",
   },
 ];
