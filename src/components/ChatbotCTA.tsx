@@ -52,7 +52,7 @@ export const ChatbotCTA = ({ onClick }: { onClick: () => void }) => {
               
               <div className="absolute inset-3 rounded-[2rem] overflow-hidden bg-stone-50 shadow-inner">
                 <img 
-                  src="/ai-assistant.png" /* Replace with your updated 'standing guy' image path */
+                  src="/ai-agent.png" /* Replace with your updated 'standing guy' image path */
                   alt="AI Assistant" 
                   className="w-full h-full object-cover"
                 />

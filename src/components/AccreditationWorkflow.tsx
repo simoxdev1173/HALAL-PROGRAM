@@ -18,7 +18,7 @@ const AccreditationWorkflow = () => {
     ...step,
     id: String(index + 1),
     icon: [FileText, Search, Handshake][index],
-    image: [`/workflow/w-1.png`, `/workflow/w-2.png`, `/workflow/w-3.png`][index],
+    image: [`/process/pp-1.png`, `/process/pp-2.png`, `/process/pp-3.png`][index],
     delay: (index + 1) * 0.1,
   }));
 
@@ -100,12 +100,12 @@ const AccreditationWorkflow = () => {
                       className="w-full h-full object-cover transform transition-transform duration-1000 group-hover:scale-110 opacity-95"
                     />
                     
-                    {/* Floating Icon inside Screen */}
+                    {/* Floating Icon inside Screen
                     <div className="absolute inset-0 flex items-center justify-center z-20">
                        <div className="w-12 h-12 lg:w-16 lg:h-16 bg-white shadow-[var(--shadow-ind-floating)] rounded-xl flex items-center justify-center border border-stone-200">
                          <step.icon className="w-6 h-6 lg:w-8 lg:h-8 text-[#007A55]" strokeWidth={2} />
                        </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -146,18 +146,13 @@ const AccreditationWorkflow = () => {
           {/* Background Image from previous version */}
           <div className="absolute inset-0">
             <img 
-              src="/workflow/w-4.png" 
+              src="/process/pp-44.png" 
               alt="Professional Setting"
               className="w-full h-full object-cover opacity-80 group-hover:scale-105 group-hover:opacity-60 transition-all duration-700 ease-out"
             />
             <div className="absolute inset-0 bg-gradient-to-l from-slate-950/95 via-slate-900/60 to-transparent transition-opacity duration-700" />
           </div>
 
-          {/* Vents */}
-          <div className="absolute top-6 left-6 flex gap-1.5 z-20">
-             <div className="h-2 w-6 lg:w-8 rounded-full bg-black/60 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]" />
-             <div className="h-2 w-6 lg:w-8 rounded-full bg-black/60 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.5)]" />
-          </div>
 
           <div className="relative p-6 lg:p-10 xl:p-12 flex flex-col md:flex-row items-center justify-between gap-6 lg:gap-8 z-10">
             

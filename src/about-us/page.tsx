@@ -99,7 +99,7 @@ export default function AboutProgram() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="flex flex-col gap-6 lg:col-span-7"
+              className={`flex flex-col gap-6 lg:col-span-7 ${isRtl ? "" : "lg:h-full"}`}
             >
               <article className="rounded-[1.75rem] border border-stone-200 bg-white p-6 shadow-[var(--shadow-ind-card)] lg:p-8">
                 <p className="text-base font-bold leading-9 text-slate-600 lg:text-lg">
@@ -107,7 +107,7 @@ export default function AboutProgram() {
                 </p>
               </article>
 
-              <article className="rounded-[1.75rem] border border-stone-200 bg-[#F8F7F2] p-6 shadow-[var(--shadow-ind-card)] lg:p-8">
+              <article className={`rounded-[1.75rem] border border-stone-200 bg-[#F8F7F2] p-6 shadow-[var(--shadow-ind-card)] lg:p-8 ${isRtl ? "" : "lg:flex lg:flex-1 lg:items-center"}`}>
                 <p className="text-base font-bold leading-9 text-slate-600">
                   {isRtl ? (
                     <>

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { FileText, Building, ShieldCheck, Globe2, ArrowLeft } from "lucide-react";
+import { FileText, Building, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const CompanySearch = () => {
@@ -50,7 +50,6 @@ const CompanySearch = () => {
           >
             {/* Tagline */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-stone-200 text-stone-600 text-[10px] lg:text-xs font-bold mb-6 lg:mb-8 shadow-[var(--shadow-ind-sharp)] w-fit rounded-full uppercase tracking-widest">
-              <ShieldCheck size={14} className="text-[#007A55]" />
               <span>{t("search.badge")}</span>
             </div>
             
@@ -72,11 +71,7 @@ const CompanySearch = () => {
             {/* --- Search Panel (Industrial Control Panel) --- */}
             <div className="bg-white rounded-2xl lg:rounded-3xl p-5 lg:p-6 relative shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100">
               
-              {/* Status LED */}
-              <div className="absolute top-3 right-1/2 translate-x-1/2">
-                 <div className={`w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full ${isSearching ? 'bg-[#CA8A04] animate-pulse shadow-[0_0_8px_rgba(202,138,4,0.8)]' : 'bg-[#007A55] shadow-[0_0_8px_rgba(0,122,85,0.8)]'}`}></div>
-              </div>
-
+  
               {/* Toggle Buttons (Physical Switches) */}
               <div className="flex bg-slate-100/70 p-1 rounded-xl lg:rounded-2xl mb-6 relative z-0 border border-slate-100 w-full">
                 {([
@@ -148,7 +143,7 @@ const CompanySearch = () => {
           >
             <div className="absolute inset-0">
               <img 
-                src="/searchSection.png" 
+                src="/searchCard.png" 
                 alt={t("search.imageAlt")}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
               />
@@ -161,9 +156,7 @@ const CompanySearch = () => {
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               className="absolute top-6 right-6 md:top-10 md:right-10 bg-white/10 backdrop-blur-md border border-white/20 p-3 lg:p-4 rounded-xl lg:rounded-2xl flex items-center gap-3 lg:gap-4 text-white shadow-lg z-30"
             >
-              <div className="w-10 lg:w-12 h-10 lg:h-12 bg-[#CA8A04] rounded-full flex items-center justify-center shadow-inner">
-                <ShieldCheck size={20} className="lg:w-6 lg:h-6 text-slate-900" />
-              </div>
+             
               <div>
                 <div className="text-[10px] lg:text-xs font-medium text-white/80 uppercase tracking-wider mb-1">{t("search.badge1Small")}</div>
                 <div className="font-bold text-base lg:text-lg leading-none">{t("search.badge1Main")}</div>
@@ -176,9 +169,7 @@ const CompanySearch = () => {
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
               className="absolute bottom-6 left-6 md:bottom-10 md:left-10 bg-white p-4 lg:p-5 rounded-xl lg:rounded-2xl flex items-center gap-3 lg:gap-4 shadow-xl border border-slate-100/50 z-30"
             >
-              <div className="w-10 lg:w-12 h-10 lg:h-12 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100">
-                <Globe2 size={20} className="lg:w-6 lg:h-6 text-[#007A55]" />
-              </div>
+           
               <div>
                 <div className="text-[9px] lg:text-[10px] font-bold text-slate-400 mb-1">{t("search.badge2Small")}</div>
                 <div className="font-extrabold text-slate-800 text-lg lg:text-xl leading-none">{t("search.badge2Main")}</div>

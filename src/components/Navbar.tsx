@@ -77,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           name: "الانضمام للبرنامج",
           path: "/join-program",
           children: [
-            { text: "شروط الانضمام", href: "/join-program" },
+            { text: "شروط الانضمام", href: "/program-requirements" },
             { text: "الدول المنضمة", href: "/joined-countries" },
             { text: "الجهات المعنية بقطاع الحلال في الدول العربية", href: "/halal-sector-authorities" },
           ],
@@ -89,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           title: "روابط هامة",
           items: [
             { text: "التعريف بالبرنامج", href: "/program-definition" },
-            { text: "شروط الانضمام", href: "/join-program" },
+            { text: "شروط الانضمام", href: "/program-requirements" },
             { text: "الدول المنضمة", href: "/joined-countries" },
             { text: "شهادة وعلامة حلال", href: "/#" },
             { text: "محرك البحث والتحقق", href: "/certificate-verification" }
@@ -132,7 +132,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           name: "Join Program",
           path: "/join-program",
           children: [
-            { text: "Joining Requirements", href: "/join-program" },
+            { text: "Joining Requirements", href: "/program-requirements" },
             { text: "Joined Countries", href: "/joined-countries" },
             { text: "Halal Sector Authorities in Arab Countries", href: "/halal-sector-authorities" },
           ],
@@ -144,7 +144,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           title: "Important Links",
           items: [
             { text: "Program Definition", href: "/program-definition" },
-            { text: "Joining Requirements", href: "/join-program" },
+            { text: "Joining Requirements", href: "/program-requirements" },
             { text: "Joined Countries", href: "/joined-countries" },
             { text: "Halal Certificate & Mark", href: "/#" },
             { text: "Verification Engine", href: "/certificate-verification" }
@@ -182,6 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
     searchAction: t("nav.searchAction"),
     searchInputLabel: t("nav.searchInputLabel"),
     searchSuggestions: t("nav.searchSuggestions", { returnObjects: true }) as string[],
+    joinProgramCta: t("nav.joinProgramCta"),
     menuBtn: t("nav.menuBtn"),
   };
   const isRtl = lang === "ar";
@@ -271,17 +272,14 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                         className={`absolute top-[calc(100%-12px)] ${isRtl ? "right-0" : "left-0"} w-80 rounded-xl border border-stone-200 bg-[#FAF9F6] p-2 shadow-[var(--shadow-ind-floating)] z-50`}
                       >
                         {link.children.map((item, idx) => {
-                          const itemClass = "flex items-center gap-3 rounded-lg bg-white px-4 py-3 text-[13px] font-black text-stone-700 shadow-[var(--shadow-ind-card)] hover:text-[#007A55] hover:shadow-[var(--shadow-ind-floating)] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] transition-all";
-                          const dot = <span className="h-2 w-2 rounded-full bg-[#CA8A04] shadow-inner" />;
+                          const itemClass = "flex items-center rounded-lg bg-white px-4 py-3 text-[13px] font-black text-stone-700 shadow-[var(--shadow-ind-card)] hover:text-[#007A55] hover:shadow-[var(--shadow-ind-floating)] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] transition-all";
 
                           return item.href.startsWith("/#") || item.href.startsWith("http") ? (
                             <a key={idx} href={item.href} className={itemClass}>
-                              {dot}
                               {item.text}
                             </a>
                           ) : (
                             <Link key={idx} to={item.href} className={itemClass}>
-                              {dot}
                               {item.text}
                             </Link>
                           );
@@ -297,6 +295,12 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           {/* Right Side Actions */}
           <div className="flex items-center gap-2 xl:gap-3 z-20 shrink-0">
           
+            <Link
+              to="/join-program"
+              className="hidden xl:inline-flex h-[44px] items-center justify-center whitespace-nowrap rounded-md border border-[#006747]/80 bg-[#007A55] px-4 text-[11px] font-black uppercase tracking-wider text-white shadow-[var(--shadow-ind-card)] transition-all hover:-translate-y-0.5 hover:bg-[#006747] hover:shadow-[var(--shadow-ind-floating)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/30 active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)]"
+            >
+              {d.joinProgramCta}
+            </Link>
             
             {/* Search Placeholder Button (Recessed Well) */}
             <button 

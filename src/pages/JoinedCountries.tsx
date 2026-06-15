@@ -22,7 +22,7 @@ export default function JoinedCountries() {
           transition={{ duration: 1.3, ease: "easeOut" }}
           className="absolute inset-0"
         >
-          <img src="/slider/i-1.png" alt={isRtl ? "الدول المنضمة" : `${t("pages.countries.titleBefore")} ${t("pages.countries.titleHighlight")}`} className="h-full w-full object-cover opacity-45" />
+          <img src="/header-bg.png" alt={isRtl ? "الدول المنضمة" : `${t("pages.countries.titleBefore")} ${t("pages.countries.titleHighlight")}`} className="h-full w-full object-cover opacity-45" />
           <div className="absolute inset-0 bg-slate-950/35 mix-blend-multiply" />
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/74 via-slate-950/18 to-[#FAF9F6]" />
         </motion.div>

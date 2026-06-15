@@ -17,6 +17,9 @@ const routeByPath: Record<string, { main: EntryKey; sub: string }> = {
   "/certificate-verification": { main: "verification", sub: "verification" },
   "/join-program": { main: "joining", sub: "join" },
   "/documents": { main: "certificate", sub: "documents" },
+  "/halal-certificate": { main: "certificate", sub: "halalCertificate" },
+  "/halal-mark": { main: "certificate", sub: "halalMark" },
+  "/halal-certificate-mark": { main: "certificate", sub: "halalCertificate" },
 };
 
 export const FloatingBreadcrumb = () => {

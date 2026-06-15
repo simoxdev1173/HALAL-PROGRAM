@@ -1,19 +1,85 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type React from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Loader2, Mic, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+
+type Sender = "user" | "bot";
+type MessageStatus = "idle" | "streaming" | "error";
 
 interface Message {
   id: number;
   text: string;
-  sender: "user" | "bot";
+  sender: Sender;
+  status?: MessageStatus;
+  references?: unknown[];
+  followups?: string[];
 }
+
+interface ConversationHistoryItem {
+  role: "user" | "assistant";
+  content: string;
+}
+
+interface SpeechRecognitionAlternativeLike {
+  transcript: string;
+}
+
+interface SpeechRecognitionResultLike {
+  isFinal: boolean;
+  0: SpeechRecognitionAlternativeLike;
+}
+
+interface SpeechRecognitionEventLike {
+  results: ArrayLike<SpeechRecognitionResultLike>;
+}
+
+interface SpeechRecognitionLike {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognitionLike;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  }
+}
+
+const LIGHTRAG_ENDPOINT = "http://188.165.162.105:9999/query/stream";
+const STREAM_SLICE_SIZE = 10;
+const STREAM_SLICE_DELAY_MS = 14;
+
+const fallbackFollowups = {
+  ar: ["من يحق له الانضمام؟", "ما هي الوثائق المطلوبة؟", "كم تستغرق دراسة الطلب؟"],
+  en: ["Who can join?", "What documents are required?", "How long does review take?"],
+};
+
+const quickStarts = {
+  ar: ["اشرح شروط الانضمام", "كيف أتحقق من شهادة؟", "ما هي علامة الحلال العربية؟"],
+  en: ["Explain joining requirements", "How do I verify a certificate?", "What is the Arab Halal Mark?"],
+};
 
 export const ChatbotWidget = ({
   isOpen,
   setIsOpen,
+  bubbleTextOverride,
+  bubblePlacement = "side",
 }: {
   isOpen: boolean;
   setIsOpen: (val: boolean) => void;
+  bubbleTextOverride?: string;
+  bubblePlacement?: "side" | "top";
 }) => {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("en") ? "en" : "ar";
@@ -23,48 +89,408 @@ export const ChatbotWidget = ({
     { id: 1, text: t("chatbot.initial"), sender: "bot" },
   ]);
   const [input, setInput] = useState("");
-  const [showGreeting, setShowGreeting] = useState(false);
+  const [isGreetingDismissed, setIsGreetingDismissed] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      if (!isOpen) setShowGreeting(true);
-    }, 2000);
-    return () => window.clearTimeout(timer);
-  }, [isOpen]);
+  const showGreeting = !isOpen && !isGreetingDismissed;
+  const greetingMotion = bubblePlacement === "top" ? { hidden: { y: 14 }, shown: { y: 0 }, exit: { y: 8 } } : { hidden: { x: isRtl ? -20 : 20 }, shown: { x: 0 }, exit: { x: isRtl ? -10 : 10 } };
+  const greetingPosition =
+    bubblePlacement === "top"
+      ? "bottom-[calc(100%+0.875rem)] left-0"
+      : isRtl
+        ? "left-[115%] ml-4"
+        : "right-[115%] mr-4";
+  const pointerPosition =
+    bubblePlacement === "top"
+      ? "left-6 -bottom-2 border-b border-r border-stone-100"
+      : isRtl
+        ? "-left-2 border-b border-l border-stone-100"
+        : "-right-2 border-r border-t border-stone-100";
+  const userAlign = isRtl ? "justify-start" : "justify-end";
+  const botAlign = isRtl ? "justify-end" : "justify-start";
+  const speechSupported = typeof window !== "undefined" && Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (showGreeting) setShowGreeting(false);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [showGreeting]);
+  const ui = useMemo(
+    () => ({
+      title: t("chatbot.title"),
+      initial: t("chatbot.initial"),
+      bubbleTitle: t("chatbot.bubbleTitle"),
+      bubbleText: bubbleTextOverride ?? t("chatbot.bubbleText"),
+      input: lang === "ar" ? "اسأل عن البرنامج أو الشهادة أو الانضمام..." : "Ask about the program, certificates, or joining...",
+      send: t("chatbot.send"),
+      
+      streaming: lang === "ar" ? " يكتب الإجابة" : "Writing answer...",
+      stop: lang === "ar" ? "إيقاف" : "Stop",
+      mic: lang === "ar" ? "استخدم الميكروفون" : "Use microphone",
+      listening: lang === "ar" ? "أستمع الآن..." : "Listening...",
+      error:
+        lang === "ar"
+          ? "تعذر الاتصال بالمساعد الآن. يرجى المحاولة مرة أخرى."
+          : "The assistant could not connect right now. Please try again.",
+      followupTitle: lang === "ar" ? "أسئلة متابعة" : "Follow-up questions",
+      references: lang === "ar" ? "مصادر" : "References",
+      quickReplyHint: lang === "ar" ? "إجابة مختصرة، بحد أقصى 4 أسطر." : "Brief answer, max 4 lines.",
+    }),
+    [bubbleTextOverride, lang, t]
+  );
 
-  const handleSend = () => {
-    const trimmed = input.trim();
-    if (!trimmed) return;
+  const renderedMessages = messages.map((msg) =>
+    msg.id === 1 && msg.sender === "bot" ? { ...msg, text: ui.initial, followups: quickStarts[lang] } : msg
+  );
 
-    setMessages((prev) => [...prev, { id: Date.now(), text: trimmed, sender: "user" }]);
-    setInput("");
+  const sleep = (duration: number) =>
+    new Promise((resolve) => {
+      window.setTimeout(resolve, duration);
+    });
 
-    window.setTimeout(() => {
+  const renderInlineMarkdown = (text: string) => {
+    const nodes: React.ReactNode[] = [];
+    const pattern = /(\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\))/g;
+    let lastIndex = 0;
+
+    text.replace(pattern, (match, _capture, offset: number) => {
+      if (offset > lastIndex) nodes.push(text.slice(lastIndex, offset));
+
+      if (match.startsWith("**")) {
+        nodes.push(
+          <strong key={`${match}-${offset}`} className="font-black text-slate-950">
+            {match.slice(2, -2)}
+          </strong>
+        );
+      } else if (match.startsWith("*")) {
+        nodes.push(
+          <em key={`${match}-${offset}`} className="font-semibold not-italic text-slate-700">
+            {match.slice(1, -1)}
+          </em>
+        );
+      } else {
+        const linkMatch = /^\[([^\]]+)\]\(([^)]+)\)$/.exec(match);
+        if (linkMatch) {
+          nodes.push(
+            <a
+              key={`${match}-${offset}`}
+              href={linkMatch[2]}
+              target="_blank"
+              rel="noreferrer"
+              className="font-black text-[#006B4B] underline decoration-[#006B4B]/30 underline-offset-4"
+            >
+              {linkMatch[1]}
+            </a>
+          );
+        }
+      }
+
+      lastIndex = offset + match.length;
+      return match;
+    });
+
+    if (lastIndex < text.length) nodes.push(text.slice(lastIndex));
+    return nodes;
+  };
+
+  const renderMarkdown = (text: string) => {
+    const rawLines = text.split(/\n/);
+    const blocks: string[] = [];
+
+    for (let index = 0; index < rawLines.length; index += 1) {
+      const current = rawLines[index].trim();
+      const next = rawLines[index + 1]?.trim();
+
+      if (!current) continue;
+
+      if (/^\d+\.$/.test(current) && next) {
+        blocks.push(`${current} ${next}`);
+        index += 1;
+      } else {
+        blocks.push(current);
+      }
+    }
+
+    return blocks.map((line, index) => {
+      const trimmed = line.trim();
+      const heading = /^(#{1,4})\s+(.+)$/.exec(trimmed);
+      const bullet = /^[-*]\s+(.+)$/.exec(trimmed);
+      const numbered = /^\d+\.\s+(.+)$/.exec(trimmed);
+
+      if (heading) {
+        const level = heading[1].length;
+        const sizeClass = level <= 2 ? "text-base" : "text-[15px]";
+
+        return (
+          <h4 key={`${trimmed}-${index}`} className={`${sizeClass} mt-2 font-black leading-7 text-slate-950 first:mt-0`}>
+            {renderInlineMarkdown(heading[2])}
+          </h4>
+        );
+      }
+
+      if (bullet || numbered) {
+        return (
+          <div key={`${trimmed}-${index}`} className="flex gap-2.5">
+            <span className="mt-0.5 min-w-4 text-[#007A55]">{numbered ? trimmed.match(/^\d+/)?.[0] : "-"}</span>
+            <p className="min-w-0">{renderInlineMarkdown((bullet ?? numbered)?.[1] ?? trimmed)}</p>
+          </div>
+        );
+      }
+
+      return <p key={`${trimmed}-${index}`}>{renderInlineMarkdown(trimmed)}</p>;
+    });
+  };
+
+  const buildConversationHistory = useCallback((items: Message[]): ConversationHistoryItem[] => {
+    return items
+      .filter((item) => item.id !== 1 && item.text.trim() && item.status !== "error")
+      .slice(-8)
+      .map((item) => ({
+        role: item.sender === "user" ? "user" : "assistant",
+        content: item.text,
+      }));
+  }, []);
+
+  const makeFollowups = useCallback(
+    (query: string, answer: string) => {
+      const isJoin = /join|انضم|الانضمام|طلب/.test(`${query} ${answer}`);
+      const isVerify = /verify|certificate|شهادة|تحقق|ترخيص/.test(`${query} ${answer}`);
+
+      if (lang === "ar") {
+        if (isJoin) return ["ما هي الوثائق المطلوبة؟", "من يحق له تقديم الطلب؟", "كم مدة الرد الرسمي؟"];
+        if (isVerify) return ["أين أجد رقم الترخيص؟", "كيف أعرف أن الشهادة معتمدة؟", "ماذا أفعل إذا لم تظهر نتيجة؟"];
+        return fallbackFollowups.ar;
+      }
+
+      if (isJoin) return ["What documents are required?", "Who may submit the request?", "How long does the official response take?"];
+      if (isVerify) return ["Where is the license number?", "How do I know a certificate is valid?", "What if no result appears?"];
+      return fallbackFollowups.en;
+    },
+    [lang]
+  );
+
+  const askLightRag = useCallback(
+    async (query: string) => {
+      const trimmed = query.trim();
+      if (!trimmed || isStreaming) return;
+
+      const userMessage: Message = { id: Date.now(), text: trimmed, sender: "user" };
+      const botId = Date.now() + 1;
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setInput("");
+      setIsStreaming(true);
       setMessages((prev) => [
         ...prev,
-        { id: Date.now() + 1, text: t("chatbot.reply"), sender: "bot" },
+        userMessage,
+        { id: botId, text: "", sender: "bot", status: "streaming", references: [] },
       ]);
-    }, 1000);
-  };
+
+      let completeAnswer = "";
+      const revealText = async (chunk: string) => {
+        for (let index = 0; index < chunk.length; index += STREAM_SLICE_SIZE) {
+          if (controller.signal.aborted) return;
+          completeAnswer += chunk.slice(index, index + STREAM_SLICE_SIZE);
+          setMessages((prev) =>
+            prev.map((item) => (item.id === botId ? { ...item, text: completeAnswer, status: "streaming" } : item))
+          );
+          await sleep(STREAM_SLICE_DELAY_MS);
+        }
+      };
+
+      try {
+        const history = buildConversationHistory([...messages, userMessage]);
+        const response = await fetch(LIGHTRAG_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/x-ndjson",
+          },
+          body: JSON.stringify({
+            query: trimmed,
+            mode: "mix",
+            stream: true,
+            include_references: false,
+            include_chunk_content: false,
+            response_type: lang === "ar" ? "Markdown مختصر" : "Brief markdown",
+            conversation_history: history,
+            user_prompt:
+              lang === "ar"
+                ? `أنت "حلال بوت"، المساعد الرسمي الذكي للبرنامج العربي الموحد للحلال التابع للمنظمة العربية للتنمية الصناعية والتقييس والتعدين (أيدسمو).
+
+## هويتك ودورك
+أنت نقطة الاتصال الأولى للزوار والمستفيدين من البرنامج. مهمتك توجيههم بدقة واحترافية حول آليات البرنامج، شروط الانضمام، التحقق من الشهادات، والإجراءات المتعلقة بالاعتماد وترخيص علامة الحلال العربية.
+
+## قواعد الهوية
+- تحدث دائماً بلغة عربية فصيحة ورسمية.
+- لا تنسب نفسك لأي جهة أخرى غير المنظمة العربية للتنمية الصناعية والتقييس والتعدين.
+- لا تُسمَّى بـ ChatGPT أو Claude أو أي نموذج لغوي آخر — أنت "حلال بوت" فقط.
+
+## أسلوبك
+- رسمي ومحترف لكن غير جاف.
+- ردود مختصرة ومنظمة، استخدم Markdown البسيط عند الحاجة (قوائم، عناوين).
+- اجعل إجابتك عملية ومباشرة ولا تتجاوز 4 أسطر أو نقاط كحد أقصى.
+- لا تضف مقدمات طويلة أو تكرار للسؤال.
+- إذا كان الطلب غامضاً، اسأل سؤالاً توضيحياً واحداً فقط قبل الإجابة.
+- اختم بعرض المساعدة أو بتوجيه واضح للخطوة التالية.`
+                : `You are "Halal Bot", the official AI assistant of the Arab Unified Halal Program under the Arab Organization for Industrial Development, Standardization and Mining (AIDSMO).
+
+## Your Role
+You are the first point of contact for visitors and program beneficiaries. Your task is to guide them accurately and professionally on program mechanisms, membership conditions, certificate verification, and procedures related to accreditation and the Arab Halal Mark licensing.
+
+## Identity Rules
+- Never identify yourself as ChatGPT, Claude, or any other language model — you are "Halal Bot" only.
+- Do not attribute yourself to any organization other than AIDSMO.
+
+## Your Style
+- Professional and formal, but not cold.
+- Keep answers practical and direct — maximum 4 lines or bullet points.
+- Use simple Markdown when helpful (lists, bold key terms).
+- Do not add long preambles or repeat the user's question back to them.
+- If a request is ambiguous, ask only one clarifying question before answering.
+- Always end with a clear next step or offer further assistance.`,
+            max_total_tokens: 420,
+          }),
+          signal: controller.signal,
+        });
+
+        if (!response.ok || !response.body) {
+          throw new Error(`LightRAG returned ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            const cleanLine = line.trim();
+            if (!cleanLine) continue;
+
+            const data = JSON.parse(cleanLine) as {
+              references?: unknown[];
+              response?: string;
+              error?: string;
+            };
+
+            if (data.references) {
+              setMessages((prev) =>
+                prev.map((item) => (item.id === botId ? { ...item, references: data.references } : item))
+              );
+            }
+
+            if (data.response) {
+              await revealText(data.response);
+            }
+
+            if (data.error) {
+              throw new Error(data.error);
+            }
+          }
+        }
+
+        if (buffer.trim()) {
+          const data = JSON.parse(buffer.trim()) as { response?: string; references?: unknown[]; error?: string };
+          if (data.error) throw new Error(data.error);
+          if (data.references) {
+            setMessages((prev) =>
+              prev.map((item) => (item.id === botId ? { ...item, references: data.references } : item))
+            );
+          }
+          if (data.response) {
+            await revealText(data.response);
+          }
+        }
+
+        setMessages((prev) =>
+          prev.map((item) =>
+            item.id === botId
+              ? {
+                  ...item,
+                  text: completeAnswer || ui.error,
+                  status: completeAnswer ? "idle" : "error",
+                  followups: completeAnswer ? makeFollowups(trimmed, completeAnswer) : undefined,
+                }
+              : item
+          )
+        );
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          setMessages((prev) =>
+            prev.map((item) =>
+              item.id === botId ? { ...item, text: ui.error, status: "error", followups: fallbackFollowups[lang] } : item
+            )
+          );
+        }
+      } finally {
+        setIsStreaming(false);
+        abortRef.current = null;
+      }
+    },
+    [buildConversationHistory, isStreaming, lang, makeFollowups, messages, ui.error]
+  );
+
+  useEffect(() => {
+    const handleTrigger = (event: Event) => {
+      const { message } = (event as CustomEvent<{ message?: string }>).detail ?? {};
+      setIsOpen(true);
+      setIsGreetingDismissed(true);
+      if (message) void askLightRag(message);
+    };
+    window.addEventListener("trigger-chatbot", handleTrigger);
+    return () => window.removeEventListener("trigger-chatbot", handleTrigger);
+  }, [askLightRag, setIsOpen]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
+  }, [messages]);
 
   const handleOpenChat = () => {
     setIsOpen(true);
-    setShowGreeting(false);
+    setIsGreetingDismissed(true);
   };
 
-  const userAlign = isRtl ? "justify-start" : "justify-end";
-  const botAlign = isRtl ? "justify-end" : "justify-start";
-  const renderedMessages = messages.map((msg) =>
-    msg.id === 1 && msg.sender === "bot" ? { ...msg, text: t("chatbot.initial") } : msg
-  );
+  const handleStop = () => {
+    abortRef.current?.abort();
+    setIsStreaming(false);
+    setMessages((prev) =>
+      prev.map((item) => (item.status === "streaming" ? { ...item, status: "idle" } : item))
+    );
+  };
+
+  const handleMic = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition || isStreaming) return;
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = lang === "ar" ? "ar-MA" : "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.onresult = (event) => {
+      let transcript = "";
+      for (let index = 0; index < event.results.length; index += 1) {
+        transcript += event.results[index][0].transcript;
+      }
+      setInput(transcript.trim());
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    recognitionRef.current = recognition;
+    setIsListening(true);
+    recognition.start();
+  };
 
   return (
     <div className={`fixed bottom-4 ${dockSide} sm:bottom-8 z-[100]`} dir={isRtl ? "rtl" : "ltr"}>
@@ -74,25 +500,25 @@ export const ChatbotWidget = ({
             <>
               {showGreeting && (
                 <motion.div
-                  initial={{ opacity: 0, x: isRtl ? -20 : 20, scale: 0.9 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: isRtl ? -10 : 10, scale: 0.9 }}
+                  initial={{ opacity: 0, ...greetingMotion.hidden, scale: 0.9 }}
+                  animate={{ opacity: 1, ...greetingMotion.shown, scale: 1 }}
+                  exit={{ opacity: 0, ...greetingMotion.exit, scale: 0.9 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
-                  className={`absolute w-max max-w-[min(260px,calc(100vw-7rem))] cursor-pointer rounded-2xl border border-stone-100 bg-white p-4 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] ${isRtl ? "left-[115%] ml-4" : "right-[115%] mr-4"}`}
-                  onClick={handleOpenChat}
+                  className={`absolute w-max max-w-[min(260px,calc(100vw-2rem))] cursor-pointer rounded-2xl border border-stone-100 bg-white p-4 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] ${greetingPosition}`}
+                  onClick={() => setIsGreetingDismissed(true)}
                 >
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setShowGreeting(false);
+                      setIsGreetingDismissed(true);
                     }}
                     aria-label={t("common.close")}
                     className={`absolute -top-2 ${isRtl ? "-right-2" : "-left-2"} z-20 flex h-6 w-6 items-center justify-center rounded-full border border-stone-200 bg-white text-[10px] text-stone-500 shadow-sm transition-colors hover:bg-stone-50 hover:text-stone-700`}
                   >
                     x
                   </button>
-                  <div className={`absolute top-1/2 h-4 w-4 -translate-y-1/2 rotate-45 rounded-sm bg-white ${isRtl ? "-left-2 border-b border-l border-stone-100" : "-right-2 border-r border-t border-stone-100"}`} />
+                  <div className={`absolute h-4 w-4 rotate-45 rounded-sm bg-white ${bubblePlacement === "top" ? "" : "top-1/2 -translate-y-1/2"} ${pointerPosition}`} />
                   <div className="flex items-start gap-3">
                     <div className="relative mt-1.5 flex h-2.5 w-2.5 shrink-0">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#007A55] opacity-40" />
@@ -100,11 +526,9 @@ export const ChatbotWidget = ({
                     </div>
                     <div className="flex min-w-0 flex-col">
                       <span className="mb-1 text-xs font-black uppercase tracking-wider text-[#004D36]">
-                        {t("chatbot.bubbleTitle")}
+                        {ui.bubbleTitle}
                       </span>
-                      <p className="text-sm font-medium leading-relaxed text-stone-600">
-                        {t("chatbot.bubbleText")}
-                      </p>
+                      <p className="text-sm font-medium leading-relaxed text-stone-600">{ui.bubbleText}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -117,17 +541,12 @@ export const ChatbotWidget = ({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleOpenChat}
-                aria-label={t("chatbot.title")}
+                aria-label={ui.title}
                 className="group relative z-10 flex items-center justify-center rounded-full focus:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/30"
               >
                 <div className="absolute inset-0 scale-110 rounded-full bg-[#007A55]/20 opacity-0 blur-xl transition-all duration-500 group-hover:animate-pulse group-hover:opacity-100" />
                 <div className="relative z-10 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-white shadow-[0_10px_30px_-5px_rgba(0,77,54,0.3)] transition-transform duration-300 sm:h-20 sm:w-20">
-                  <img src="/ai-l.png" alt={t("chatbot.alt")} className="h-full w-full bg-[#FAF9F6] object-cover" />
-                </div>
-                <div className={`absolute -bottom-1 ${isRtl ? "-right-1 sm:-right-2" : "-left-1 sm:-left-2"} z-20 flex h-7 w-7 items-center justify-center rounded-full border-[3px] border-white bg-[#EEB422] shadow-lg transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110 sm:-bottom-2 sm:h-9 sm:w-9`}>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3 text-[#004D36] sm:h-4 sm:w-4">
-                    <path fillRule="evenodd" d="M4.804 21.644A6.707 6.707 0 0 0 6 21.75a6.721 6.721 0 0 0 3.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9s-4.428-9-9.75-9-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 0 1-.814 1.686.75.75 0 0 0 .44 1.223ZM8.25 10.875a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25ZM10.875 12a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Zm4.875-1.125a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25Z" clipRule="evenodd" />
-                  </svg>
+                  <img src="/ai-agent.png" alt={t("chatbot.alt")} className="h-full w-full bg-[#FAF9F6] object-fill" />
                 </div>
               </motion.button>
             </>
@@ -143,67 +562,123 @@ export const ChatbotWidget = ({
             exit={{ opacity: 0, y: 40, scale: 0.95 }}
             transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
             style={{ transformOrigin: isRtl ? "bottom left" : "bottom right" }}
-            className={`fixed bottom-4 ${dockSide} z-[100] flex h-[600px] max-h-[85vh] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-3xl border border-stone-200 bg-[#FAF9F6] shadow-[0_30px_80px_-15px_rgba(0,0,0,0.3)] sm:bottom-8 sm:w-[400px] sm:rounded-[2.5rem]`}
+            className={`fixed bottom-4 ${dockSide} z-[100] flex h-[650px] max-h-[86vh] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-3xl border border-[#007A55]/20 bg-[#F7F3EA] shadow-[0_30px_80px_-15px_rgba(0,0,0,0.3)] sm:bottom-8 sm:w-[430px] sm:rounded-[2rem]`}
           >
-            <div className="relative z-10 flex-shrink-0 bg-gradient-to-br from-[#004D36] to-[#007A55] p-6 shadow-md">
-              <div className="flex items-center justify-between gap-4">
+            <div className="relative z-10 flex-shrink-0 overflow-hidden bg-[#073E2F] p-5 text-white shadow-md">
+              <div className="relative flex items-center justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-4">
                   <div className="relative shrink-0">
-                    <div className="h-14 w-14 overflow-hidden rounded-full border-2 border-white/20 bg-white/10 p-0.5 shadow-inner">
-                      <img src="/ai-l.png" alt={t("chatbot.alt")} className="h-full w-full rounded-full bg-white object-cover" />
+                    <div className="h-14 w-14 overflow-hidden rounded-2xl border border-white/25 bg-white shadow-[0_16px_24px_-18px_rgba(0,0,0,0.9)]">
+                      <img src="/ai-agent.png" alt={t("chatbot.alt")} className="h-full w-full bg-white object-cover" />
                     </div>
-                    <div className={`absolute bottom-0 ${isRtl ? "right-0" : "left-0"} h-3.5 w-3.5 rounded-full border-2 border-[#004D36] bg-[#EEB422] shadow-sm`} />
+                    <div className={`absolute -bottom-1 ${isRtl ? "-right-1" : "-left-1"} h-4 w-4 rounded-md border-2 border-[#073E2F] bg-[#EEB422] shadow-sm`} />
                   </div>
                   <div className="flex min-w-0 flex-col">
-                    <h3 className="truncate text-lg font-bold tracking-tight text-white sm:text-xl">{t("chatbot.title")}</h3>
-                    <span className="truncate text-[10px] font-black uppercase tracking-[0.1em] text-[#EEB422] opacity-90 sm:text-xs">
-                      {t("chatbot.online")}
-                    </span>
+                    <h3 className="truncate text-lg font-black tracking-tight text-white">{ui.title}</h3>
+                 
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
                   aria-label={t("common.close")}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-light text-white/90 shadow-sm transition-all hover:bg-white/20 hover:text-white"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white/90 shadow-sm transition-colors hover:bg-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#EEB422]/30"
                 >
-                  x
+                  <X size={18} />
                 </button>
               </div>
             </div>
 
-            <div className="flex-grow space-y-5 overflow-y-auto bg-stone-50 p-5 sm:p-6">
-              {renderedMessages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.sender === "user" ? userAlign : botAlign}`}>
-                  <div
-                    className={`max-w-[85%] p-4 text-sm leading-relaxed ${
-                      msg.sender === "user"
-                        ? "rounded-2xl rounded-tr-sm bg-[#004D36] text-white shadow-md"
-                        : "rounded-2xl rounded-tl-sm border border-stone-200 bg-white font-medium text-slate-700 shadow-sm"
-                    }`}
-                  >
-                    {msg.text}
+            <div className="flex-grow overflow-y-auto bg-[#F7F3EA] px-4 py-5">
+              <div className="space-y-4">
+                {renderedMessages.map((msg) => (
+                  <div key={msg.id} className={`flex ${msg.sender === "user" ? userAlign : botAlign}`}>
+                    <div
+                      className={`max-w-[88%] rounded-2xl px-4 py-3 text-[15px] leading-8 shadow-sm sm:text-base ${
+                        msg.sender === "user"
+                          ? "rounded-tr-sm bg-[#073E2F] text-white"
+                          : msg.status === "error"
+                            ? "rounded-tl-sm border border-red-200 bg-red-50 text-red-800"
+                            : "rounded-tl-sm border border-stone-200 bg-white text-slate-800"
+                      }`}
+                    >
+                      {msg.text ? (
+                        <div className="space-y-2.5 whitespace-pre-wrap">{renderMarkdown(msg.text)}</div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-[#007A55]">
+                          <span className="font-bold">{ui.streaming}</span>
+                         <Loader2 size={15} className="animate-spin" />
+
+                        </div>
+                      )}
+                      {msg.sender === "bot" && msg.status === "streaming" && msg.text && (
+                        <span className="ms-1 inline-block h-4 w-1 translate-y-0.5 animate-pulse rounded-full bg-[#007A55]" />
+                      )}
+                      {msg.sender === "bot" && msg.references && msg.references.length > 0 && msg.status !== "streaming" && (
+                        <div className="mt-3 rounded-xl border border-[#007A55]/12 bg-[#007A55]/6 px-3 py-2 text-[10px] font-black text-[#006B4B]">
+                          {ui.references}: {msg.references.length}
+                        </div>
+                      )}
+                      {msg.sender === "bot" && msg.status !== "streaming" && msg.followups && msg.followups.length > 0 && (
+                        <div className="mt-3 border-t border-stone-100 pt-3">
+                          <p className="mb-2 text-[10px] font-black text-stone-500">{ui.followupTitle}</p>
+                          <div className="flex flex-wrap gap-2">
+                            {msg.followups.map((question) => (
+                              <button
+                                key={question}
+                                type="button"
+                                onClick={() => askLightRag(question)}
+                                className="rounded-full border border-[#007A55]/16 bg-[#F4FBF7] px-3 py-1.5 text-[11px] font-black text-[#006B4B] transition-colors hover:border-[#007A55]/35 hover:bg-[#007A55] hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#007A55]/16"
+                              >
+                                {question}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+                <div ref={scrollRef} />
+              </div>
             </div>
 
-            <div className="flex-shrink-0 border-t border-stone-200 bg-white p-4 sm:p-5">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <input
-                  type="text"
+            <div className="flex-shrink-0 border-t border-stone-200 bg-white p-4">
+              <div className="flex items-end gap-2">
+                <button
+                  type="button"
+                  onClick={handleMic}
+                  disabled={!speechSupported || isStreaming}
+                  aria-label={ui.mic}
+                  title={speechSupported ? ui.mic : "Speech recognition is not supported in this browser"}
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border text-[#006B4B] transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#007A55]/18 ${
+                    isListening
+                      ? "border-[#EEB422]/50 bg-[#EEB422]/18"
+                      : "border-stone-200 bg-stone-50 hover:border-[#007A55]/30 hover:bg-[#F4FBF7]"
+                  } disabled:cursor-not-allowed disabled:opacity-45`}
+                >
+                  <Mic size={18} />
+                </button>
+                <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  placeholder={t("chatbot.input")}
-                  className={`min-w-0 flex-grow rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm transition-all placeholder:text-stone-400 focus:border-[#EEB422] focus:outline-none focus:ring-2 focus:ring-[#EEB422]/40 ${isRtl ? "text-right" : "text-left"}`}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      void askLightRag(input);
+                    }
+                  }}
+                  placeholder={isListening ? ui.listening : ui.input}
+                  rows={1}
+                  className={`max-h-28 min-h-11 min-w-0 flex-grow resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-[15px] leading-6 transition-all placeholder:text-stone-400 focus:border-[#EEB422] focus:outline-none focus:ring-2 focus:ring-[#EEB422]/35 ${isRtl ? "text-right" : "text-left"}`}
                 />
                 <button
                   type="button"
-                  onClick={handleSend}
-                  className="flex shrink-0 items-center justify-center rounded-xl bg-[#004D36] px-5 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-[#007A55] active:scale-95 sm:px-6"
+                  onClick={() => (isStreaming ? handleStop() : askLightRag(input))}
+                  disabled={!isStreaming && !input.trim()}
+                  className="flex h-11 shrink-0 items-center justify-center rounded-xl bg-[#073E2F] px-4 text-sm font-black text-white shadow-md transition-colors hover:bg-[#007A55] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {t("chatbot.send")}
+                  {isStreaming ? ui.stop : ui.send}
                 </button>
               </div>
             </div>

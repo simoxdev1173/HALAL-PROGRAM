@@ -172,7 +172,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
             <div className="relative shrink-0 w-full lg:w-auto flex justify-center order-1 lg:order-2">
               <div className="w-32 h-32 md:w-48 md:h-48 xl:w-56 xl:h-56 rounded-xl lg:rounded-[2.5rem] overflow-hidden border-4 border-white/5 shadow-2xl relative group bg-black/20">
                 <img 
-                  src="/ai.png" 
+                  src="/ai-agent-small.png" 
                   alt="AI Assistant" 
                   className="w-full h-full object-cover transform scale-105 group-hover:scale-110 transition-transform duration-1000"
                 />
