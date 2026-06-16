@@ -1,225 +1,145 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
-  ArrowLeft,
-  FileSignature,
-} from "lucide-react";
+  DefinitionPanel,
+  DocumentLinkCard,
+  FinalActionPanel,
+  InformationPanel,
+  InnerPageHero,
+  PageSection,
+  ProcessTimeline,
+  RequirementGroup,
+  SectionHeading,
+  SectionReveal,
+} from "../components/InternalPage";
 
-type Lang = "ar" | "en";
-
-const copy = {
-  ar: {
-    heroBefore: "شهادة",
-    heroHighlight: "الحلال",
-    badge: "شهادة الحلال",
-    sectionTitleBefore: "وثيقة اعتماد",
-    sectionTitleHighlight: "المطابقة للحلال",
-    definitionTitle: "تعريف شهادة الحلال",
-    definition:
-      "هي وثيقة صادرة عن الجهة المعينة أو جهة تقييم المطابقة، تثبت أن المنتجات أو الخدمات أو الأنظمة الحاصلة على شهادة الحلال هي منتجات أو خدمات أو أنظمة حلال مطابقة لمتطلبات هذا البرنامج والمواصفات القياسية ذات العلاقة، ومطابقة لأحكام الشريعة الإسلامية.",
-    obtainTitle: "الحصول على الشهادة",
-    obtainText:
-      "ينظم هذا المدخل مسار الحصول على الشهادة من خلال تحديد الجهة المانحة، والمتطلبات العامة والفنية، والتكاليف، ونموذج طلب الحصول على الشهادة.",
-    cards: [
-      {
-        title: "الجهات المانحة للشهادة",
-        text: "تصدر الشهادة من الجهات المعينة أو جهات تقييم المطابقة المخولة ضمن منظومة البرنامج العربي للحلال.",
-      },
-      {
-        title: "متطلبات عامة",
-        text: "استيفاء المتطلبات الإدارية والقانونية والإجرائية المرتبطة بطلب الحصول على الشهادة.",
-      },
-      {
-        title: "متطلبات فنية",
-        text: "مطابقة المنتجات أو الخدمات أو الأنظمة لمتطلبات البرنامج والمواصفات القياسية ذات العلاقة.",
-      },
-      {
-        title: "التكاليف",
-        text: "تطبق التكاليف المقررة في البرنامج وفق طبيعة الشهادة والجهة المعنية ونطاق المنتج أو الخدمة.",
-      },
-    ],
-    annexTitle: "نموذج طلب الحصول على الشهادة",
-    annexText: "لتقديم طلب الحصول على الشهادة يتم الرجوع إلى النموذج الرسمي في الملحق رقم (1).",
-    docsCta: "فتح النماذج والوثائق",
-    nextCta: "علامة الحلال",
-  },
-  en: {
-    heroBefore: "Halal",
-    heroHighlight: "Certificate",
-    badge: "Halal Certificate",
-    sectionTitleBefore: "A document for",
-    sectionTitleHighlight: "Halal conformity",
-    definitionTitle: "Halal Certificate Definition",
-    definition:
-      "A document issued by the designated body or conformity assessment body confirming that certified products, services, or systems are Halal and comply with this program, relevant standards, and Islamic Sharia provisions.",
-    obtainTitle: "Obtaining the Certificate",
-    obtainText:
-      "This entry organizes the certification path through issuing bodies, general and technical requirements, costs, and the official application form.",
-    cards: [
-      {
-        title: "Certificate issuing bodies",
-        text: "The certificate is issued by designated bodies or authorized conformity assessment bodies within the Arab Halal Program.",
-      },
-      {
-        title: "General requirements",
-        text: "Fulfilment of administrative, legal, and procedural requirements related to the certification request.",
-      },
-      {
-        title: "Technical requirements",
-        text: "Compliance of products, services, or systems with program requirements and relevant standards.",
-      },
-      {
-        title: "Costs",
-        text: "Approved program costs apply according to the certificate, responsible body, and product or service scope.",
-      },
-    ],
-    annexTitle: "Certificate application form",
-    annexText: "To apply for the certificate, use the official form in Annex no. (1).",
-    docsCta: "Open forms and documents",
-    nextCta: "Halal Mark",
-  },
-} satisfies Record<Lang, {
-  heroBefore: string;
-  heroHighlight: string;
-  badge: string;
-  sectionTitleBefore: string;
-  sectionTitleHighlight: string;
-  definitionTitle: string;
-  definition: string;
-  obtainTitle: string;
-  obtainText: string;
-  cards: { title: string; text: string }[];
-  annexTitle: string;
-  annexText: string;
-  docsCta: string;
-  nextCta: string;
-}>;
+type Step = { title: string; text: string };
+type RequirementCopy = { title: string; description: string; items: string[] };
+type CostFee = { amount: string; label: string; title: string; body: string };
 
 export default function HalalCertificate() {
-  const { i18n } = useTranslation();
-  const lang: Lang = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("en") ? "en" : "ar";
-  const isRtl = lang === "ar";
-  const d = copy[lang];
+  const { t, i18n } = useTranslation();
+  const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
+  const emphasis = t("halalCertificate.definition.emphasis", { returnObjects: true }) as string[];
+  const processSteps = t("halalCertificate.process.steps", { returnObjects: true }) as Step[];
+  const diagramItems = t("halalCertificate.grantingBodies.diagram", { returnObjects: true }) as string[];
+  const generalRequirements = t("halalCertificate.requirements.general", { returnObjects: true }) as RequirementCopy;
+  const technicalRequirements = t("halalCertificate.requirements.technical", { returnObjects: true }) as RequirementCopy;
+  const costFees = t("halalCertificate.costs.fees", { returnObjects: true }) as CostFee[];
 
   return (
-    <main className={`min-h-screen overflow-hidden bg-[#FAF9F6] ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
-      <div className="fixed inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none z-50" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }} />
+    <main className={`min-h-screen w-full max-w-full overflow-x-hidden bg-[#FAF9F6] ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
+      <InnerPageHero
+        title={t("halalCertificate.hero.title")}
+        description={t("halalCertificate.hero.description")}
+      />
 
-      <section className="relative flex h-[50vh] min-h-[400px] w-full items-center justify-center overflow-hidden border-b border-stone-300 pt-20 shadow-[var(--shadow-ind-card)] lg:h-[60vh] lg:min-h-[500px]">
-        <motion.div
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="absolute inset-0"
-        >
-          <img src="/cover-2.png" alt={d.heroHighlight} className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-slate-900/40 mix-blend-multiply" />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/20 to-[#FAF9F6]" />
-        </motion.div>
+      <div>
+        <PageSection id="definition">
+          <DefinitionPanel title={t("halalCertificate.definition.title")} body={t("halalCertificate.definition.body")} emphasis={emphasis} />
+        </PageSection>
 
-        <div className="relative z-10 mx-auto max-w-7xl px-6 text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="text-3xl font-extrabold leading-tight tracking-tight text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] md:text-5xl lg:text-7xl"
-          >
-            {d.heroBefore} <span className="text-[#CA8A04]">{d.heroHighlight}</span>
-          </motion.h1>
-        </div>
-      </section>
+        <PageSection id="journey" tone="soft">
+          <SectionHeading title={t("halalCertificate.process.title")} description={t("halalCertificate.process.description")} />
+          <ProcessTimeline steps={processSteps} />
+        </PageSection>
 
-      <section className="relative overflow-hidden py-16 scroll-mt-28 lg:py-24">
-        <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: "radial-gradient(#000 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
+        <PageSection id="granting-bodies">
+          <InformationPanel title={t("halalCertificate.grantingBodies.title")} body={t("halalCertificate.grantingBodies.body")}>
+            <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr_auto_1fr] lg:items-center">
+              {diagramItems.map((item, index) => (
+                <div key={item} className="contents">
+                  <div className="rounded-2xl border border-stone-200 bg-[#FAF9F6] p-5 text-center shadow-[var(--shadow-ind-sharp)]">
+                    <p className="text-sm font-black leading-7 text-slate-800">{item}</p>
+                  </div>
+                  {index < diagramItems.length - 1 && <span aria-hidden="true" className="hidden h-px w-10 bg-[#CA8A04]/60 lg:block" />}
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 flex justify-center">
+              <Link to="/halal-sector-authorities" className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl bg-[#007A55] px-5 py-3 text-sm font-black text-white shadow-[var(--shadow-ind-floating)] hover:bg-[#004D36] focus:outline-none focus:ring-4 focus:ring-[#007A55]/20">
+                {t("halalCertificate.grantingBodies.cta")}
+              </Link>
+            </div>
+          </InformationPanel>
+        </PageSection>
 
-        <div className="relative z-10 mx-auto max-w-7xl px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="mx-auto mb-12 max-w-4xl text-center lg:mb-16"
-          >
-          
-            <h2 className="text-2xl font-black leading-tight text-slate-900 md:text-3xl">
-              {d.sectionTitleBefore} <span className="text-[#007A55]">{d.sectionTitleHighlight}</span>
-            </h2>
-          </motion.div>
+        <PageSection id="requirements" tone="soft">
+          <SectionHeading title={t("halalCertificate.requirements.title")} description={t("halalCertificate.requirements.description")} />
+          <div className="grid gap-5 lg:grid-cols-2">
+            <RequirementGroup defaultOpen title={generalRequirements.title} description={generalRequirements.description} items={generalRequirements.items} />
+            <RequirementGroup defaultOpen title={technicalRequirements.title} description={technicalRequirements.description} items={technicalRequirements.items} />
+          </div>
+        </PageSection>
 
-          <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-12 lg:gap-12">
-            <motion.div
-              initial={{ opacity: 0, x: isRtl ? 30 : -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="flex h-full flex-col gap-6 lg:col-span-7"
-            >
-              <article className="rounded-[1.75rem] border border-stone-200 bg-white p-6 shadow-[var(--shadow-ind-card)] lg:p-8">
-                <h3 className="mb-4 text-2xl font-black text-slate-900">{d.definitionTitle}</h3>
-                <p className="text-base font-bold leading-9 text-slate-600 lg:text-lg">{d.definition}</p>
-              </article>
-
-              <article className="rounded-[1.75rem] border border-stone-200 bg-[#F8F7F2] p-6 shadow-[var(--shadow-ind-card)] lg:flex-1 lg:p-8">
-                <h3 className="mb-4 text-2xl font-black text-slate-900">{d.obtainTitle}</h3>
-                <p className="text-base font-bold leading-9 text-slate-600">{d.obtainText}</p>
-              </article>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: isRtl ? -30 : 30, scale: 0.98 }}
-              whileInView={{ opacity: 1, x: 0, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="relative h-full lg:col-span-5"
-            >
-              <div className="relative h-[420px] overflow-hidden rounded-[2rem] border border-stone-200 bg-white p-3 shadow-[var(--shadow-ind-floating)] lg:h-full lg:min-h-full">
-                <div className="relative h-full overflow-hidden rounded-[1.5rem] bg-slate-900 shadow-[inset_0_10px_40px_rgba(0,0,0,0.2)]">
-                  <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.05)_50%)] bg-[length:100%_4px] pointer-events-none z-10" />
-                  <img src="/certificate-template.png" alt={d.annexTitle} className="h-full w-full bg-white object-contain p-6 transition-transform duration-1000 hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1C4C2A]/35 via-transparent to-transparent" />
+        <PageSection id="costs">
+          <SectionHeading title={t("halalCertificate.costs.title")} description={t("halalCertificate.costs.description")} />
+          <SectionReveal>
+            <article className="overflow-hidden rounded-[1.5rem] border border-stone-200 bg-white shadow-[var(--shadow-ind-card)]">
+              <div className="grid gap-0 lg:grid-cols-[.92fr_1.08fr]">
+                <div className="border-b border-stone-200 bg-[#FAF9F6] p-6 lg:border-b-0 lg:border-e lg:p-8">
+                  <p className="text-xs font-black uppercase tracking-[.14em] text-[#007A55]">{t("halalCertificate.costs.authorityTitle")}</p>
+                  <p className="mt-4 text-base font-bold leading-9 text-slate-700">{t("halalCertificate.costs.authorityBody")}</p>
+                </div>
+                <div className="p-6 lg:p-8">
+                  <p className="text-xs font-black uppercase tracking-[.14em] text-[#CA8A04]">{t("halalCertificate.costs.organizationTitle")}</p>
+                  <p className="mt-4 text-base font-bold leading-9 text-slate-700">{t("halalCertificate.costs.organizationBody")}</p>
                 </div>
               </div>
-            </motion.div>
-          </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {d.cards.map((card, index) => (
-              <motion.article
-                key={card.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05 }}
-                className="rounded-[1.35rem] border border-stone-200 bg-white p-5 shadow-[var(--shadow-ind-card)]"
-              >
-                <span className="mb-4 inline-flex h-10 min-w-10 items-center justify-center rounded-xl border border-[#007A55]/20 bg-[#007A55]/10 px-3 text-xs font-black text-[#007A55]">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <h3 className="text-lg font-black text-slate-900">{card.title}</h3>
-                <p className="mt-3 text-sm font-bold leading-7 text-slate-600">{card.text}</p>
-              </motion.article>
-            ))}
-          </div>
+              <div className="border-t border-stone-200 bg-slate-950 p-5 text-white lg:p-7">
+                <div className="grid gap-4 md:grid-cols-2">
+                  {costFees.map((fee) => (
+                    <section key={fee.title} className="rounded-2xl border border-white/10 bg-white/[0.06] p-5">
+                      <p className="text-2xl font-black leading-none text-[#CA8A04]">{fee.amount}</p>
+                      <p className="mt-2 text-sm font-black leading-6 text-stone-100">{fee.label}</p>
+                      <div className="mt-5 border-t border-white/10 pt-5">
+                        <h3 className="text-lg font-black leading-8 text-white">{fee.title}</h3>
+                        <p className="mt-3 text-sm font-bold leading-7 text-stone-300">{fee.body}</p>
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              </div>
 
-          <div className="mt-10 grid gap-5 rounded-[1.75rem] border border-stone-200 bg-white p-6 shadow-[var(--shadow-ind-card)] lg:grid-cols-[1fr_auto] lg:items-center">
-            <div>
-              <h3 className="text-2xl font-black text-slate-900">{d.annexTitle}</h3>
-              <p className="mt-3 text-sm font-bold leading-7 text-slate-600">{d.annexText}</p>
+              <div className="grid gap-4 border-t border-stone-200 p-6 lg:grid-cols-[1fr_auto] lg:items-start lg:p-8">
+                <div>
+                  <h3 className="text-2xl font-black leading-9 text-slate-950">{t("halalCertificate.costs.additionalCostsTitle")}</h3>
+                  <p className="mt-4 text-base font-bold leading-9 text-slate-700">{t("halalCertificate.costs.additionalCostsBody")}</p>
+                </div>
+                <p className="rounded-2xl border border-[#CA8A04]/30 bg-[#CA8A04]/10 p-5 text-center text-sm font-black leading-7 text-[#7A5200] lg:max-w-56">
+                  {t("halalCertificate.costs.notice")}
+                </p>
+              </div>
+            </article>
+          </SectionReveal>
+        </PageSection>
+
+        <PageSection id="application" tone="soft">
+          <SectionReveal>
+            <div className="grid gap-6 lg:grid-cols-[.82fr_1.18fr] lg:items-stretch">
+              <aside className="overflow-hidden rounded-[1.5rem] border border-stone-200 bg-white shadow-[var(--shadow-ind-card)]">
+                <div className="bg-[#FAF9F6] p-4">
+                  <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white p-3 shadow-[var(--shadow-ind-sharp)]">
+                    <img src="/certificate-template.png" alt={t("halalCertificate.finalCta.templateAlt")} className="mx-auto h-auto w-full max-w-[360px] object-contain" />
+                  </div>
+                </div>
+                <div className="border-t border-stone-200 p-5 text-center">
+                  <h2 className="text-xl font-black leading-8 text-slate-950">{t("halalCertificate.finalCta.previewTitle")}</h2>
+                  <p className="mt-2 text-sm font-bold leading-7 text-slate-600">{t("halalCertificate.finalCta.previewDescription")}</p>
+                </div>
+              </aside>
+              <FinalActionPanel
+                title={t("halalCertificate.finalCta.title")}
+                description={t("halalCertificate.finalCta.description")}
+                primary={{ label: t("halalCertificate.finalCta.primary"), to: "/documents#document-library" }}
+                secondary={{ label: t("halalCertificate.finalCta.secondary"), to: "/halal-sector-authorities" }}
+              />
             </div>
-            <div className="flex flex-wrap gap-3">
-              <Link to="/documents" className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#007A55] px-5 py-3 text-sm font-black text-white shadow-[var(--shadow-ind-card)] hover:bg-[#004D36] focus:outline-none focus:ring-4 focus:ring-[#007A55]/20">
-                <FileSignature size={18} strokeWidth={1.8} />
-                {d.docsCta}
-              </Link>
-              <Link to="/halal-mark" className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-stone-200 bg-[#FAF9F6] px-5 py-3 text-sm font-black text-slate-700 hover:border-[#CA8A04]/40 hover:text-[#CA8A04] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/20">
-                {d.nextCta}
-                <ArrowLeft size={18} strokeWidth={1.8} className={isRtl ? "" : "rotate-180"} />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+          </SectionReveal>
+        </PageSection>
+
+      </div>
     </main>
   );
 }

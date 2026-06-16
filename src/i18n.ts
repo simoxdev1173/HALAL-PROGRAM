@@ -1,5 +1,6 @@
 ﻿import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import { arHalalPages, enHalalPages } from "./data/halalPagesTranslations";
 
 const ar = {
   translation: {
@@ -218,6 +219,7 @@ const ar = {
       ],
       colorsList: [{ name: "الأخضر الرسمي" }, { name: "الذهبي الرسمي" }],
     },
+    ...arHalalPages,
     faq: {
       eyebrow: "الدعم الفني",
       titleBefore: "الأسئلة",
@@ -641,6 +643,7 @@ const en = {
       ],
       colorsList: [{ name: "Official green" }, { name: "Official gold" }],
     },
+    ...enHalalPages,
     faq: {
       eyebrow: "Technical Support",
       titleBefore: "Frequently Asked",

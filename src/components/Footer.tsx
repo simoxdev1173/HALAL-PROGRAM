@@ -129,7 +129,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
           {/* UAE-Style Pattern from previous version */}
           <div className="absolute inset-0 z-0 opacity-20 mix-blend-overlay">
             <img 
-              src="/header-nav.png" 
+              src="/chatbot-cta-bg.png" 
               alt="Arabesque Pattern" 
               className="w-full h-full object-cover"
             />

@@ -7,8 +7,8 @@
 ---
 
 **Project:** Arab Halal Program
-**Generated:** 2026-05-15 11:55:02
-**Category:** Government/Public Service
+**Generated:** 2026-06-15 14:00:31
+**Category:** AI/Chatbot Platform
 
 ---
 
@@ -18,24 +18,24 @@
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#171717` | `--color-primary` |
-| Secondary | `#404040` | `--color-secondary` |
-| CTA/Accent | `#D4AF37` | `--color-cta` |
-| Background | `#FFFFFF` | `--color-background` |
-| Text | `#171717` | `--color-text` |
+| Primary | `#7C3AED` | `--color-primary` |
+| Secondary | `#A78BFA` | `--color-secondary` |
+| CTA/Accent | `#06B6D4` | `--color-cta` |
+| Background | `#FAF5FF` | `--color-background` |
+| Text | `#1E1B4B` | `--color-text` |
 
-**Color Notes:** Minimal black + accent gold
+**Color Notes:** AI purple + cyan interactions
 
 ### Typography
 
-- **Heading Font:** Inter
-- **Body Font:** Inter
-- **Mood:** minimal, clean, swiss, functional, neutral, professional
-- **Google Fonts:** [Inter + Inter](https://fonts.google.com/share?selection.family=Inter:wght@300;400;500;600;700)
+- **Heading Font:** Fredoka
+- **Body Font:** Nunito
+- **Mood:** playful, friendly, fun, creative, warm, approachable
+- **Google Fonts:** [Fredoka + Nunito](https://fonts.google.com/share?selection.family=Fredoka:wght@400;500;600;700|Nunito:wght@300;400;500;600;700)
 
 **CSS Import:**
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 ```
 
 ### Spacing Variables
@@ -68,7 +68,7 @@
 ```css
 /* Primary Button */
 .btn-primary {
-  background: #D4AF37;
+  background: #06B6D4;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -85,8 +85,8 @@
 /* Secondary Button */
 .btn-secondary {
   background: transparent;
-  color: #171717;
-  border: 2px solid #171717;
+  color: #7C3AED;
+  border: 2px solid #7C3AED;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -99,7 +99,7 @@
 
 ```css
 .card {
-  background: #FFFFFF;
+  background: #FAF5FF;
   border-radius: 12px;
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -125,9 +125,9 @@
 }
 
 .input:focus {
-  border-color: #171717;
+  border-color: #7C3AED;
   outline: none;
-  box-shadow: 0 0 0 3px #17171720;
+  box-shadow: 0 0 0 3px #7C3AED20;
 }
 ```
 
@@ -153,30 +153,28 @@
 
 ## Style Guidelines
 
-**Style:** Accessible & Ethical
+**Style:** AI-Native UI
 
-**Keywords:** High contrast, large text (16px+), keyboard navigation, screen reader friendly, WCAG compliant, focus state, semantic
+**Keywords:** Chatbot, conversational, voice, assistant, agentic, ambient, minimal chrome, streaming text, AI interactions
 
-**Best For:** Government, healthcare, education, inclusive products, large audience, legal compliance, public
+**Best For:** AI products, chatbots, voice assistants, copilots, AI-powered tools, conversational interfaces
 
-**Key Effects:** Clear focus rings (3-4px), ARIA labels, skip links, responsive design, reduced motion, 44x44px touch targets
+**Key Effects:** Typing indicators (3-dot pulse), streaming text animations, pulse animations, context cards, smooth reveals
 
 ### Page Pattern
 
-**Pattern Name:** Marketplace / Directory
+**Pattern Name:** Funnel (3-Step Conversion)
 
-- **Conversion Strategy:**  map hover pins,  card carousel, Search bar is the CTA. Reduce friction to search. Popular searches suggestions.
-- **CTA Placement:** Hero Search Bar + Navbar 'List your item'
-- **Section Order:** 1. Hero (Search focused), 2. Categories, 3. Featured Listings, 4. Trust/Safety, 5. CTA (Become a host/seller)
+- **Conversion Strategy:** Progressive disclosure. Show only essential info per step. Use progress indicators. Multiple CTAs.
+- **CTA Placement:** Each step: mini-CTA. Final: main CTA
+- **Section Order:** 1. Hero, 2. Step 1 (problem), 3. Step 2 (solution), 4. Step 3 (action), 5. CTA progression
 
 ---
 
 ## Anti-Patterns (Do NOT Use)
 
-- ❌ Ornate design
-- ❌ Low contrast
-- ❌ Motion effects
-- ❌ AI purple/pink gradients
+- ❌ Heavy chrome
+- ❌ Slow response feedback
 
 ### Additional Forbidden Patterns
 

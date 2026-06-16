@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, Mic, X } from "lucide-react";
+import { ArrowRight, Compass, Mic, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 type Sender = "user" | "bot";
@@ -94,6 +94,7 @@ export const ChatbotWidget = ({
   const [isListening, setIsListening] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const previousMessageCountRef = useRef(messages.length);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   const showGreeting = !isOpen && !isGreetingDismissed;
@@ -448,8 +449,13 @@ You are the first point of contact for visitors and program beneficiaries. Your 
   }, [askLightRag, setIsOpen]);
 
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
-  }, [messages]);
+    const previousMessageCount = previousMessageCountRef.current;
+    previousMessageCountRef.current = messages.length;
+
+    if (messages.length > previousMessageCount) {
+      scrollRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
+    }
+  }, [messages.length]);
 
   const handleOpenChat = () => {
     setIsOpen(true);
@@ -562,73 +568,82 @@ You are the first point of contact for visitors and program beneficiaries. Your 
             exit={{ opacity: 0, y: 40, scale: 0.95 }}
             transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
             style={{ transformOrigin: isRtl ? "bottom left" : "bottom right" }}
-            className={`fixed bottom-4 ${dockSide} z-[100] flex h-[650px] max-h-[86vh] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-3xl border border-[#007A55]/20 bg-[#F7F3EA] shadow-[0_30px_80px_-15px_rgba(0,0,0,0.3)] sm:bottom-8 sm:w-[430px] sm:rounded-[2rem]`}
+            className={`fixed bottom-4 ${dockSide} z-[100] flex h-[680px] max-h-[88vh] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[2.5rem] bg-white shadow-[0_40px_100px_-20px_rgba(0,0,0,0.25)] border border-slate-200 sm:bottom-8 sm:w-[450px]`}
           >
-            <div className="relative z-10 flex-shrink-0 overflow-hidden bg-[#073E2F] p-5 text-white shadow-md">
+            {/* Refined Header with Subtle Surface Color */}
+            <div className="relative z-10 flex-shrink-0 bg-slate-50 border-b border-slate-200 p-6 shadow-sm">
               <div className="relative flex items-center justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-4">
                   <div className="relative shrink-0">
-                    <div className="h-14 w-14 overflow-hidden rounded-2xl border border-white/25 bg-white shadow-[0_16px_24px_-18px_rgba(0,0,0,0.9)]">
-                      <img src="/ai-agent.png" alt={t("chatbot.alt")} className="h-full w-full bg-white object-cover" />
+                    <div className="h-14 w-14 overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-premium-sm">
+                      <img src="/ai-agent.png" alt={t("chatbot.alt")} className="h-full w-full object-contain" />
                     </div>
-                    <div className={`absolute -bottom-1 ${isRtl ? "-right-1" : "-left-1"} h-4 w-4 rounded-md border-2 border-[#073E2F] bg-[#EEB422] shadow-sm`} />
+                    <div className={`absolute -bottom-0.5 ${isRtl ? "-right-0.5" : "-left-0.5"} h-3.5 w-3.5 rounded-full border-2 border-slate-50 bg-[#007A55] shadow-sm`} />
                   </div>
                   <div className="flex min-w-0 flex-col">
-                    <h3 className="truncate text-lg font-black tracking-tight text-white">{ui.title}</h3>
-                 
+                    <h3 className="truncate text-xl font-bold tracking-tight text-slate-900 leading-none mb-1.5">{ui.title}</h3>
+                   
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
                   aria-label={t("common.close")}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white/90 shadow-sm transition-colors hover:bg-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#EEB422]/30"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 hover:text-slate-900 hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-200 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200"
                 >
-                  <X size={18} />
+                  <X size={20} strokeWidth={2.5} />
                 </button>
               </div>
             </div>
 
-            <div className="flex-grow overflow-y-auto bg-[#F7F3EA] px-4 py-5">
-              <div className="space-y-4">
+            {/* Chat Area with Distinct Background */}
+            <div className="flex-grow overflow-y-auto bg-[#F9FAFB] px-5 py-8 custom-scrollbar">
+              <div className="space-y-6">
                 {renderedMessages.map((msg) => (
                   <div key={msg.id} className={`flex ${msg.sender === "user" ? userAlign : botAlign}`}>
                     <div
-                      className={`max-w-[88%] rounded-2xl px-4 py-3 text-[15px] leading-8 shadow-sm sm:text-base ${
+                      className={`max-w-[85%] rounded-[1.5rem] px-5 py-4 text-[15px] leading-relaxed transition-all ${
                         msg.sender === "user"
-                          ? "rounded-tr-sm bg-[#073E2F] text-white"
+                          ? "rounded-tr-none bg-[#007A55] text-white shadow-premium-md font-medium"
                           : msg.status === "error"
-                            ? "rounded-tl-sm border border-red-200 bg-red-50 text-red-800"
-                            : "rounded-tl-sm border border-stone-200 bg-white text-slate-800"
+                            ? "rounded-tl-none border border-red-200 bg-red-50 text-red-800 shadow-sm"
+                            : "rounded-tl-none border border-slate-200 bg-white text-slate-700 shadow-premium-sm"
                       }`}
                     >
                       {msg.text ? (
-                        <div className="space-y-2.5 whitespace-pre-wrap">{renderMarkdown(msg.text)}</div>
+                        <div className="space-y-3 whitespace-pre-wrap">{renderMarkdown(msg.text)}</div>
                       ) : (
-                        <div className="flex items-center gap-2 text-[#007A55]">
-                          <span className="font-bold">{ui.streaming}</span>
-                         <Loader2 size={15} className="animate-spin" />
-
+                        <div className="flex items-center gap-2.5">
+                          <div className="flex gap-1">
+                            {[0, 1, 2].map((i) => (
+                              <motion.span
+                                key={i}
+                                animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
+                                transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                                className="h-1.5 w-1.5 rounded-full bg-[#007A55]"
+                              />
+                            ))}
+                          </div>
                         </div>
                       )}
-                      {msg.sender === "bot" && msg.status === "streaming" && msg.text && (
-                        <span className="ms-1 inline-block h-4 w-1 translate-y-0.5 animate-pulse rounded-full bg-[#007A55]" />
-                      )}
+                      
                       {msg.sender === "bot" && msg.references && msg.references.length > 0 && msg.status !== "streaming" && (
-                        <div className="mt-3 rounded-xl border border-[#007A55]/12 bg-[#007A55]/6 px-3 py-2 text-[10px] font-black text-[#006B4B]">
+                        <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-[10px] font-bold text-slate-500 flex items-center gap-2 uppercase tracking-wider">
+                          <Compass size={12} />
                           {ui.references}: {msg.references.length}
                         </div>
                       )}
+
                       {msg.sender === "bot" && msg.status !== "streaming" && msg.followups && msg.followups.length > 0 && (
-                        <div className="mt-3 border-t border-stone-100 pt-3">
-                          <p className="mb-2 text-[10px] font-black text-stone-500">{ui.followupTitle}</p>
+                        <div className="mt-5 border-t border-slate-100 pt-5">
+                          <p className="mb-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{ui.followupTitle}</p>
                           <div className="flex flex-wrap gap-2">
                             {msg.followups.map((question) => (
                               <button
                                 key={question}
                                 type="button"
                                 onClick={() => askLightRag(question)}
-                                className="rounded-full border border-[#007A55]/16 bg-[#F4FBF7] px-3 py-1.5 text-[11px] font-black text-[#006B4B] transition-colors hover:border-[#007A55]/35 hover:bg-[#007A55] hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#007A55]/16"
+                                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-[12px] font-bold text-slate-600 transition-all hover:border-[#007A55] hover:text-[#007A55] hover:shadow-premium-sm active:scale-95"
                               >
                                 {question}
                               </button>
@@ -643,42 +658,50 @@ You are the first point of contact for visitors and program beneficiaries. Your 
               </div>
             </div>
 
-            <div className="flex-shrink-0 border-t border-stone-200 bg-white p-4">
-              <div className="flex items-end gap-2">
+            {/* Refined Input Area with Clear Separation */}
+            <div className="flex-shrink-0 bg-white p-6 border-t border-slate-200 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+              <div className="flex items-end gap-3">
                 <button
                   type="button"
                   onClick={handleMic}
                   disabled={!speechSupported || isStreaming}
                   aria-label={ui.mic}
-                  title={speechSupported ? ui.mic : "Speech recognition is not supported in this browser"}
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border text-[#006B4B] transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#007A55]/18 ${
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all ${
                     isListening
-                      ? "border-[#EEB422]/50 bg-[#EEB422]/18"
-                      : "border-stone-200 bg-stone-50 hover:border-[#007A55]/30 hover:bg-[#F4FBF7]"
-                  } disabled:cursor-not-allowed disabled:opacity-45`}
+                      ? "bg-red-50 text-red-500 border border-red-100"
+                      : "bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 border border-slate-200"
+                  } disabled:cursor-not-allowed disabled:opacity-40`}
                 >
-                  <Mic size={18} />
+                  <Mic size={20} strokeWidth={2} />
                 </button>
-                <textarea
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      void askLightRag(input);
-                    }
-                  }}
-                  placeholder={isListening ? ui.listening : ui.input}
-                  rows={1}
-                  className={`max-h-28 min-h-11 min-w-0 flex-grow resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-[15px] leading-6 transition-all placeholder:text-stone-400 focus:border-[#EEB422] focus:outline-none focus:ring-2 focus:ring-[#EEB422]/35 ${isRtl ? "text-right" : "text-left"}`}
-                />
+                
+                <div className="relative flex-grow">
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        void askLightRag(input);
+                      }
+                    }}
+                    placeholder={isListening ? ui.listening : ui.input}
+                    rows={1}
+                    className={`max-h-32 min-h-[48px] w-full resize-none rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-[15px] transition-all placeholder:text-slate-400 focus:border-[#007A55] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#007A55]/5 ${isRtl ? "text-right" : "text-left"}`}
+                  />
+                </div>
+
                 <button
                   type="button"
                   onClick={() => (isStreaming ? handleStop() : askLightRag(input))}
                   disabled={!isStreaming && !input.trim()}
-                  className="flex h-11 shrink-0 items-center justify-center rounded-xl bg-[#073E2F] px-4 text-sm font-black text-white shadow-md transition-colors hover:bg-[#007A55] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all shadow-premium-sm ${
+                    isStreaming 
+                      ? "bg-slate-900 text-white" 
+                      : "bg-[#007A55] text-white hover:bg-[#008F63] active:scale-95 border border-[#007A55]"
+                  } disabled:cursor-not-allowed disabled:opacity-50`}
                 >
-                  {isStreaming ? ui.stop : ui.send}
+                  {isStreaming ? <X size={20} strokeWidth={2.5} /> : <ArrowRight className={isRtl ? "rotate-180" : ""} size={20} strokeWidth={2.5} />}
                 </button>
               </div>
             </div>

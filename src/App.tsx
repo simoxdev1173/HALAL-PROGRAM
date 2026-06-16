@@ -15,6 +15,7 @@ import PrioritySection from "./components/PrioritySection";
 import { Hero } from "./components/Hero";
 import Footer from "./components/Footer";
 import { ChatbotWidget } from "./components/ChatbotWidget";
+import ChatbotOnboarding from "./components/ChatbotOnboarding";
 import FontSwitcher from "./components/FontSwitcher";
 import AboutProgram from "./about-us/page";
 import CertificateVerification from "./pages/CertificateVerification";
@@ -79,7 +80,24 @@ function AppContent() {
   const location = useLocation();
   const lang = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("en") ? "en" : "ar";
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const isFocusedApplication = location.pathname === "/join-program";
+
+  const handleSetChatOpen = (val: boolean) => {
+    if (val) {
+      const hasSeen = localStorage.getItem("hasSeenChatbotOnboarding");
+      if (!hasSeen) {
+        setShowOnboarding(true);
+        return;
+      }
+    }
+    setIsChatOpen(val);
+  };
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    setIsChatOpen(true);
+  };
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
@@ -122,9 +140,10 @@ function AppContent() {
             <Route path="/halal-certificate-mark" element={<HalalCertificate />} />
           </Routes>
 
-          {!isFocusedApplication && <Footer lang={lang} onChatOpen={() => setIsChatOpen(true)} />}
+          {!isFocusedApplication && <Footer lang={lang} onChatOpen={() => handleSetChatOpen(true)} />}
 
-          {!isFocusedApplication && <ChatbotWidget isOpen={isChatOpen} setIsOpen={setIsChatOpen} />}
+          {!isFocusedApplication && !showOnboarding && <ChatbotWidget isOpen={isChatOpen} setIsOpen={handleSetChatOpen} />}
+          {showOnboarding && <ChatbotOnboarding onComplete={handleOnboardingComplete} />}
           {!isFocusedApplication && <FontSwitcher />}
 
           <style>{`
