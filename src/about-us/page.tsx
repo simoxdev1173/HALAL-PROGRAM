@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { InnerPageHero } from "../components/InternalPage";
 
 type AboutTranslation = {
   hero: string;
@@ -37,36 +38,12 @@ export default function AboutProgram() {
       {/* Industrial noise overlay */}
       <div className="fixed inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none z-50" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
 
-      {/* --- HERO SECTION --- */}
-      <section className="relative w-full h-[50vh] lg:h-[60vh] min-h-[400px] lg:min-h-[500px] overflow-hidden pt-20 flex items-center justify-center border-b border-stone-300 shadow-[var(--shadow-ind-card)]">
-        <motion.div
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="absolute inset-0"
-        >
-          <img
-            src="/about-us-bg.png"
-            alt={copy.hero}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-slate-900/40 mix-blend-multiply"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/20 to-[#FAF9F6]"></div>
-        </motion.div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.5 }}
-          >
-            <h1 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-tight tracking-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
-              {copy.heroBefore} <span className="text-[#CA8A04]">{copy.heroHighlight}</span>
-            </h1>
-          </motion.div>
-        </div>
-      </section>
-
+      <InnerPageHero
+        title={`${copy.heroBefore} ${copy.heroHighlight}`}
+        description=""
+        imageSrc="/about-us-bg.png"
+        imageAlt={copy.hero}
+      />
       {/* --- SECTION 1: CORE MISSION --- */}
       <section id="definition" className="relative py-16 lg:py-24 overflow-hidden scroll-mt-28">
         {/* ISO Grid Background */}

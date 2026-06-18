@@ -2,6 +2,7 @@ import { ExternalLink, Mail, Phone, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { halalSectorAuthorities } from "../data/halalSectorAuthorities";
+import { InnerPageHero } from "../components/InternalPage";
 
 const unavailable = "غير متوفر";
 
@@ -17,42 +18,13 @@ export default function HalalSectorAuthorities() {
   const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
 
   return (
-    <main className={`min-h-screen w-full max-w-full overflow-x-hidden bg-[#FAF9F6] pt-24 ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
-      <section className="relative overflow-hidden bg-slate-950">
-        <motion.div
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-          className="absolute inset-0"
-        >
-          <img
-            src="/header-bg.png"
-            alt={isRtl ? "الجهات المعنية بقطاع الحلال في الدول العربية" : `${t("pages.authorities.titleBefore")} ${t("pages.authorities.titleHighlight")}`}
-            className="h-full w-full object-cover opacity-28 grayscale contrast-125"
-          />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(202,138,4,.34),transparent_32%),linear-gradient(180deg,rgba(2,6,23,.82),rgba(28,76,42,.8),#FAF9F6)]" />
-        </motion.div>
-
-        <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 lg:py-28">
-          <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-6xl"
-          >
-            <h1 className="text-4xl font-black leading-tight text-white drop-shadow-[0_8px_24px_rgba(0,0,0,.45)] md:text-6xl lg:text-7xl">
-              {isRtl ? "الجهات المعنية بقطاع الحلال في" : t("pages.authorities.titleBefore")}{" "}
-              <span className="text-[#CA8A04]">{isRtl ? "الدول العربية" : t("pages.authorities.titleHighlight")}</span>
-            </h1>
-            <p className="mt-7 max-w-4xl text-base font-bold leading-9 text-stone-100 lg:text-xl">
-              {isRtl
-                ? "دليل منظم للجهات الحكومية أو الوطنية الأقرب لاختصاص التقييس، المطابقة، أو اعتماد منظومة الحلال في الدول العربية، مع معاينات مباشرة للمواقع وبيانات الاتصال الرسمية المتاحة."
-                : t("pages.authorities.desc")}
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
+    <main className={`min-h-screen w-full max-w-full overflow-x-hidden bg-[#FAF9F6] ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
+      <InnerPageHero
+        title={`${isRtl ? "الجهات المعنية بقطاع الحلال في" : t("pages.authorities.titleBefore")} ${isRtl ? "الدول العربية" : t("pages.authorities.titleHighlight")}`}
+        description={isRtl ? "دليل منظم للجهات الحكومية أو الوطنية الأقرب لاختصاص التقييس، المطابقة، أو اعتماد منظومة الحلال في الدول العربية، مع معاينات مباشرة للمواقع وبيانات الاتصال الرسمية المتاحة." : t("pages.authorities.desc")}
+        imageSrc="/header-bg.png"
+        imageAlt={isRtl ? "الجهات المعنية بقطاع الحلال في الدول العربية" : `${t("pages.authorities.titleBefore")} ${t("pages.authorities.titleHighlight")}`}
+      />
       <section className="relative py-16 lg:py-24">
         <div className="absolute inset-0 opacity-[0.018]" style={{ backgroundImage: "radial-gradient(#0f172a 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
         <div className="relative z-10 mx-auto max-w-[96rem] px-5 lg:px-6">
@@ -181,3 +153,4 @@ export default function HalalSectorAuthorities() {
     </main>
   );
 }
+

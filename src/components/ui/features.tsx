@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 interface FeatureItem {
   id: number;
-  icon: ElementType;
+  icon?: ElementType;
   title: string;
   description: string;
   image: string;
@@ -111,15 +111,17 @@ export function Features({ features, eyebrow, title, subtitle, currentLabel = "Ø
                   aria-pressed={isActive}
                 >
                   <div className="flex gap-4">
-                    <div
-                      className={`hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl border transition-all duration-300 md:flex ${
-                        isActive
-                          ? "border-[#CA8A04]/40 bg-gradient-to-br from-[#1C4C2A] to-[#007A55] text-[#CA8A04] shadow-[0_14px_30px_rgba(0,122,85,0.22)]"
-                          : "border-stone-200 bg-gradient-to-br from-white to-stone-100 text-[#1C4C2A] shadow-[var(--shadow-ind-card)]"
-                      }`}
-                    >
-                      <Icon className="h-8 w-8" />
-                    </div>
+                    {Icon && (
+                      <div
+                        className={`hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl border transition-all duration-300 md:flex ${
+                          isActive
+                            ? "border-[#CA8A04]/40 bg-gradient-to-br from-[#1C4C2A] to-[#007A55] text-[#CA8A04] shadow-[0_14px_30px_rgba(0,122,85,0.22)]"
+                            : "border-stone-200 bg-gradient-to-br from-white to-stone-100 text-[#1C4C2A] shadow-[var(--shadow-ind-card)]"
+                        }`}
+                      >
+                        <Icon className="h-8 w-8" />
+                      </div>
+                    )}
                     <div className="flex-1">
                       <div className="flex items-start justify-between gap-3">
                         <h3 className={`text-base font-black transition-colors md:text-lg ${isActive ? "text-slate-950" : "text-slate-700"}`}>

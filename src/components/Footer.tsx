@@ -30,8 +30,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
         btn2: "طلب الترخيص"
       },
       brand: {
-        name: "البرنامج العربي للحلال",
-        tagline: "الثقة • التميز • الريادة"
+        name: "البرنامج العربي للحلال"
       },
       links: {
         title: "الاستكشاف وخريطة الموقع",
@@ -65,8 +64,7 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
         btn2: "Request License"
       },
       brand: {
-        name: "ARAB HALAL PROGRAM",
-        tagline: "Trust • Excellence • Leadership"
+        name: "ARAB HALAL PROGRAM"
       },
       links: {
         title: "Explore & Site Map",
@@ -111,15 +109,48 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
     contact: { ...fallback.contact, ...translatedFooter.contact },
   };
   const onlineLabel = (d.cta as typeof fallback.cta & { online?: string }).online ?? d.cta.btn1;
+  const programDefinition = isRtl
+    ? "تم وضع البرنامج العربي الموحد للحلال من قبل الدول العربية ممثلة في المنظمة العربية للتنمية الصناعية والتقييس والتعدين بهدف حماية المستهلك المسلم في الدول العربية وفي جميع دول العالم ليس فقط من شهادات وعلامات الحلال المزورة، بل أيضا من الشهادات والعلامات التي تمنحها جهات لا تتوفر فيها شروط المهنية والشرعية والمصداقية اللازمة لمثل هذا المجال."
+    : "The Arab Unified Halal Program was established by Arab countries through the Arab Organization for Industrial Development, Standardization and Mining to protect Muslim consumers in Arab countries and worldwide from counterfeit Halal certificates and marks, and from certificates and marks issued by bodies that lack the professional, Sharia, and credibility requirements needed in this field.";
+  const contactLabels = {
+    email: isRtl ? "البريد الإلكتروني" : "Email",
+    phone: isRtl ? "الهاتف" : "Phone",
+    office: isRtl ? "المقر" : "Office",
+  };
+  const footerGroups = [
+    {
+      title: isRtl ? "مسارات البرنامج" : "Program Paths",
+      links: [
+        { name: isRtl ? "تعريف البرنامج" : "Program Definition", href: "/program-definition" },
+        { name: isRtl ? "أهداف البرنامج" : "Program Goals", href: "/program-goals" },
+        { name: isRtl ? "مجال البرنامج" : "Program Scope", href: "/program-scope" },
+        { name: isRtl ? "متطلبات البرنامج" : "Program Requirements", href: "/program-requirements" },
+      ],
+    },
+    {
+      title: d.links.title,
+      links: d.links.items,
+    },
+    {
+      title: isRtl ? "الشهادة والعلامة" : "Certificate & Mark",
+      links: [
+        { name: isRtl ? "شهادة الحلال" : "Halal Certificate", href: "/halal-certificate" },
+        { name: isRtl ? "علامة الحلال" : "Halal Mark", href: "/halal-mark" },
+        { name: isRtl ? "النماذج الرسمية" : "Official Forms", href: "/documents" },
+      ],
+    },
+  ];
 
   return (
-    <footer dir={isRtl ? 'rtl' : 'ltr'} className="w-full bg-[#FAF9F6] pt-10 lg:pt-12 sm:pt-16 pb-6 px-4 sm:px-6 relative z-10 flex flex-col border-t border-stone-200">
+    <footer dir={isRtl ? 'rtl' : 'ltr'} className="w-full bg-[#FAF9F6] relative z-10 flex flex-col border-t border-stone-200">
       
       {/* Industrial noise overlay */}
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
 
       {/* --- CTA CARD --- */}
-      <div className="w-full relative z-20 mb-12 lg:mb-16 sm:mb-20">
+      <div className="relative z-10 py-20 lg:py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]">
+       
+                <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -194,123 +225,81 @@ const Footer: React.FC<FooterProps> = ({ lang, onChatOpen }) => {
       </div>
 
       {/* --- FOOTER CONTENT --- */}
-      <div className="max-w-6xl mx-auto border-b border-stone-200 pb-10 lg:pb-12 w-full relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 items-start">
-          
-          {/* Brand Signature */}
-          <div className="flex flex-col gap-6 h-full pt-0">
-            <div className={`flex flex-col gap-6 ${isRtl ? "items-end lg:items-end" : "items-start lg:items-start"}`}>
-              <img src="/logo.svg" alt="Logo" className="h-28 lg:h-36 xl:h-40 w-auto object-contain object-right mb-2" />
-              <div className="space-y-1">
-                <h3 className="text-xl lg:text-2xl font-black tracking-tight text-[#004D36]">
-                  {d.brand.name}
-                </h3>
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation Groups */}
-          <div className="flex flex-col h-full pt-0">
-            <h4 className={`text-[10px] lg:text-xs font-black uppercase tracking-widest text-[#004D36] mb-8 mt-2 ${isRtl ? "border-r-2 border-[#CA8A04] pr-2 text-right" : "border-l-2 border-[#CA8A04] pl-2 text-left"}`}>
-              {d.links.title}
-            </h4>
-            <ul className="space-y-3 lg:space-y-4">
-              {d.links.items.map((link, i) => (
-                <li key={i}>
-                  <Link to={link.href} className="text-stone-500 hover:text-[#CA8A04] text-sm font-bold transition-colors flex items-center gap-2 group">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#CA8A04] opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact Details */}
-          <div className="flex flex-col h-full pt-0">
-            <h4 className={`text-[10px] lg:text-xs font-black uppercase tracking-widest text-[#004D36] mb-8 mt-2 ${isRtl ? "border-r-2 border-[#CA8A04] pr-2 text-right" : "border-l-2 border-[#CA8A04] pl-2 text-left"}`}>
-              {d.contact.title}
-            </h4>
-            <div className="space-y-5 lg:space-y-7">
-              <div className="group flex items-center gap-3 lg:gap-4">
-                <div className="w-10 h-10 rounded-lg lg:rounded-xl bg-white border border-stone-200 flex items-center justify-center shadow-sm group-hover:border-[#CA8A04] transition-colors shrink-0">
-                  <Mail size={16} className="text-[#004D36]" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[8px] lg:text-[9px] font-bold text-stone-400 uppercase tracking-wider">Email</span>
-                  <a href={`mailto:${d.contact.email}`} className="text-xs lg:text-sm font-bold text-[#004D36] hover:text-[#CA8A04] transition-colors" dir="ltr">
-                    {d.contact.email}
-                  </a>
-                </div>
-              </div>
-
-              <div className="group flex items-center gap-3 lg:gap-4">
-                <div className="w-10 h-10 rounded-lg lg:rounded-xl bg-white border border-stone-200 flex items-center justify-center shadow-sm group-hover:border-[#CA8A04] transition-colors shrink-0">
-                  <Phone size={16} className="text-[#004D36]" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[8px] lg:text-[9px] font-bold text-stone-400 uppercase tracking-wider">Phone</span>
-                  <span className="text-xs lg:text-sm font-bold text-[#004D36]" dir="ltr">{d.contact.phone}</span>
-                </div>
-              </div>
-
-              <div className="group flex items-center gap-3 lg:gap-4">
-                <div className="w-10 h-10 rounded-lg lg:rounded-xl bg-white border border-stone-200 flex items-center justify-center shadow-sm group-hover:border-[#CA8A04] transition-colors shrink-0">
-                  <MapPin size={16} className="text-[#004D36]" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[8px] lg:text-[9px] font-bold text-stone-400 uppercase tracking-wider">Office</span>
-                  <span className="text-[10px] lg:text-xs font-medium text-stone-600 leading-tight">
-                    {d.contact.address}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Support Form */}
-          <div className="flex flex-col h-full pt-0">
-            <div className="mt-2 bg-white/50 backdrop-blur-sm p-5 lg:p-6 rounded-2xl lg:rounded-3xl border border-stone-200 shadow-sm flex-grow">
-              <h4 className={`text-[10px] lg:text-xs font-black uppercase tracking-widest text-[#004D36] mb-6 ${isRtl ? "border-r-2 border-[#CA8A04] pr-2 text-right" : "border-l-2 border-[#CA8A04] pl-2 text-left"}`}>
-                {d.support.title}
-              </h4>
-              <form className="space-y-3 lg:space-y-4" onSubmit={(e) => e.preventDefault()}>
-                <div>
-                  <input 
-                    type="text" 
-                    placeholder={d.support.name}
-                    className={`w-full px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg lg:rounded-xl border border-stone-200 focus:border-[#CA8A04] focus:ring-1 focus:ring-[#CA8A04] outline-none transition-all bg-white text-[10px] lg:text-xs font-bold ${isRtl ? "text-right" : "text-left"}`}
-                  />
-                </div>
-                <div>
-                  <input 
-                    type="email" 
-                    placeholder={d.support.email}
-                    className={`w-full px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg lg:rounded-xl border border-stone-200 focus:border-[#CA8A04] focus:ring-1 focus:ring-[#CA8A04] outline-none transition-all bg-white text-[10px] lg:text-xs font-bold ${isRtl ? "text-right" : "text-left"}`}
-                  />
-                </div>
-                <div>
-                  <textarea 
-                    placeholder={d.support.message}
-                    rows={2}
-                    className={`w-full px-3 lg:px-4 py-2.5 lg:py-3 rounded-lg lg:rounded-xl border border-stone-200 focus:border-[#CA8A04] focus:ring-1 focus:ring-[#CA8A04] outline-none transition-all bg-white text-[10px] lg:text-xs font-bold resize-none ${isRtl ? "text-right" : "text-left"}`}
-                  ></textarea>
-                </div>
-                <button className="w-full bg-[#004D36] text-white py-2.5 lg:py-3 rounded-lg lg:rounded-xl font-black text-[10px] lg:text-xs hover:bg-[#003827] transition-all shadow-lg shadow-emerald-900/10 active:translate-y-[1px]">
-                  {d.support.send}
-                </button>
-              </form>
-            </div>
-          </div>
-
+      <div className="relative z-10 w-full overflow-hidden border-y border-white/10 bg-slate-950 text-white shadow-[0_32px_90px_-42px_rgba(15,23,42,0.9)]">
+        <div className="absolute inset-0 pointer-events-none">
+          <img src="/cover-2.png" alt="" className="h-full w-full object-cover opacity-[0.10]" />
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,77,54,.92),rgba(15,23,42,.96)_48%,rgba(2,6,23,.98))]" />
+          <div
+            className="absolute inset-0 opacity-[0.08]"
+            style={{
+              backgroundImage: "linear-gradient(rgba(255,255,255,.22) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.18) 1px, transparent 1px)",
+              backgroundSize: "42px 42px",
+            }}
+          />
         </div>
-      </div>
 
-      {/* Bottom Branding Bar */}
-      <div className="max-w-6xl mx-auto pt-6 lg:pt-8 flex flex-col md:flex-row items-center justify-center w-full relative z-10">
-        <p className="text-[10px] lg:text-[11px] font-bold text-stone-400 uppercase tracking-widest text-center">
-          {d.copyright}
-        </p>
+        <div className="relative mx-auto grid max-w-7xl gap-10 px-6 py-12 sm:px-8 lg:grid-cols-[1.05fr_1.45fr] lg:px-10 lg:py-14 xl:px-12">
+          <section className={`${isRtl ? "text-right" : "text-left"}`}>
+            <div className={`flex ${isRtl ? "justify-start" : "justify-end"}`}>
+              <span className="inline-flex overflow-hidden rounded-full bg-white leading-none shadow-[0_18px_38px_-28px_rgba(255,255,255,.35)]">
+                <img src="/logo.svg" alt={d.brand.name} className="block h-28 w-auto object-contain sm:h-32 lg:h-36" />
+              </span>
+            </div>
+            <h3 className="mt-7 max-w-md text-2xl font-black leading-tight text-white lg:text-3xl">{d.brand.name}</h3>
+            <p className="mt-5 max-w-xl text-justify text-sm font-bold leading-8 text-stone-300 lg:text-[15px]">{programDefinition}</p>
+          </section>
+
+          <section className="grid gap-7">
+            <div className="grid gap-5 md:grid-cols-3">
+              {footerGroups.map((group) => (
+                <nav key={group.title} aria-label={group.title} className="rounded-2xl border border-white/10 bg-white/[0.045] p-5">
+                  <h4 className={`mb-5 text-[11px] font-black uppercase tracking-[0.18em] text-[#CA8A04] ${isRtl ? "text-right" : "text-left"}`}>{group.title}</h4>
+                  <ul className="space-y-3">
+                    {group.links.map((link) => (
+                      <li key={link.href}>
+                        <Link
+                          to={link.href}
+                          className={`block rounded-xl px-2 py-1.5 text-sm font-bold leading-6 text-stone-300 transition-colors duration-200 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/20 ${isRtl ? "text-right" : "text-left"}`}
+                        >
+                          <span>{link.name}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              ))}
+            </div>
+
+            <div className="grid gap-4 rounded-2xl border border-white/10 bg-white/[0.055] p-5 md:grid-cols-3">
+              <a href={`mailto:${d.contact.email}`} className="group rounded-xl border border-white/10 bg-slate-950/30 p-4 transition-colors duration-200 hover:border-[#CA8A04]/35 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/20">
+                <Mail size={18} className="text-[#CA8A04]" />
+                <span className="mt-3 block text-[10px] font-black tracking-[0.08em] text-stone-500">{contactLabels.email}</span>
+                <span className="mt-1 block break-all text-sm font-black text-stone-100" dir="ltr">{d.contact.email}</span>
+              </a>
+              <div className="rounded-xl border border-white/10 bg-slate-950/30 p-4">
+                <Phone size={18} className="text-[#CA8A04]" />
+                <span className="mt-3 block text-[10px] font-black tracking-[0.08em] text-stone-500">{contactLabels.phone}</span>
+                <span className="mt-1 block text-sm font-black text-stone-100" dir="ltr">{d.contact.phone}</span>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-slate-950/30 p-4">
+                <MapPin size={18} className="text-[#CA8A04]" />
+                <span className="mt-3 block text-[10px] font-black tracking-[0.08em] text-stone-500">{contactLabels.office}</span>
+                <span className="mt-1 block text-sm font-bold leading-6 text-stone-200">{d.contact.address}</span>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div className="relative border-t border-white/10 px-6 py-5 sm:px-8 lg:px-10 xl:px-12">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-col items-center justify-between gap-4 text-center md:flex-row">
+              <p className="text-[11px] font-bold leading-6 text-stone-400">{d.copyright}</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#CA8A04]">
+                {isRtl ? "منظومة عربية موحدة للحلال" : "Unified Arab Halal System"}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
     </footer>

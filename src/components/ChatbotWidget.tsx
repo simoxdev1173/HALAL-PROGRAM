@@ -119,7 +119,6 @@ export const ChatbotWidget = ({
     () => ({
       title: t("chatbot.title"),
       initial: t("chatbot.initial"),
-      bubbleTitle: t("chatbot.bubbleTitle"),
       bubbleText: bubbleTextOverride ?? t("chatbot.bubbleText"),
       input: lang === "ar" ? "اسأل عن البرنامج أو الشهادة أو الانضمام..." : "Ask about the program, certificates, or joining...",
       send: t("chatbot.send"),
@@ -138,6 +137,8 @@ export const ChatbotWidget = ({
     }),
     [bubbleTextOverride, lang, t]
   );
+  const isUserTyping = input.trim().length > 0 && !isStreaming && !isListening;
+  const assistantStatus = isStreaming ? ui.streaming : isListening ? ui.listening : isUserTyping ? ui.send : ui.title;
 
   const renderedMessages = messages.map((msg) =>
     msg.id === 1 && msg.sender === "bot" ? { ...msg, text: ui.initial, followups: quickStarts[lang] } : msg
@@ -526,14 +527,7 @@ You are the first point of contact for visitors and program beneficiaries. Your 
                   </button>
                   <div className={`absolute h-4 w-4 rotate-45 rounded-sm bg-white ${bubblePlacement === "top" ? "" : "top-1/2 -translate-y-1/2"} ${pointerPosition}`} />
                   <div className="flex items-start gap-3">
-                    <div className="relative mt-1.5 flex h-2.5 w-2.5 shrink-0">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#007A55] opacity-40" />
-                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#007A55]" />
-                    </div>
                     <div className="flex min-w-0 flex-col">
-                      <span className="mb-1 text-xs font-black uppercase tracking-wider text-[#004D36]">
-                        {ui.bubbleTitle}
-                      </span>
                       <p className="text-sm font-medium leading-relaxed text-stone-600">{ui.bubbleText}</p>
                     </div>
                   </div>
@@ -551,8 +545,8 @@ You are the first point of contact for visitors and program beneficiaries. Your 
                 className="group relative z-10 flex items-center justify-center rounded-full focus:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/30"
               >
                 <div className="absolute inset-0 scale-110 rounded-full bg-[#007A55]/20 opacity-0 blur-xl transition-all duration-500 group-hover:animate-pulse group-hover:opacity-100" />
-                <div className="relative z-10 h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-white shadow-[0_10px_30px_-5px_rgba(0,77,54,0.3)] transition-transform duration-300 sm:h-20 sm:w-20">
-                  <img src="/ai-agent.png" alt={t("chatbot.alt")} className="h-full w-full bg-[#FAF9F6] object-fill" />
+                <div className="relative z-10 h-16 w-16 overflow-hidden  transition-transform duration-300 sm:h-20 sm:w-20">
+                  <img src="/ai-agent-nobg.png" alt={t("chatbot.alt")} className="h-full w-full  object-contain" />
                 </div>
               </motion.button>
             </>
@@ -563,41 +557,91 @@ You are the first point of contact for visitors and program beneficiaries. Your 
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 40, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 40, scale: 0.95 }}
-            transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
-            style={{ transformOrigin: isRtl ? "bottom left" : "bottom right" }}
-            className={`fixed bottom-4 ${dockSide} z-[100] flex h-[680px] max-h-[88vh] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[2.5rem] bg-white shadow-[0_40px_100px_-20px_rgba(0,0,0,0.25)] border border-slate-200 sm:bottom-8 sm:w-[450px]`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/20 px-3 py-4 backdrop-blur-[2px] sm:px-6"
           >
-            {/* Refined Header with Subtle Surface Color */}
-            <div className="relative z-10 flex-shrink-0 bg-slate-50 border-b border-slate-200 p-6 shadow-sm">
-              <div className="relative flex items-center justify-between gap-4">
-                <div className="flex min-w-0 items-center gap-4">
-                  <div className="relative shrink-0">
-                    <div className="h-14 w-14 overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-premium-sm">
-                      <img src="/ai-agent.png" alt={t("chatbot.alt")} className="h-full w-full object-contain" />
+            <motion.div
+              initial={{ opacity: 0, y: 24, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 24, scale: 0.96 }}
+              transition={{ duration: 0.34, ease: [0.04, 0.62, 0.23, 0.98] }}
+              className="relative grid h-[min(720px,92vh)] w-[min(980px,calc(100vw-1.5rem))] overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_44px_120px_-32px_rgba(15,23,42,0.45)] md:grid-cols-[0.9fr_1.25fr] lg:rounded-[2.5rem]"
+            >
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                aria-label={t("common.close")}
+                className="absolute right-5 top-5 z-30 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-500 shadow-sm transition-all hover:border-slate-300 hover:bg-white hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200"
+              >
+                <X size={20} strokeWidth={2.5} />
+              </button>
+
+              <div className="relative hidden overflow-hidden border-e border-slate-200 bg-white p-7 md:flex md:flex-col">
+                <div className="absolute inset-x-8 top-8 h-px bg-gradient-to-r from-transparent via-[#007A55]/20 to-transparent" />
+                <div className="absolute bottom-8 left-10 right-10 h-28 rounded-full bg-[#007A55]/[0.035] blur-2xl" />
+
+                <div className="relative z-10 mt-8 flex flex-1 items-center justify-center">
+                  <motion.div
+                    animate={
+                      isStreaming
+                        ? { y: [0, -12, 0], rotate: [0, -1.5, 1.5, 0] }
+                        : isListening
+                          ? { scale: [1, 1.035, 1], y: [0, -4, 0] }
+                          : isUserTyping
+                            ? { y: [0, -6, 0], rotate: [0, 1, 0] }
+                            : { y: [0, -8, 0] }
+                    }
+                    transition={{ duration: isStreaming ? 1.05 : isUserTyping ? 1.35 : 2.8, repeat: Infinity, ease: "easeInOut" }}
+                    className="relative"
+                  >
+                    <motion.div
+                      animate={{ scale: isStreaming ? [1, 1.1, 1] : [1, 1.03, 1], opacity: [0.18, 0.32, 0.18] }}
+                      transition={{ duration: isStreaming ? 1.2 : 3, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute -inset-8 rounded-full bg-[#007A55]/10 blur-2xl"
+                    />
+                    <div className="relative flex h-72 w-72 items-center justify-center">
+                      <motion.div
+                        animate={{ opacity: isStreaming ? [0.25, 0.65, 0.25] : 0.28, scale: isStreaming ? [0.95, 1.04, 0.95] : 1 }}
+                        transition={{ duration: 1.35, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute bottom-8 h-10 w-44 rounded-full bg-[#004D36]/10 blur-xl"
+                      />
+                      <img src="/ai-agent-nobg.png" alt={t("chatbot.alt")} className="relative z-10 h-full w-full object-contain drop-shadow-[0_26px_28px_rgba(0,77,54,0.16)]" />
+                      <motion.div
+                        animate={{ opacity: isStreaming || isListening || isUserTyping ? [0.2, 0.5, 0.2] : 0.2 }}
+                        transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute inset-2 rounded-full border border-[#007A55]/15"
+                      />
                     </div>
-                    <div className={`absolute -bottom-0.5 ${isRtl ? "-right-0.5" : "-left-0.5"} h-3.5 w-3.5 rounded-full border-2 border-slate-50 bg-[#007A55] shadow-sm`} />
-                  </div>
-                  <div className="flex min-w-0 flex-col">
-                    <h3 className="truncate text-xl font-bold tracking-tight text-slate-900 leading-none mb-1.5">{ui.title}</h3>
-                   
+                  </motion.div>
+                </div>
+
+              </div>
+
+              <div className="flex min-h-0 flex-col bg-white">
+                <div className="relative z-10 flex-shrink-0 border-b border-slate-200 bg-slate-50 p-4 shadow-sm sm:p-5 md:hidden">
+                  <div className="relative flex items-center justify-between gap-4">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <motion.div
+                        animate={isStreaming || isUserTyping ? { y: [0, -4, 0] } : { y: [0, -2, 0] }}
+                        transition={{ duration: isStreaming ? 0.9 : isUserTyping ? 1.25 : 2.5, repeat: Infinity, ease: "easeInOut" }}
+                        className="relative shrink-0"
+                      >
+                        <div className="h-14 w-14 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-premium-sm">
+                          <img src="/ai-agent-nobg.png" alt={t("chatbot.alt")} className="h-full w-full object-contain" />
+                        </div>
+                      </motion.div>
+                      <div className="flex min-w-0 flex-col">
+                        <h3 className="truncate text-lg font-bold leading-none tracking-tight text-slate-900">{ui.title}</h3>
+                        <span className="mt-1.5 truncate text-[11px] font-bold uppercase tracking-[0.16em] text-[#007A55]">{assistantStatus}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  aria-label={t("common.close")}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 hover:text-slate-900 hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-200 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200"
-                >
-                  <X size={20} strokeWidth={2.5} />
-                </button>
-              </div>
-            </div>
 
-            {/* Chat Area with Distinct Background */}
-            <div className="flex-grow overflow-y-auto bg-[#F9FAFB] px-5 py-8 custom-scrollbar">
+                <div className="flex-grow overflow-y-auto bg-[#F9FAFB] px-5 py-8 custom-scrollbar">
               <div className="space-y-6">
                 {renderedMessages.map((msg) => (
                   <div key={msg.id} className={`flex ${msg.sender === "user" ? userAlign : botAlign}`}>
@@ -656,10 +700,9 @@ You are the first point of contact for visitors and program beneficiaries. Your 
                 ))}
                 <div ref={scrollRef} />
               </div>
-            </div>
+                </div>
 
-            {/* Refined Input Area with Clear Separation */}
-            <div className="flex-shrink-0 bg-white p-6 border-t border-slate-200 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+                <div className="flex-shrink-0 border-t border-slate-200 bg-white p-4 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] sm:p-6">
               <div className="flex items-end gap-3">
                 <button
                   type="button"
@@ -704,7 +747,9 @@ You are the first point of contact for visitors and program beneficiaries. Your 
                   {isStreaming ? <X size={20} strokeWidth={2.5} /> : <ArrowRight className={isRtl ? "rotate-180" : ""} size={20} strokeWidth={2.5} />}
                 </button>
               </div>
-            </div>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

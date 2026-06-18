@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { InnerPageHero } from "../components/InternalPage";
 
 const StatusSeal = () => (
   <svg viewBox="0 0 72 72" className="h-16 w-16 text-[#CA8A04]" fill="none" aria-hidden="true">
@@ -14,31 +15,13 @@ export default function JoinedCountries() {
   const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
 
   return (
-    <main className={`min-h-screen overflow-hidden bg-[#FAF9F6] pt-24 ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
-      <section className="relative flex h-[50vh] min-h-[430px] items-center justify-center overflow-hidden border-b border-stone-300 bg-slate-950 px-6 text-center shadow-[var(--shadow-ind-card)] lg:h-[60vh] lg:min-h-[520px]">
-        <motion.div
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.3, ease: "easeOut" }}
-          className="absolute inset-0"
-        >
-          <img src="/header-bg.png" alt={isRtl ? "الدول المنضمة" : `${t("pages.countries.titleBefore")} ${t("pages.countries.titleHighlight")}`} className="h-full w-full object-cover opacity-45" />
-          <div className="absolute inset-0 bg-slate-950/35 mix-blend-multiply" />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/74 via-slate-950/18 to-[#FAF9F6]" />
-        </motion.div>
-
-        <div className="relative z-10 mx-auto max-w-5xl">
-          <motion.h1
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, delay: 0.25 }}
-            className="text-4xl font-black leading-tight text-white drop-shadow-[0_8px_24px_rgba(0,0,0,.45)] md:text-6xl lg:text-7xl"
-          >
-            {isRtl ? "الدول" : t("pages.countries.titleBefore")} <span className="text-[#CA8A04]">{isRtl ? "المنضمة" : t("pages.countries.titleHighlight")}</span>
-          </motion.h1>
-        </div>
-      </section>
-
+    <main className={`min-h-screen overflow-hidden bg-[#FAF9F6] ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
+      <InnerPageHero
+        title={`${isRtl ? "الدول" : t("pages.countries.titleBefore")} ${isRtl ? "المنضمة" : t("pages.countries.titleHighlight")}`}
+        description={isRtl ? "هذه الصفحة مخصصة لعرض الدول التي تم اعتماد انضمامها رسمياً إلى البرنامج العربي للحلال." : t("pages.countries.desc")}
+        imageSrc="/header-bg.png"
+        imageAlt={isRtl ? "الدول المنضمة" : `${t("pages.countries.titleBefore")} ${t("pages.countries.titleHighlight")}`}
+      />
       <section className="relative px-6 py-16 lg:py-24">
         <div className="absolute inset-0 opacity-[0.018]" style={{ backgroundImage: "radial-gradient(#0f172a 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
         <div className="relative z-10 mx-auto max-w-7xl">
@@ -82,3 +65,4 @@ export default function JoinedCountries() {
     </main>
   );
 }
+

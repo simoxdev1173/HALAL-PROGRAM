@@ -22,7 +22,6 @@ import CertificateVerification from "./pages/CertificateVerification";
 import JoinProgram from "./pages/JoinProgram";
 import JoinedCountries from "./pages/JoinedCountries";
 import HalalSectorAuthorities from "./pages/HalalSectorAuthorities";
-import DocumentsModels from "./pages/Documents/page";
 import ProgramGoals from "./pages/ProgramGoals";
 import ProgramScope from "./pages/ProgramScope";
 import HalalCertificate from "./pages/HalalCertificate";
@@ -30,18 +29,20 @@ import HalalMark from "./pages/HalalMark";
 import { motion } from "framer-motion";
 
 const ScrollToHash = () => {
-  const { hash } = useLocation();
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
     if (hash) {
-      const element = document.getElementById(hash.replace("#", ""));
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
+      window.setTimeout(() => {
+        const element = document.getElementById(hash.replace("#", ""));
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 0);
     } else {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     }
-  }, [hash]);
+  }, [pathname, hash]);
 
   return null;
 };
@@ -134,7 +135,6 @@ function AppContent() {
             <Route path="/certificate-verification" element={<CertificateVerification />} />
             <Route path="/program-requirements" element={<ProgramRequirements />} />
             <Route path="/join-program" element={<JoinProgram />} />
-            <Route path="/documents" element={<DocumentsModels />} />
             <Route path="/halal-certificate" element={<HalalCertificate />} />
             <Route path="/halal-mark" element={<HalalMark />} />
             <Route path="/halal-certificate-mark" element={<HalalCertificate />} />

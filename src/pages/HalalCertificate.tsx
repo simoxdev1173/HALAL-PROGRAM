@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   DefinitionPanel,
-  DocumentLinkCard,
   FinalActionPanel,
   InformationPanel,
   InnerPageHero,
@@ -26,6 +25,91 @@ export default function HalalCertificate() {
   const generalRequirements = t("halalCertificate.requirements.general", { returnObjects: true }) as RequirementCopy;
   const technicalRequirements = t("halalCertificate.requirements.technical", { returnObjects: true }) as RequirementCopy;
   const costFees = t("halalCertificate.costs.fees", { returnObjects: true }) as CostFee[];
+  const arabicCertificateJourneySteps: Step[] = [
+    {
+      title: "اختيار الجهة المخوّلة",
+      text: "يتواصل المورّد أو المنشأة مع إحدى جهات منح شهادات الحلال المعتمدة من جهة تعيين عربية موقعة على وثيقة التعاون الفني مع المنظمة وعضو في البرنامج.",
+    },
+    {
+      title: "التحقق من مجال المنتج أو الخدمة",
+      text: "التأكد من أن المنتج أو الخدمة أو نظام الإنتاج يندرج ضمن فئات الحلال المحددة في المواصفة العربية رقم AIDSMO 3042:2019 (GSO 2055-2).",
+    },
+    {
+      title: "تقديم طلب الشهادة",
+      text: "تعبئة نموذج طلب الحصول على أو تجديد شهادة وعلامة الحلال العربية، مع تقديم طلب مستقل لكل منتج أو خدمة أو نظام إنتاج.",
+    },
+    {
+      title: "تقييم المطابقة",
+      text: "تقوم الجهة المعتمدة بدراسة الطلب وتنفيذ إجراءات تقييم المطابقة اللازمة، والتي قد تشمل مراجعة الوثائق والتدقيق والتفتيش والتحقق من استيفاء متطلبات الحلال والمواصفات ذات العلاقة.",
+    },
+    {
+      title: "تسديد التكاليف",
+      text: "يسدد مقدم الطلب تكاليف الشهادة والترخيص وفق أنظمة الجهة المختصة، إضافة إلى تكلفة حق استخدام علامة الحلال العربية، والبالغة 100 دولار أمريكي سنوياً عن كل ترخيص.",
+    },
+    {
+      title: "إصدار الشهادة والترخيص",
+      text: "بعد استيفاء المتطلبات والموافقة على الطلب، تصدر الجهة المعتمدة شهادة الحلال والترخيص باستخدام علامة الحلال العربية للمنتج أو الخدمة أو النظام المعني.",
+    },
+    {
+      title: "استخدام العلامة وتجديد الترخيص",
+      text: "توضع العلامة فقط على المنتجات أو الخدمات المشمولة بالترخيص. وتبلغ مدة صلاحية ترخيص استخدام العلامة ثلاث سنوات، وفق تقدير الجهة المختصة، مع تقديم طلب التجديد قبل انتهاء الترخيص بشهر واحد على الأقل.",
+    },
+  ];
+  const displayedProcessTitle = isRtl ? "مسار الحصول على شهادة وعلامة الحلال العربية" : t("halalCertificate.process.title");
+  const displayedProcessDescription = isRtl
+    ? "يوضح هذا المسار الخطوات العملية التي يتبعها المورّد أو المنشأة للحصول على شهادة الحلال العربية والترخيص باستخدام العلامة."
+    : t("halalCertificate.process.description");
+  const displayedProcessSteps = isRtl ? arabicCertificateJourneySteps : processSteps;
+  const arabicGrantingBodies = [
+    {
+      title: "جهة التعيين الحلال",
+      text: "جهة حكومية مخوّلة بتعيين جهات تقييم المطابقة في مجال الحلال أو تعليق تعيينها أو إلغائه.",
+    },
+    {
+      title: "الجهة المعيّنة",
+      text: "جهة منح الشهادات المرخّص لها بمنح شهادة الحلال العربية.",
+    },
+    {
+      title: "المورّد أو المنشأة",
+      text: "الجهة المتقدّمة بطلب الحصول على الشهادة وعلامة الحلال العربية.",
+    },
+  ];
+  const displayedGrantingBodiesTitle = isRtl ? "الجهات المانحة للشهادة" : t("halalCertificate.grantingBodies.title");
+  const displayedGrantingBodiesBody = isRtl
+    ? "تصدر شهادة الحلال العربية عن الجهة المعيّنة المرخّص لها بمنح شهادة الحلال العربية. إذا كنت مورّداً أو منشأةً راغبة في الحصول على الشهادة أو الترخيص باستخدام علامة الحلال، يمكن لك التواصل مع إحدى الجهات المعيّنة المعتمدة من قبل جهة تعيين عربية، موقّعة على وثيقة التعاون الفنية مع المنظمة وعضو بالبرنامج، وطلب الحصول على الترخيص لمنح الشهادة."
+    : t("halalCertificate.grantingBodies.body");
+  const displayedGrantingBodiesCta = isRtl ? "البحث عن جهة مانحة معتمدة" : t("halalCertificate.grantingBodies.cta");
+  const displayedRequirementsTitle = isRtl ? "متطلبات الحصول على الشهادة" : t("halalCertificate.requirements.title");
+  const displayedRequirementsDescription = isRtl
+    ? "تتوزع متطلبات الحصول على شهادة وعلامة الحلال العربية بين متطلبات عامة مرتبطة بالطلب والترخيص، ومتطلبات فنية مرتبطة بالمطابقة والاشتراطات الشرعية والقياسية."
+    : t("halalCertificate.requirements.description");
+  const displayedGeneralRequirements: RequirementCopy = isRtl
+    ? {
+        title: "المتطلبات العامة",
+        description: "المتطلبات الإدارية والتنظيمية الأساسية قبل وأثناء تقديم طلب الشهادة والترخيص.",
+        items: [
+          "ملء نموذج طلب الحصول على أو تجديد شهادة وعلامة الحلال العربية.",
+          "تقديم طلب مستقل لكل منتج أو خدمة أو نظام.",
+          "أن يكون المنتج أو الخدمة أو النظام ضمن مجالات الفئات المحددة في الجدول A.1، فئات المنتج أو الخدمة الحلال، الوارد في المواصفة العربية رقم 3042-2019 (GSO 2055-2).",
+          "التواصل مع إحدى الجهات المعيّنة المعتمدة من قبل جهة تعيين عربية موقعة على وثيقة التعاون الفني مع المنظمة وعضو في البرنامج.",
+          "تسديد تكاليف الحصول على الشهادة والترخيص وفقاً للأنظمة التي تعمل بها الجهة المعيّنة أو جهة التعيين الحلال.",
+          "تسديد تكاليف حق استخدام علامة الحلال العربية وفقاً لما هو منصوص عليه في البرنامج.",
+        ],
+      }
+    : generalRequirements;
+  const displayedTechnicalRequirements: RequirementCopy = isRtl
+    ? {
+        title: "المتطلبات الفنية",
+        description: "المتطلبات المرتبطة بالاشتراطات الشرعية والمواصفات القياسية وإجراءات تقييم المطابقة.",
+        items: [
+          "استيفاء اشتراطات الحلال وفقاً لأحكام الشريعة الإسلامية.",
+          "استيفاء متطلبات إجراءات منح ترخيص استخدام علامة الحلال العربية.",
+          "استيفاء متطلبات المواصفات القياسية ذات العلاقة بالمنتج أو الخدمة أو نظام الإنتاج.",
+          "الخضوع لإجراءات تقييم المطابقة المطلوبة، بما في ذلك أنشطة التحقق من المطابقة مثل التفتيش أو التدقيق عند الحاجة.",
+          "الالتزام بمتطلبات البيانات الإيضاحية المنصوص عليها في المواصفات القياسية العربية أو الوطنية للمنتج.",
+        ],
+      }
+    : technicalRequirements;
 
   return (
     <main className={`min-h-screen w-full max-w-full overflow-x-hidden bg-[#FAF9F6] ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
@@ -40,35 +124,49 @@ export default function HalalCertificate() {
         </PageSection>
 
         <PageSection id="journey" tone="soft">
-          <SectionHeading title={t("halalCertificate.process.title")} description={t("halalCertificate.process.description")} />
-          <ProcessTimeline steps={processSteps} />
+          <SectionHeading title={displayedProcessTitle} description={displayedProcessDescription} />
+          <ProcessTimeline steps={displayedProcessSteps} />
         </PageSection>
 
         <PageSection id="granting-bodies">
-          <InformationPanel title={t("halalCertificate.grantingBodies.title")} body={t("halalCertificate.grantingBodies.body")}>
-            <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr_auto_1fr] lg:items-center">
-              {diagramItems.map((item, index) => (
-                <div key={item} className="contents">
-                  <div className="rounded-2xl border border-stone-200 bg-[#FAF9F6] p-5 text-center shadow-[var(--shadow-ind-sharp)]">
-                    <p className="text-sm font-black leading-7 text-slate-800">{item}</p>
-                  </div>
-                  {index < diagramItems.length - 1 && <span aria-hidden="true" className="hidden h-px w-10 bg-[#CA8A04]/60 lg:block" />}
+          <InformationPanel title={displayedGrantingBodiesTitle} body={displayedGrantingBodiesBody}>
+            {isRtl ? (
+              <div>
+                <h3 className="text-xl font-black leading-8 text-slate-950">الأطراف المعنية</h3>
+                <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                  {arabicGrantingBodies.map((item) => (
+                    <article key={item.title} className="rounded-2xl border border-stone-200 bg-[#FAF9F6] p-5 shadow-[var(--shadow-ind-sharp)]">
+                      <h4 className="text-lg font-black leading-8 text-slate-950">{item.title}</h4>
+                      <p className="mt-3 text-sm font-bold leading-7 text-slate-700">{item.text}</p>
+                    </article>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ) : (
+              <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr_auto_1fr] lg:items-center">
+                {diagramItems.map((item, index) => (
+                  <div key={item} className="contents">
+                    <div className="rounded-2xl border border-stone-200 bg-[#FAF9F6] p-5 text-center shadow-[var(--shadow-ind-sharp)]">
+                      <p className="text-sm font-black leading-7 text-slate-800">{item}</p>
+                    </div>
+                    {index < diagramItems.length - 1 && <span aria-hidden="true" className="hidden h-px w-10 bg-[#CA8A04]/60 lg:block" />}
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="mt-6 flex justify-center">
               <Link to="/halal-sector-authorities" className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl bg-[#007A55] px-5 py-3 text-sm font-black text-white shadow-[var(--shadow-ind-floating)] hover:bg-[#004D36] focus:outline-none focus:ring-4 focus:ring-[#007A55]/20">
-                {t("halalCertificate.grantingBodies.cta")}
+                {displayedGrantingBodiesCta}
               </Link>
             </div>
           </InformationPanel>
         </PageSection>
 
         <PageSection id="requirements" tone="soft">
-          <SectionHeading title={t("halalCertificate.requirements.title")} description={t("halalCertificate.requirements.description")} />
+          <SectionHeading title={displayedRequirementsTitle} description={displayedRequirementsDescription} />
           <div className="grid gap-5 lg:grid-cols-2">
-            <RequirementGroup defaultOpen title={generalRequirements.title} description={generalRequirements.description} items={generalRequirements.items} />
-            <RequirementGroup defaultOpen title={technicalRequirements.title} description={technicalRequirements.description} items={technicalRequirements.items} />
+            <RequirementGroup defaultOpen title={displayedGeneralRequirements.title} description={displayedGeneralRequirements.description} items={displayedGeneralRequirements.items} />
+            <RequirementGroup defaultOpen title={displayedTechnicalRequirements.title} description={displayedTechnicalRequirements.description} items={displayedTechnicalRequirements.items} />
           </div>
         </PageSection>
 

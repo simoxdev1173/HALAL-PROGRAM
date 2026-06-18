@@ -23,11 +23,21 @@ export function SectionReveal({ children, className = "" }: { children: ReactNod
   );
 }
 
-export function InnerPageHero({ title, description }: { title: string; description: string }) {
+export function InnerPageHero({
+  title,
+  description,
+  imageSrc = "/cover-2.png",
+  imageAlt = "",
+}: {
+  title: string;
+  description: string;
+  imageSrc?: string;
+  imageAlt?: string;
+}) {
   return (
     <section className="relative overflow-hidden border-b border-stone-200 bg-slate-950 pt-28 text-white shadow-[var(--shadow-ind-card)]">
       <div className="absolute inset-0">
-        <img src="/cover-2.png" alt="" className="h-full w-full object-cover opacity-98" />
+        <img src={imageSrc} alt={imageAlt} className="h-full w-full object-cover opacity-98" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_0%,rgba(202,138,4,.22),transparent_30%),radial-gradient(circle_at_18%_85%,rgba(0,122,85,.24),transparent_32%),linear-gradient(180deg,rgba(2,6,23,.88),rgba(15,23,42,.94))]" />
         <div
           className="absolute inset-0 opacity-[0.06]"
@@ -39,7 +49,7 @@ export function InnerPageHero({ title, description }: { title: string; descripti
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-[340px] max-w-4xl flex-col items-center justify-center px-6 py-16 text-center lg:min-h-[410px]">
-        <h1 className="text-[clamp(2.6rem,6vw,5.1rem)] font-black leading-[1.08] tracking-normal text-white">{title}</h1>
+        <h1 className="text-2xl md:text-3xl lg:text-6xl font-black leading-[1.08] tracking-normal text-white">{title}</h1>
         <p className="mt-6 max-w-3xl text-base font-bold leading-8 text-stone-100 lg:text-xl">{description}</p>
       </div>
     </section>
@@ -102,18 +112,19 @@ export function DefinitionPanel({
           <div>
             <h2 className="text-3xl font-black leading-tight text-slate-950 lg:text-4xl">{title}</h2>
             <p className="mt-5 max-w-3xl text-base font-bold leading-9 text-slate-600 lg:text-lg">{body}</p>
+            {emphasis && emphasis.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-2">
+                {emphasis.map((item) => (
+                  <span key={item} className="rounded-xl border border-[#007A55]/15 bg-[#007A55]/8 px-3 py-2 text-xs font-black text-[#006747]">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           {aside}
         </div>
-        {emphasis && (
-          <div className="mt-7 grid gap-3 border-t border-stone-200 pt-6 md:grid-cols-3">
-            {emphasis.map((item) => (
-              <div key={item} className="flex items-center justify-center rounded-xl border border-[#CA8A04]/20 bg-[#CA8A04]/10 p-4 text-center text-sm font-black text-[#7A5200]">
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        
       </article>
     </SectionReveal>
   );

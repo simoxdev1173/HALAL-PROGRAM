@@ -4,13 +4,13 @@ import {
   Beef,
   Briefcase,
   CupSoda,
-  FileText,
   Package,
   Pill,
   PlaneTakeoff,
   Sparkles,
   TestTube,
 } from "lucide-react";
+import { InnerPageHero } from "../components/InternalPage";
 
 const sectors = [
   { name: "اللحوم ومنتجاتها", detail: "ذبحاً وتصنيعاً والمنتجات الغذائية ذات الأصل الحيواني.", icon: Beef, image: "/domains/meat.jpg" },
@@ -28,7 +28,6 @@ export default function ProgramScope() {
   const { t, i18n } = useTranslation();
   const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
   const translatedSectors = t("pages.programScope.sectors", { returnObjects: true }) as { name: string; detail: string }[];
-  const translatedStats = t("pages.programScope.stats", { returnObjects: true }) as [string, string][];
   const displaySectors = sectors.map((sector, index) => ({
     ...sector,
     name: isRtl ? sector.name : translatedSectors[index]?.name ?? sector.name,
@@ -36,55 +35,13 @@ export default function ProgramScope() {
   }));
 
   return (
-    <main className={`min-h-screen bg-[#FAF9F6] pt-24 ${isRtl ? "font-arabic" : "font-english"} overflow-hidden`} dir={isRtl ? "rtl" : "ltr"}>
-      <section className="relative overflow-hidden bg-slate-950">
-        <div className="absolute inset-0">
-          <img src="/section-1-bg.jpeg" alt={isRtl ? "مجال تطبيق البرنامج" : t("pages.programScope.heroAlt")} className="h-full w-full object-cover opacity-25" />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-[#1C4C2A]/75 to-slate-950" />
-        </div>
-
-        <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 lg:py-28">
-          <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="max-w-4xl"
-          >
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-black text-[#CA8A04] shadow-[var(--shadow-ind-sharp)] backdrop-blur">
-              <FileText size={16} />
-              AIDSMO 3042-2019 (GSO 2055-2)
-            </div>
-            <h1 className="text-4xl font-black leading-tight text-white md:text-6xl">
-              {isRtl ? "مجال تطبيق" : t("pages.programScope.titleBefore")} <span className="text-[#CA8A04]">{isRtl ? "البرنامج" : t("pages.programScope.titleHighlight")}</span>
-            </h1>
-            <p className="mt-8 text-base font-bold leading-9 text-stone-200 lg:text-xl">
-              {isRtl ? "يُطبَق هذا البرنامج على المنتجات المشار إليها في المواصفة القياسية العربية رقم: 2019-3042 AIDSMO (GSO2055-2) التي تتطلب استيفاء اشتراطات الحلال وفقاً لأحكام الشريعة الإسلامية." : t("pages.programScope.desc")}
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3"
-          >
-            {(isRtl
-              ? [
-                  ["المعيار المرجعي", "AIDSMO 3042-2019"],
-                  ["المجالات ذات الأولوية", "8 مجالات"],
-                  ["أساس التطبيق", "أحكام الشريعة الإسلامية"],
-                ]
-              : translatedStats
-            ).map(([label, value]) => (
-              <div key={label} className="rounded-2xl border border-white/10 bg-white/10 p-5 shadow-[var(--shadow-ind-card)] backdrop-blur">
-                <p className="text-xs font-black text-stone-300">{label}</p>
-                <p className="mt-2 text-xl font-black text-white">{value}</p>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
+    <main className={`min-h-screen bg-[#FAF9F6] ${isRtl ? "font-arabic" : "font-english"} overflow-hidden`} dir={isRtl ? "rtl" : "ltr"}>
+      <InnerPageHero
+        title={`${isRtl ? "مجال تطبيق" : t("pages.programScope.titleBefore")} ${isRtl ? "البرنامج" : t("pages.programScope.titleHighlight")}`}
+        description={isRtl ? "يُطبّق هذا البرنامج على المنتجات المشار إليها في المواصفة القياسية العربية رقم: 2019-3042 AIDSMO (GSO2055-2) التي تتطلب استيفاء اشتراطات الحلال وفقاً لأحكام الشريعة الإسلامية." : t("pages.programScope.desc")}
+        imageSrc="/section-1-bg.jpeg"
+        imageAlt={isRtl ? "مجال تطبيق البرنامج" : t("pages.programScope.heroAlt")}
+      />
       <section className="relative py-16 lg:py-24">
         <div className="absolute inset-0 opacity-[0.018]" style={{ backgroundImage: 'radial-gradient(#0f172a 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
         <div className="relative z-10 mx-auto max-w-7xl px-6">
@@ -134,3 +91,4 @@ export default function ProgramScope() {
     </main>
   );
 }
+

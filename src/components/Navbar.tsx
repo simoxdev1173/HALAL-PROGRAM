@@ -228,8 +228,8 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           </div>
 
           {/* Centered Desktop Links Zone */}
-          <div className="hidden lg:flex flex-1 items-center justify-center h-full min-w-0 px-1 xl:px-3">
-            <ul className="flex min-w-0 items-center justify-center gap-1 h-full">
+          <div className={`${isRtl ? "hidden lg:flex" : "hidden xl:flex"} flex-1 items-center justify-center h-full min-w-0 px-1 xl:px-3`}>
+            <ul className={`flex min-w-0 items-center justify-center h-full ${isRtl ? "gap-1" : "gap-2 2xl:gap-3"}`}>
               {d.links.map((link, i) => (
                 <li
                   key={i}
@@ -239,7 +239,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                   {link.path.startsWith("/#") ? (
                     <a 
                       href={link.path}
-                      className="relative px-2.5 xl:px-3.5 py-2 rounded-md text-[10px] xl:text-[11px] 2xl:text-[12px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-wider cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5"
+                      className={`relative rounded-md py-2 font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5 ${isRtl ? "px-2.5 xl:px-3.5 text-[10px] xl:text-[11px] 2xl:text-[12px] uppercase tracking-wider" : "px-3 2xl:px-4 text-[11px] 2xl:text-[12px] tracking-wide"}`}
                     >
                       {link.name}
                       {link.children && (
@@ -251,7 +251,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                   ) : (
                     <Link 
                       to={link.path}
-                      className="relative px-2.5 xl:px-3.5 py-2 rounded-md text-[10px] xl:text-[11px] 2xl:text-[12px] font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 uppercase tracking-wider cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5"
+                      className={`relative rounded-md py-2 font-bold text-stone-600 hover:text-[#007A55] transition-all duration-150 cursor-pointer whitespace-nowrap active:translate-y-[1px] hover:shadow-[var(--shadow-ind-sharp)] bg-white/50 flex items-center gap-1.5 ${isRtl ? "px-2.5 xl:px-3.5 text-[10px] xl:text-[11px] 2xl:text-[12px] uppercase tracking-wider" : "px-3 2xl:px-4 text-[11px] 2xl:text-[12px] tracking-wide"}`}
                     >
                       {link.name}
                       {link.children && (
@@ -297,7 +297,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           
             <Link
               to="/join-program"
-              className="hidden xl:inline-flex h-[44px] items-center justify-center whitespace-nowrap rounded-md border border-[#006747]/80 bg-[#007A55] px-4 text-[11px] font-black uppercase tracking-wider text-white shadow-[var(--shadow-ind-card)] transition-all hover:-translate-y-0.5 hover:bg-[#006747] hover:shadow-[var(--shadow-ind-floating)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/30 active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)]"
+              className={`${isRtl ? "hidden xl:inline-flex px-4" : "hidden 2xl:inline-flex px-3"} h-[44px] items-center justify-center whitespace-nowrap rounded-md border border-[#006747]/80 bg-[#007A55] text-[11px] font-black uppercase tracking-wider text-white shadow-[var(--shadow-ind-card)] transition-all hover:-translate-y-0.5 hover:bg-[#006747] hover:shadow-[var(--shadow-ind-floating)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/30 active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)]`}
             >
               {d.joinProgramCta}
             </Link>
@@ -305,13 +305,13 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             {/* Search Placeholder Button (Recessed Well) */}
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className="hidden sm:flex xl:min-w-[210px] max-w-[240px] items-center gap-3 px-3 xl:px-4 py-2.5 ind-recessed group cursor-text"
+              className={`hidden sm:flex items-center gap-3 px-3 py-2.5 ind-recessed group cursor-text ${isRtl ? "max-w-[240px] xl:min-w-[210px] xl:px-4" : "w-12 justify-center 2xl:w-auto 2xl:min-w-[210px] 2xl:max-w-[240px] 2xl:justify-start 2xl:px-4"}`}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-400 group-hover:text-[#007A55] transition-colors">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-              <span className="hidden xl:block min-w-0 flex-1 truncate text-[11px] font-bold tracking-wide text-start text-stone-500 font-mono uppercase">
+              <span className={`${isRtl ? "hidden xl:block" : "hidden 2xl:block"} min-w-0 flex-1 truncate text-[11px] font-bold tracking-wide text-start text-stone-500 font-mono uppercase`}>
                 {d.searchPlaceholder}
               </span>
             </button>
@@ -362,7 +362,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
               aria-label={d.menuBtn}
-              className="lg:hidden p-3 bg-white shadow-[var(--shadow-ind-card)] text-stone-600 rounded-md active:shadow-[var(--shadow-ind-pressed)] active:translate-y-[2px] transition-all"
+              className={`${isRtl ? "lg:hidden" : "xl:hidden"} p-3 bg-white shadow-[var(--shadow-ind-card)] text-stone-600 rounded-md active:shadow-[var(--shadow-ind-pressed)] active:translate-y-[2px] transition-all`}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="4" y1="12" x2="20" y2="12"></line>

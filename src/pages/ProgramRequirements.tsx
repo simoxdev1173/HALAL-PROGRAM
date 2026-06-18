@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { InnerPageHero } from "../components/InternalPage";
 
 const processSteps = [
   {
@@ -57,39 +58,13 @@ export default function ProgramRequirements() {
   }));
 
   return (
-    <main className={`min-h-screen overflow-hidden bg-[#FAF9F6] pt-24 ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
-      <section className="relative overflow-hidden bg-slate-950">
-        <motion.div
-          initial={{ opacity: 0, scale: 1.06 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-          className="absolute inset-0"
-        >
-          <img src="/header-bg.png" alt={isRtl ? "شروط الانضمام للبرنامج" : `${join.titleBefore} ${join.titleHighlight}`} className="h-full w-full object-cover opacity-40" />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-[#1C4C2A]/74 to-[#FAF9F6]" />
-        </motion.div>
-
-        <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 lg:py-28">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-5xl"
-          >
-            <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-black text-[#CA8A04] shadow-[var(--shadow-ind-sharp)] backdrop-blur">
-              <span className="h-2 w-2 rounded-full bg-[#CA8A04] shadow-[0_0_12px_rgba(202,138,4,.9)]" />
-              {isRtl ? "الانضمام للبرنامج" : join.badge}
-            </div>
-            <h1 className="text-4xl font-black leading-tight text-white md:text-6xl">
-              {isRtl ? "شروط" : join.titleBefore} <span className="text-[#CA8A04]">{isRtl ? "الانضمام" : join.titleHighlight}</span>
-            </h1>
-            <p className="mt-7 max-w-3xl text-base font-bold leading-9 text-stone-100 lg:text-xl">
-              {isRtl ? "من له الحق في الانضمام للبرنامج وكيف تتم عملية الانضمام." : join.intro}
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
+    <main className={`min-h-screen overflow-hidden bg-[#FAF9F6] ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
+      <InnerPageHero
+        title={`${isRtl ? "شروط" : join.titleBefore} ${isRtl ? "الانضمام" : join.titleHighlight}`}
+        description={isRtl ? "من له الحق في الانضمام للبرنامج وكيف تتم عملية الانضمام." : join.intro}
+        imageSrc="/header-bg.png"
+        imageAlt={isRtl ? "شروط الانضمام للبرنامج" : `${join.titleBefore} ${join.titleHighlight}`}
+      />
       <section className="relative py-16 lg:py-24">
         <div className="absolute inset-0 opacity-[0.018]" style={{ backgroundImage: "radial-gradient(#0f172a 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
         <div className="relative z-10 mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[1.05fr_.95fr] lg:gap-12">
@@ -176,3 +151,4 @@ export default function ProgramRequirements() {
 </main>
   );
 }
+
