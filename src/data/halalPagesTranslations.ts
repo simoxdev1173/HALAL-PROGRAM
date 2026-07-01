@@ -134,7 +134,7 @@ export const arHalalPages = {
     },
     licensing: {
       title: "إجراءات الترخيص باستخدام العلامة",
-      description: "تقوم الجهة المعينة بإصدار الترخيص باستخدام علامة الحلال العربية وفق نموذج الملحق رقم (7) بعد استيفاء الشروط المطلوبة.",
+      description: "تقوم الجهة المعينة بإصدار الترخيص باستخدام علامة الحلال العربية بعد استيفاء الشروط المطلوبة.",
       steps: [
         { title: "استيفاء متطلبات منح الترخيص", text: "استكمال المتطلبات الإجرائية المطلوبة للحصول على ترخيص استخدام العلامة." },
         { title: "التأكد من المطابقة للمواصفات", text: "التحقق من مطابقة المنتج أو الخدمة أو النظام للمواصفات ذات العلاقة." },
@@ -152,8 +152,8 @@ export const arHalalPages = {
       withoutNationalText: "يمكن اعتماد علامة الحلال العربية والترخيص باستخدامها وفق متطلبات البرنامج العربي للحلال والإجراءات المعتمدة.",
     },
     licenseForm: {
-      title: "نموذج ترخيص استخدام العلامة – الملحق رقم (7)",
-      description: "يتوفر داخل المشروع نموذج مرئي للملحق رقم (7) ويمكن عرضه للمعاينة. لا يتم تعديل أو إعادة رسم النموذج أو العلامة الرسمية.",
+      title: "نموذج ترخيص استخدام العلامة",
+      description: "يتوفر داخل المشروع نموذج مرئي لترخيص استخدام العلامة ويمكن عرضه للمعاينة. لا يتم تعديل أو إعادة رسم النموذج أو العلامة الرسمية.",
       previewTitle: "نموذج ترخيص العلامة",
       previewDescription: "معاينة للنموذج الرسمي الخاص بترخيص استخدام علامة الحلال العربية ضمن النطاق المعتمد.",
       templateAlt: "نموذج ترخيص استخدام علامة الحلال العربية",
@@ -306,7 +306,7 @@ export const enHalalPages = {
     },
     licensing: {
       title: "Mark licensing process",
-      description: "The designated body issues the license according to Annex no. (7) after the required conditions are met.",
+      description: "The designated body issues the license after the required conditions are met.",
       steps: [
         { title: "Meet licensing requirements", text: "Complete the procedural requirements for mark licensing." },
         { title: "Confirm conformity", text: "Confirm conformity with relevant standards." },
@@ -324,8 +324,8 @@ export const enHalalPages = {
       withoutNationalText: "The Arab Halal Mark may be adopted and licensed according to Arab Halal Program requirements.",
     },
     licenseForm: {
-      title: "Mark license form - Annex no. (7)",
-      description: "A visual model for Annex no. (7) is available in the project for preview.",
+      title: "Mark license form",
+      description: "A visual model for the mark license is available in the project for preview.",
       previewTitle: "Mark license template",
       previewDescription: "Preview of the official form used to license use of the Arab Halal Mark within the approved scope.",
       templateAlt: "Arab Halal Mark license template",

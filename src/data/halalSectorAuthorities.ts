@@ -1,4 +1,5 @@
-import authorities from "./halal-sector-authorities.json";
+import arAuthorities from "./halal-sector-authorities.json";
+import enAuthorities from "./halal-sector-authorities.en.json";
 
 export type HalalSectorAuthority = {
   id: string;
@@ -16,4 +17,14 @@ export type HalalSectorAuthority = {
   lastFetchedAt: string | null;
 };
 
-export const halalSectorAuthorities = authorities as HalalSectorAuthority[];
+const authoritiesByLanguage = {
+  ar: arAuthorities,
+  en: enAuthorities,
+} as const;
+
+export const getHalalSectorAuthorities = (language: string | undefined) => {
+  const key = language?.startsWith("en") ? "en" : "ar";
+  return authoritiesByLanguage[key] as HalalSectorAuthority[];
+};
+
+export const halalSectorAuthorities = arAuthorities as HalalSectorAuthority[];

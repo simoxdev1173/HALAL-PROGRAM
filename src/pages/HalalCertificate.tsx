@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { 
+   X } from "lucide-react";
 import {
   DefinitionPanel,
-  FinalActionPanel,
   InformationPanel,
   InnerPageHero,
   PageSection,
@@ -18,8 +20,8 @@ type CostFee = { amount: string; label: string; title: string; body: string };
 
 export default function HalalCertificate() {
   const { t, i18n } = useTranslation();
+  const [isTemplateOpen, setIsTemplateOpen] = useState(false);
   const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
-  const emphasis = t("halalCertificate.definition.emphasis", { returnObjects: true }) as string[];
   const processSteps = t("halalCertificate.process.steps", { returnObjects: true }) as Step[];
   const diagramItems = t("halalCertificate.grantingBodies.diagram", { returnObjects: true }) as string[];
   const generalRequirements = t("halalCertificate.requirements.general", { returnObjects: true }) as RequirementCopy;
@@ -120,7 +122,7 @@ export default function HalalCertificate() {
 
       <div>
         <PageSection id="definition">
-          <DefinitionPanel title={t("halalCertificate.definition.title")} body={t("halalCertificate.definition.body")} emphasis={emphasis} />
+          <DefinitionPanel title={t("halalCertificate.definition.title")} body={t("halalCertificate.definition.body")}  />
         </PageSection>
 
         <PageSection id="journey" tone="soft">
@@ -176,11 +178,11 @@ export default function HalalCertificate() {
             <article className="overflow-hidden rounded-[1.5rem] border border-stone-200 bg-white shadow-[var(--shadow-ind-card)]">
               <div className="grid gap-0 lg:grid-cols-[.92fr_1.08fr]">
                 <div className="border-b border-stone-200 bg-[#FAF9F6] p-6 lg:border-b-0 lg:border-e lg:p-8">
-                  <p className="text-xs font-black uppercase tracking-[.14em] text-[#007A55]">{t("halalCertificate.costs.authorityTitle")}</p>
+                  <p className="text-md font-black uppercase tracking-[.14em] text-[#007A55]">{t("halalCertificate.costs.authorityTitle")}</p>
                   <p className="mt-4 text-base font-bold leading-9 text-slate-700">{t("halalCertificate.costs.authorityBody")}</p>
                 </div>
                 <div className="p-6 lg:p-8">
-                  <p className="text-xs font-black uppercase tracking-[.14em] text-[#CA8A04]">{t("halalCertificate.costs.organizationTitle")}</p>
+                  <p className="text-md font-black uppercase tracking-[.14em] text-[#CA8A04]">{t("halalCertificate.costs.organizationTitle")}</p>
                   <p className="mt-4 text-base font-bold leading-9 text-slate-700">{t("halalCertificate.costs.organizationBody")}</p>
                 </div>
               </div>
@@ -200,12 +202,12 @@ export default function HalalCertificate() {
                 </div>
               </div>
 
-              <div className="grid gap-4 border-t border-stone-200 p-6 lg:grid-cols-[1fr_auto] lg:items-start lg:p-8">
+              <div className="flex flex-col gap-4 border-t border-stone-200 p-6 lg:grid-cols-[1fr_auto] lg:items-start lg:p-8">
                 <div>
                   <h3 className="text-2xl font-black leading-9 text-slate-950">{t("halalCertificate.costs.additionalCostsTitle")}</h3>
                   <p className="mt-4 text-base font-bold leading-9 text-slate-700">{t("halalCertificate.costs.additionalCostsBody")}</p>
                 </div>
-                <p className="rounded-2xl border border-[#CA8A04]/30 bg-[#CA8A04]/10 p-5 text-center text-sm font-black leading-7 text-[#7A5200] lg:max-w-56">
+                <p className="rounded-2xl w-full border border-[#CA8A04]/30 bg-[#CA8A04]/10 p-5 text-center text-sm font-black leading-7 text-[#7A5200] ">
                   {t("halalCertificate.costs.notice")}
                 </p>
               </div>
@@ -215,29 +217,54 @@ export default function HalalCertificate() {
 
         <PageSection id="application" tone="soft">
           <SectionReveal>
-            <div className="grid gap-6 lg:grid-cols-[.82fr_1.18fr] lg:items-stretch">
-              <aside className="overflow-hidden rounded-[1.5rem] border border-stone-200 bg-white shadow-[var(--shadow-ind-card)]">
-                <div className="bg-[#FAF9F6] p-4">
-                  <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white p-3 shadow-[var(--shadow-ind-sharp)]">
-                    <img src="/certificate-template.png" alt={t("halalCertificate.finalCta.templateAlt")} className="mx-auto h-auto w-full max-w-[360px] object-contain" />
+            <div className="mx-auto max-w-5xl">
+              <aside className="relative overflow-hidden rounded-[1.5rem] border border-[#007A55]/15 bg-white shadow-[var(--shadow-ind-card)]">
+                <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,122,85,0.08),transparent_42%),radial-gradient(circle_at_90%_12%,rgba(202,138,4,0.16),transparent_30%)]" />
+                <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+                <div className="relative grid gap-6 p-5 md:grid-cols-[320px_1fr] md:items-center lg:p-7">
+                  <button
+                    type="button"
+                    onClick={() => setIsTemplateOpen(true)}
+                    className="group relative mx-auto block w-full max-w-[300px] overflow-hidden rounded-2xl border border-stone-200 bg-white p-3 shadow-[var(--shadow-ind-sharp)] focus:outline-none focus:ring-4 focus:ring-[#007A55]/20"
+                    aria-label={t("halalCertificate.finalCta.previewTitle")}
+                  >
+                    <img src="/certificate-template.png" alt={t("halalCertificate.finalCta.templateAlt")} className="mx-auto h-[300px] w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]" />
+                  </button>
+                  <div className={isRtl ? "text-right" : "text-left"}>
+                    {/* <p className="text-xs font-black uppercase tracking-[.14em] text-[#007A55]">{t("halalCertificate.finalCta.title")}</p> */}
+                    <h2 className="mt-3 text-2xl font-black leading-9 text-slate-950 lg:text-3xl">{t("halalCertificate.finalCta.previewTitle")}</h2>
+                    <p className="mt-3 max-w-2xl text-sm font-bold leading-7 text-slate-600 lg:text-base lg:leading-8">{t("halalCertificate.finalCta.previewDescription")}</p>
+                    <div className="mt-5 max-w-md">
+                      <button type="button" onClick={() => setIsTemplateOpen(true)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2 text-sm font-black text-white shadow-[var(--shadow-ind-sharp)] transition-colors hover:bg-[#007A55] focus:outline-none focus:ring-4 focus:ring-[#007A55]/20">
+                        {isRtl ? "معاينة النموذج" : "Preview model"}
+                      </button>
+                      <Link to="/halal-certificate-application" className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#007A55] px-4 py-2 text-sm font-black text-white shadow-[var(--shadow-ind-sharp)] transition-colors hover:bg-[#004D36] focus:outline-none focus:ring-4 focus:ring-[#007A55]/20">
+                        {isRtl ? "تعبئة نموذج طلب شهادة الحلال العربية" : "Request Arab Halal certificate"}
+                      </Link>
+                    </div>
                   </div>
                 </div>
-                <div className="border-t border-stone-200 p-5 text-center">
-                  <h2 className="text-xl font-black leading-8 text-slate-950">{t("halalCertificate.finalCta.previewTitle")}</h2>
-                  <p className="mt-2 text-sm font-bold leading-7 text-slate-600">{t("halalCertificate.finalCta.previewDescription")}</p>
-                </div>
               </aside>
-              <FinalActionPanel
-                title={t("halalCertificate.finalCta.title")}
-                description={t("halalCertificate.finalCta.description")}
-                primary={{ label: t("halalCertificate.finalCta.primary"), to: "/documents#document-library" }}
-                secondary={{ label: t("halalCertificate.finalCta.secondary"), to: "/halal-sector-authorities" }}
-              />
             </div>
           </SectionReveal>
         </PageSection>
 
       </div>
+      {isTemplateOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={t("halalCertificate.finalCta.previewTitle")}>
+          <div className="relative max-h-[92vh] w-full max-w-5xl overflow-auto rounded-[1.5rem] border border-white/15 bg-white p-4 shadow-[var(--shadow-ind-floating)]">
+            <button
+              type="button"
+              onClick={() => setIsTemplateOpen(false)}
+              className="absolute end-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-950 text-white shadow-[var(--shadow-ind-floating)] transition-colors hover:bg-[#007A55] focus:outline-none focus:ring-4 focus:ring-[#007A55]/25"
+              aria-label={isRtl ? "إغلاق" : "Close"}
+            >
+              <X size={20} />
+            </button>
+            <img src="/certificate-template.png" alt={t("halalCertificate.finalCta.templateAlt")} className="mx-auto h-auto max-h-[86vh] w-auto max-w-full object-contain" />
+          </div>
+        </div>
+      )}
     </main>
   );
 }

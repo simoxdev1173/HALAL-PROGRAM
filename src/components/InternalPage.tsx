@@ -38,7 +38,7 @@ export function InnerPageHero({
     <section className="relative overflow-hidden border-b border-stone-200 bg-slate-950 pt-28 text-white shadow-[var(--shadow-ind-card)]">
       <div className="absolute inset-0">
         <img src={imageSrc} alt={imageAlt} className="h-full w-full object-cover opacity-98" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_0%,rgba(202,138,4,.22),transparent_30%),radial-gradient(circle_at_18%_85%,rgba(0,122,85,.24),transparent_32%),linear-gradient(180deg,rgba(2,6,23,.88),rgba(15,23,42,.94))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_0%,rgba(202,138,4,.18),transparent_30%),radial-gradient(circle_at_18%_85%,rgba(0,122,85,.20),transparent_32%),linear-gradient(180deg,rgba(2,6,23,.70),rgba(15,23,42,.78))]" />
         <div
           className="absolute inset-0 opacity-[0.06]"
           style={{
@@ -76,8 +76,8 @@ export function PageSection({
     <section id={id} className={`relative scroll-mt-28 px-6 py-16 lg:py-24 ${toneClass}`}>
       {tone !== "default" && (
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <img src="/cover-2.png" alt="" className={`h-full w-full object-cover ${tone === "dark" ? "opacity-[0.80]" : "opacity-[0.43]"}`} />
-          <div className={`absolute inset-0 ${tone === "dark" ? "bg-slate-950/88" : "bg-[#F4F1EA]/82"}`} />
+          <img src="/cover-2.png" alt="" className={`h-full w-full object-cover ${tone === "dark" ? "opacity-[0.92]" : "opacity-[0.43]"}`} />
+          <div className={`absolute inset-0 ${tone === "dark" ? "bg-slate-950/72" : "bg-[#F4F1EA]/82"}`} />
         </div>
       )}
       <div className="relative z-10 mx-auto max-w-4xl">{children}</div>

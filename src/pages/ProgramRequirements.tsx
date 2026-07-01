@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { AINotice } from "../components/AINotice";
 import { InnerPageHero } from "../components/InternalPage";
 
 const processSteps = [
@@ -51,11 +52,24 @@ export default function ProgramRequirements() {
   const { t, i18n } = useTranslation();
   const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
   const join = t("pages.join", { returnObjects: true }) as JoinCopy;
+  const arabicApplicationRequestText = "تقديم طلب تشغيل البرنامج العربي للحلال";
   const displaySteps = processSteps.map((step, index) => ({
     number: step.number,
     title: isRtl ? step.title : join.steps[index]?.title ?? step.title,
     text: isRtl ? step.text : join.steps[index]?.text ?? step.text,
   }));
+  const askCopy = {
+    who: isRtl ? "اسألني عن الجهات التي يحق لها الانضمام إلى البرنامج." : "Ask me who can join the program.",
+    request: isRtl ? "اسألني عن طريقة تقديم طلب تشغيل البرنامج العربي للحلال." : "Ask me how to submit the program operation request.",
+    process: isRtl ? "اسألني عن خطوات تقييم الطلب والرد الرسمي." : "Ask me about the review steps and official response.",
+    note: isRtl ? "اسألني متى يمكن تفويض جهات تقييم مطابقة غير حكومية." : "Ask me when non-government conformity bodies can be authorized.",
+  };
+  const askMessages = {
+    who: isRtl ? "من هي الجهات التي يحق لها الانضمام إلى البرنامج العربي للحلال؟" : "Who can join the Arab Halal Program?",
+    request: isRtl ? "كيف أقدم طلب تشغيل البرنامج العربي للحلال؟" : "How do I submit the Arab Halal Program operation request?",
+    process: isRtl ? "ما هي خطوات تقييم طلب الانضمام إلى البرنامج العربي للحلال؟" : "What are the review steps for joining the Arab Halal Program?",
+    note: isRtl ? "متى يمكن لجهة التعيين الحلال تفويض جهات تقييم مطابقة غير حكومية؟" : "When can a halal designation body authorize non-government conformity assessment bodies?",
+  };
 
   return (
     <main className={`min-h-screen overflow-hidden bg-[#FAF9F6] ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
@@ -82,9 +96,25 @@ export default function ProgramRequirements() {
               <p>
                 {isRtl ? "الجهات التي لها الحق في الانضمام إلى البرنامج هي جهات التعيين الحلال في الدول العربية الأعضاء الراغبة في تطبيق هذا البرنامج والراغبة في تفويضها لمنح علامة الحلال العربية، وجهات التعيين هي جهات حكومية مخوَّلة بتعيين جهات تقييم المطابقة في مجال الحلال أو تعليق تعيينها أو إلغائه." : join.p1}
               </p>
+              <div className="flex justify-start">
+                <AINotice message={askMessages.who} label={askCopy.who} imageSrc="/ai-agent-nobg.png" />
+              </div>
               <p>
-                {isRtl ? "ويتم الانضمام إلى البرنامج العربي للحلال بتقديم طلب تشغيل البرنامج العربي للحلال إلى المنظمة مُرفقا به الوثائق المطلوبة، وتقوم المنظمة بتقييم الطلب وفقا للإجراءات المتَّبعة لديها، والرد على الطلب بالقبول أو الرفض خلال فترة شهر من تاريخ استلام الطلب، مع توضيح الأسباب في حالة الرفض. وعند قبول الطلب يتم توقيع وثيقة تعاون فني بين الطرفين وفقا لنموذج وثيقة التعاون الفني التي يمكن تحميلها من الموقع الإلكتروني." : join.p2}
+                {isRtl ? (
+                  <>
+                    ويتم الانضمام إلى البرنامج العربي للحلال ب
+                    <span>
+                      تقديم طلب تشغيل البرنامج العربي للحلال
+                    </span>
+                    إلى المنظمة مُرفقا به الوثائق المطلوبة، وتقوم المنظمة بتقييم الطلب وفقا للإجراءات المتَّبعة لديها، والرد على الطلب بالقبول أو الرفض خلال فترة شهر من تاريخ استلام الطلب، مع توضيح الأسباب في حالة الرفض. وعند قبول الطلب يتم توقيع وثيقة تعاون فني بين الطرفين وفقا لنموذج وثيقة التعاون الفني التي يمكن تحميلها من الموقع الإلكتروني.
+                  </>
+                ) : (
+                  join.p2
+                )}
               </p>
+              <div className="flex justify-start">
+                <AINotice message={askMessages.request} label={askCopy.request} imageSrc="/ai-agent-nobg.png" />
+              </div>
             </div>
           </motion.article>
 
@@ -101,6 +131,9 @@ export default function ProgramRequirements() {
               <div className="absolute inset-0 bg-gradient-to-bl from-[#1C4C2A]/82 to-slate-950" />
               <div className="relative z-10">
                 <p className="text-lg font-black text-[#CA8A04]">{isRtl ? "كيف تتم عملية الانضمام" : join.processTitle}</p>
+                <div className="mt-4 flex justify-start">
+                  <AINotice message={askMessages.process} label={askCopy.process} imageSrc="/ai-agent-nobg.png" />
+                </div>
                 <div className="mt-5 space-y-4">
                   {displaySteps.map((step, index) => (
                     <motion.div
@@ -115,7 +148,18 @@ export default function ProgramRequirements() {
                         <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#CA8A04] font-mono text-sm font-black text-slate-950 shadow-[var(--shadow-ind-sharp)]">
                           {step.number}
                         </span>
-                        <h3 className="text-base font-black">{step.title}</h3>
+                        <h3 className="text-base font-black">
+                          {isRtl && index === 0 ? (
+                            <Link
+                              to="/join-program"
+                              className="inline-flex rounded-lg bg-[#007A55]/8 px-2 py-0.5 font-black text-[#006B4B] underline decoration-[#CA8A04]/60 decoration-2 underline-offset-4 transition-colors hover:bg-[#007A55] hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#007A55]/20"
+                            >
+                              {arabicApplicationRequestText}
+                            </Link>
+                          ) : (
+                            step.title
+                          )}
+                        </h3>
                       </div>
                       <p className="mt-3 text-sm font-bold leading-7 text-stone-300">{step.text}</p>
                     </motion.div>
@@ -138,6 +182,9 @@ export default function ProgramRequirements() {
           <p className="mt-4 text-justify text-base font-bold leading-9 text-slate-700 lg:text-lg">
             {isRtl ? "يمكن لجهة التعيين الحلال، الموقِّعة على وثيقة التعاون، تفويض جهات تقييم مطابقة غير حكومية في مجال معيَّن وفقاً لهذا البرنامج، على ان تقوم بإبلاغ المنظمة تحريرياً بذلك، وعلى جهة التعيين الحلال وجهات تقييم المطابقة غير الحكومية (التي تُعينها) مراعاة دفع التكاليف المنصوص عليه ." : join.note}
           </p>
+          <div className="mt-6 flex justify-start">
+            <AINotice message={askMessages.note} label={askCopy.note} imageSrc="/ai-agent-nobg.png" />
+          </div>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link to="/joined-countries" className="flex min-h-12 items-center justify-center rounded-xl bg-[#007A55] px-7 py-4 text-sm font-black text-white shadow-[var(--shadow-ind-floating)] hover:-translate-y-0.5">
               {isRtl ? "عرض الدول المنضمة" : join.countries}

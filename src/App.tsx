@@ -25,7 +25,9 @@ import HalalSectorAuthorities from "./pages/HalalSectorAuthorities";
 import ProgramGoals from "./pages/ProgramGoals";
 import ProgramScope from "./pages/ProgramScope";
 import HalalCertificate from "./pages/HalalCertificate";
+import HalalCertificateApplication from "./pages/HalalCertificateApplication";
 import HalalMark from "./pages/HalalMark";
+import AdminDashboard from "./pages/AdminDashboard";
 import { motion } from "framer-motion";
 
 const ScrollToHash = () => {
@@ -49,9 +51,7 @@ const ScrollToHash = () => {
 
 const Home = () => (
   <main>
-    <section id="home">
-      <Hero />
-    </section>
+    <Hero />
     <section id="about">
        <ArabHalalProgram />
     </section>
@@ -82,7 +82,7 @@ function AppContent() {
   const lang = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("en") ? "en" : "ar";
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const isFocusedApplication = location.pathname === "/join-program";
+  const isFocusedApplication = location.pathname === "/join-program" || location.pathname === "/halal-certificate-application" || location.pathname.startsWith("/admin");
 
   const handleSetChatOpen = (val: boolean) => {
     if (val) {
@@ -136,8 +136,10 @@ function AppContent() {
             <Route path="/program-requirements" element={<ProgramRequirements />} />
             <Route path="/join-program" element={<JoinProgram />} />
             <Route path="/halal-certificate" element={<HalalCertificate />} />
+            <Route path="/halal-certificate-application" element={<HalalCertificateApplication />} />
             <Route path="/halal-mark" element={<HalalMark />} />
             <Route path="/halal-certificate-mark" element={<HalalCertificate />} />
+            <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
 
           {!isFocusedApplication && <Footer lang={lang} onChatOpen={() => handleSetChatOpen(true)} />}
@@ -194,6 +196,14 @@ function AppContent() {
             /* Professional transitions */
             a, button, [role="button"] {
               transition: all 0.2s ease-out;
+            }
+
+            [class~="bg-slate-950"] {
+              background-color: #111827;
+            }
+
+            [class*="bg-[#020617]"] {
+              background-color: #0b1220;
             }
             
             @media (prefers-reduced-motion: reduce) {

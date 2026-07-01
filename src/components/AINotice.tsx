@@ -3,11 +3,13 @@ import { motion } from "framer-motion";
 interface AINoticeProps {
   message: string;
   label: string;
+  imageSrc?: string;
 }
 
-export const AINotice = ({ message, label }: AINoticeProps) => {
+export const AINotice = ({ message, label, imageSrc }: AINoticeProps) => {
   const isArabic = /[\u0600-\u06FF]/.test(`${message} ${label}`);
   const ctaLabel = isArabic ? "اضغط للسؤال" : "Tap to ask";
+  const avatarSrc = imageSrc ?? (isArabic ? "/ai-logo-3.png" : "/ai-logo-1.png");
 
   const handleClick = () => {
     const event = new CustomEvent("trigger-chatbot", {
@@ -34,22 +36,18 @@ export const AINotice = ({ message, label }: AINoticeProps) => {
         transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
         className="relative shrink-0"
       >
-        <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-[#007A55]/20 bg-white shadow-[0_14px_28px_-18px_rgba(0,77,54,0.75)] ring-4 ring-[#007A55]/8 transition-all duration-300 group-hover:border-[#007A55]/45 group-hover:ring-[#007A55]/16 group-focus-visible:ring-[#CA8A04]/30">
-          {isArabic ? (
-           <img
-              src="/ai-logo-3.png"
-              alt=""
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          ) : (
-            
-             <img
-              src="/ai-logo-1.png"
-              alt=""
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          )}
-         
+        <div
+          className={`relative h-12 w-12 overflow-hidden transition-all duration-300 ${
+            imageSrc
+              ? "drop-shadow-[0_14px_16px_rgba(0,77,54,0.16)]"
+              : "rounded-xl border border-[#007A55]/20 bg-white shadow-[0_14px_28px_-18px_rgba(0,77,54,0.75)] ring-4 ring-[#007A55]/8 group-hover:border-[#007A55]/45 group-hover:ring-[#007A55]/16 group-focus-visible:ring-[#CA8A04]/30"
+          }`}
+        >
+          <img
+            src={avatarSrc}
+            alt=""
+            className={`h-full w-full transition-transform duration-500 group-hover:scale-105 ${imageSrc ? "object-contain" : "object-cover"}`}
+          />
         </div>
       </motion.div>
 

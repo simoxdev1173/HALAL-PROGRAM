@@ -372,36 +372,34 @@ const AnimateHeroLoader = ({ isVisible, isRtl }: { isVisible: boolean; isRtl: bo
   <motion.div
     initial={false}
     animate={{ opacity: isVisible ? 1 : 0, pointerEvents: isVisible ? "auto" : "none" }}
-    transition={{ duration: 0.35, ease: "easeOut" }}
-    className="fixed inset-0 z-[3000] flex items-center justify-center bg-[#FAF9F6] text-slate-950"
+    transition={{ duration: 0.24, ease: "easeOut" }}
+    className="fixed inset-0 z-[3000] flex items-center justify-center overflow-hidden bg-[#FAF9F6] text-slate-950"
     dir={isRtl ? "rtl" : "ltr"}
     aria-hidden={!isVisible}
   >
-    <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)", backgroundSize: "42px 42px" }} />
-    <div className="relative flex w-[min(88vw,420px)] flex-col items-center text-center">
-      <div className="relative mb-8 flex h-40 w-40 items-center justify-center rounded-full border border-stone-200 bg-white shadow-[var(--shadow-ind-floating)] sm:h-48 sm:w-48">
-        <motion.div
-          className="absolute inset-3 rounded-full border-4 border-[#007A55]/12 border-t-[#007A55]"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1.15, repeat: Infinity, ease: "linear" }}
-        />
-        <img src="/logo.svg" alt="" className="relative h-28 w-28 object-contain sm:h-36 sm:w-36" />
-      </div>
-      <h2 className="text-2xl font-black text-slate-950 sm:text-3xl">
-        {isRtl ? "جاري تحميل الموقع" : "Loading website"}
-      </h2>
-      <div className="mt-7 h-2 w-full max-w-xs overflow-hidden rounded-full bg-[#007A55]/12 shadow-[inset_0_1px_3px_rgba(0,0,0,0.12)]">
-        <motion.div
-          className="h-full w-1/2 rounded-full bg-[#007A55]"
-          initial={{ x: isRtl ? "100%" : "-100%" }}
-          animate={{ x: isRtl ? "-100%" : "100%" }}
-          transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </div>
+    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)", backgroundSize: "42px 42px" }} />
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_46%,rgba(255,255,255,0.95)_0%,rgba(250,249,246,0.82)_34%,rgba(239,236,226,0.58)_100%)]" />
+    <div className="relative flex h-44 w-44 items-center justify-center sm:h-52 sm:w-52" aria-label={isRtl ? "جاري تحميل الموقع" : "Loading website"}>
+      <motion.div
+        className="absolute inset-0 rounded-full border border-[#007A55]/10"
+        animate={{ scale: [0.92, 1.08, 0.92], opacity: [0.22, 0.55, 0.22] }}
+        transition={{ duration: 1.45, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute inset-3 rounded-full border-[3px] border-[#007A55]/10 border-t-[#007A55] border-r-[#CA8A04]/70"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 0.95, repeat: Infinity, ease: "linear" }}
+      />
+      <motion.div
+        className="relative flex h-32 w-32 items-center justify-center rounded-full bg-white shadow-[0_18px_45px_rgba(21,18,12,0.16)] sm:h-40 sm:w-40"
+        animate={{ scale: [1, 1.035, 1] }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <img src="/logo.svg" alt="" className="relative h-28 w-28 object-contain drop-shadow-[0_10px_22px_rgba(0,0,0,0.18)] sm:h-36 sm:w-36" />
+      </motion.div>
     </div>
   </motion.div>
 );
-
 /* ---------- MAIN LAYOUT ---------- */
 export const Hero = () => {
   const { t, i18n } = useTranslation();
@@ -542,7 +540,7 @@ export const Hero = () => {
   return (
     <div className="w-full bg-slate-50 transition-[direction] duration-300" dir={isRtl ? "rtl" : "ltr"}>
       <AnimateHeroLoader isVisible={!isHeroReady} isRtl={isRtl} />
-      <section className="relative w-full h-[690px] lg:h-[760px] xl:h-[840px] flex items-center overflow-hidden bg-slate-950">
+      <section id="home" className="relative w-full h-[690px] lg:h-[760px] xl:h-[840px] flex items-center overflow-hidden bg-slate-950">
         
         {/* --- WEBGL BACKGROUND --- */}
         <div className="absolute inset-0 z-0 bg-slate-950">
@@ -694,7 +692,7 @@ export const Hero = () => {
       </section>
 
       {/* Intro Section - Industrial Styling */}
-      <section className="relative z-10 py-20 lg:py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]">
+      <section id="intro" className="relative z-10 py-20 lg:py-32 px-6 overflow-hidden bg-[#FAF9F6] border-y border-stone-300 shadow-[var(--shadow-ind-card)]">
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
         
         <div className="max-w-7xl mx-auto relative z-10">
@@ -732,3 +730,4 @@ export const Hero = () => {
     </div>
   );
 };
+

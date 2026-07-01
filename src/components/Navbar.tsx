@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { FormLanguageSwitcher } from "./FormLanguageSwitcher";
 
 type Lang = "ar" | "en";
 type NavLink = {
@@ -79,7 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           children: [
             { text: "شروط الانضمام", href: "/program-requirements" },
             { text: "الدول المنضمة", href: "/joined-countries" },
-            { text: "الجهات المعنية بقطاع الحلال في الدول العربية", href: "/halal-sector-authorities" },
+            { text: "الجهات المعينة بقطاع الحلال في الدول العربية", href: "/halal-sector-authorities" },
           ],
         },
         { name: "شهادة وعلامة حلال", path: "/#" },
@@ -114,7 +115,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
       searchModalTitle: "البحث والتحقق",
       searchAction: "التحقق من شهادة حلال",
       searchInputLabel: "رقم شهادة الحلال أو عبارة البحث",
-      searchSuggestions: ["شروط الانضمام", "الدول المنضمة", "شهادة وعلامة حلال", "الجهات المعنية بقطاع الحلال"],
+      searchSuggestions: ["شروط الانضمام", "الدول المنضمة", "شهادة وعلامة حلال", "الجهات المعينة بقطاع الحلال"],
       menuBtn: "القائمة"
     },
     en: {
@@ -191,9 +192,6 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
     { name: navLanguages.ar, code: "ar" },
     { name: navLanguages.en, code: "en" }
   ];
-  const switchLanguage = () => {
-    setLang(lang === "ar" ? "en" : "ar");
-  };
 
   const customEase: [number, number, number, number] = [0.175, 0.885, 0.32, 1.275]; // Mechanical easing
 
@@ -297,9 +295,10 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           
             <Link
               to="/join-program"
-              className={`${isRtl ? "hidden xl:inline-flex px-4" : "hidden 2xl:inline-flex px-3"} h-[44px] items-center justify-center whitespace-nowrap rounded-md border border-[#006747]/80 bg-[#007A55] text-[11px] font-black uppercase tracking-wider text-white shadow-[var(--shadow-ind-card)] transition-all hover:-translate-y-0.5 hover:bg-[#006747] hover:shadow-[var(--shadow-ind-floating)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/30 active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)]`}
+              className={`${isRtl ? "hidden xl:inline-flex px-4" : "hidden 2xl:inline-flex px-3"} group relative h-[44px] items-center justify-center overflow-hidden whitespace-nowrap rounded-xl border border-[#006747]/70 bg-[linear-gradient(145deg,#009164,#006747)] text-[11px] font-black uppercase tracking-wider text-white shadow-[4px_5px_10px_rgba(0,0,0,0.16),inset_1px_1px_2px_rgba(255,255,255,0.35),inset_-2px_-2px_4px_rgba(0,0,0,0.24),var(--shadow-ind-card)] transition-all hover:-translate-y-0.5 hover:shadow-[5px_7px_14px_rgba(0,0,0,0.18),inset_1px_1px_2px_rgba(255,255,255,0.4),inset_-2px_-2px_4px_rgba(0,0,0,0.24),var(--shadow-ind-floating)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/30 active:translate-y-[1px] active:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.22)]`}
             >
-              {d.joinProgramCta}
+              <span className="absolute inset-x-2 top-1 h-2 rounded-full bg-white/20" />
+              <span className="relative z-10">{d.joinProgramCta}</span>
             </Link>
             
             {/* Search Placeholder Button (Recessed Well) */}
@@ -328,31 +327,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             </button>
 
             {/* Language Switcher (3D Physical Toggle) */}
-            <div className="relative hidden sm:block">
-              <button 
-                type="button"
-                onClick={switchLanguage}
-                aria-label={lang === "ar" ? "Switch language to English" : "تبديل اللغة إلى العربية"}
-                dir="ltr"
-                className="group relative h-[44px] w-[106px] overflow-hidden rounded-xl border border-stone-300 bg-stone-100 p-1 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.10),inset_-2px_-2px_4px_rgba(255,255,255,0.9),var(--shadow-ind-card)] outline-none transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.08),var(--shadow-ind-floating)] focus-visible:ring-4 focus-visible:ring-[#CA8A04]/30"
-              >
-                <span className="absolute inset-x-2 top-1 h-2 rounded-full bg-white/70 shadow-[inset_0_-1px_1px_rgba(0,0,0,0.08)]" />
-                <span className="relative z-10 grid h-full grid-cols-2 items-center rounded-lg text-center text-[11px] font-black tracking-widest">
-                  <span className={lang === "ar" ? "text-white drop-shadow-sm" : "text-stone-700"}>AR</span>
-                  <span className={lang === "en" ? "text-white drop-shadow-sm" : "text-stone-700"}>EN</span>
-                </span>
-                <motion.span
-                  layout
-                  className="absolute top-1 bottom-1 w-[48px] rounded-lg border border-[#006747]/70 bg-[linear-gradient(145deg,#009164,#006747)] shadow-[4px_5px_10px_rgba(0,0,0,0.18),inset_1px_1px_2px_rgba(255,255,255,0.35),inset_-2px_-2px_4px_rgba(0,0,0,0.24)]"
-                  animate={{ x: lang === "ar" ? 0 : 50 }}
-                  transition={{ type: "spring", stiffness: 360, damping: 28 }}
-                  style={{ left: 4 }}
-                >
-                  <span className="absolute left-1 right-1 top-1 h-2 rounded-full bg-white/25" />
-                  <span className="absolute inset-0 rounded-lg ring-1 ring-white/10" />
-                </motion.span>
-              </button>
-            </div>
+            <FormLanguageSwitcher className="hidden sm:inline-flex" />
             <img
               src="/aidsmo.png"
               alt="AIDSMO"

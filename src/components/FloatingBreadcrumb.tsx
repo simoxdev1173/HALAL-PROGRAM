@@ -4,22 +4,24 @@ import { useTranslation } from "react-i18next";
 import { ChevronsLeft, ChevronsRight, Home } from "lucide-react";
 
 type EntryKey = "home" | "program" | "joining" | "verification" | "recognition" | "certificate" | "support";
+type RouteEntry = { main: EntryKey; sub: string; parentTo: string };
 
-const SECTION_IDS = ["home", "about", "scope", "join", "verify", "recognition", "directory", "standards"];
+const SECTION_IDS = ["home", "intro", "about", "scope", "join", "verify", "recognition", "directory", "standards"];
 
-const routeByPath: Record<string, { main: EntryKey; sub: string }> = {
-  "/about-us": { main: "program", sub: "about" },
-  "/program-definition": { main: "program", sub: "about" },
-  "/program-goals": { main: "program", sub: "goals" },
-  "/program-scope": { main: "program", sub: "programScope" },
-  "/joined-countries": { main: "joining", sub: "countries" },
-  "/halal-sector-authorities": { main: "joining", sub: "authorities" },
-  "/certificate-verification": { main: "verification", sub: "verification" },
-  "/join-program": { main: "joining", sub: "join" },
-  "/documents": { main: "certificate", sub: "documents" },
-  "/halal-certificate": { main: "certificate", sub: "halalCertificate" },
-  "/halal-mark": { main: "certificate", sub: "halalMark" },
-  "/halal-certificate-mark": { main: "certificate", sub: "halalCertificate" },
+const routeByPath: Record<string, RouteEntry> = {
+  "/about-us": { main: "program", sub: "about", parentTo: "/#about" },
+  "/program-definition": { main: "program", sub: "about", parentTo: "/#about" },
+  "/program-goals": { main: "program", sub: "goals", parentTo: "/#about" },
+  "/program-scope": { main: "program", sub: "programScope", parentTo: "/#scope" },
+  "/program-requirements": { main: "joining", sub: "requirements", parentTo: "/#join" },
+  "/joined-countries": { main: "joining", sub: "countries", parentTo: "/#join" },
+  "/halal-sector-authorities": { main: "joining", sub: "authorities", parentTo: "/#join" },
+  "/certificate-verification": { main: "verification", sub: "verification", parentTo: "/#verify" },
+  "/join-program": { main: "joining", sub: "application", parentTo: "/#join" },
+  "/documents": { main: "certificate", sub: "documents", parentTo: "/#directory" },
+  "/halal-certificate": { main: "certificate", sub: "halalCertificate", parentTo: "/#directory" },
+  "/halal-mark": { main: "certificate", sub: "halalMark", parentTo: "/#directory" },
+  "/halal-certificate-mark": { main: "certificate", sub: "halalCertificate", parentTo: "/#directory" },
 };
 
 export const FloatingBreadcrumb = () => {
@@ -62,17 +64,19 @@ export const FloatingBreadcrumb = () => {
       return {
         main: "home" as EntryKey,
         mainLabel: t("breadcrumbs.home"),
+        parentTo: "/",
         subLabel: subKey
           ? t(`breadcrumbs.sections.${subKey}`, { defaultValue: t("breadcrumbs.current") })
           : null,
       };
     }
 
-    const route = routeByPath[pathname] ?? { main: "home" as EntryKey, sub: "current" };
+    const route = routeByPath[pathname] ?? { main: "home" as EntryKey, sub: "current", parentTo: "/" };
 
     return {
       main: route.main,
       mainLabel: t(`breadcrumbs.main.${route.main}`, { defaultValue: t("breadcrumbs.home") }),
+      parentTo: route.parentTo,
       subLabel: t(`breadcrumbs.pages.${route.sub}`, { defaultValue: t("breadcrumbs.current") }),
     };
   }, [activeSection, pathname, t]);
@@ -96,15 +100,18 @@ export const FloatingBreadcrumb = () => {
             <span className="flex shrink-0 items-center text-[#CA8A04]" aria-hidden="true">
               <SeparatorIcon size={18} strokeWidth={2.35} className="drop-shadow-[0_1px_0_rgba(255,255,255,0.75)]" />
             </span>
-            <span className="truncate text-[13px] font-black text-[#004D36] sm:text-sm">
+            <Link
+              to={current.parentTo}
+              className="truncate rounded-md px-1 text-[13px] font-black text-[#004D36] transition-colors hover:text-[#007A55] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/25 sm:text-sm"
+            >
               {current.mainLabel}
-            </span>
+            </Link>
             {current.subLabel && (
               <>
                 <span className="flex shrink-0 items-center text-[#CA8A04]" aria-hidden="true">
                   <SeparatorIcon size={18} strokeWidth={2.35} className="drop-shadow-[0_1px_0_rgba(255,255,255,0.75)]" />
                 </span>
-                <span className="truncate text-[13px] font-black text-slate-900 sm:text-sm">
+                <span aria-current="page" className="truncate text-[13px] font-black text-slate-900 sm:text-sm">
                   {current.subLabel}
                 </span>
               </>

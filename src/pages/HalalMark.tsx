@@ -1,7 +1,9 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import {  X } from "lucide-react";
 import {
   DefinitionPanel,
-  FinalActionPanel,
   InformationPanel,
   InnerPageHero,
   PageSection,
@@ -17,7 +19,7 @@ const arabicMarkConditionsText =
   "يمكن للمورِّد وضع شعار علامة الحلال العربية على المنتَج أو الوثائق الخاصة بالخدمة أو النظام، وذلك بعد حصوله على الترخيص باستخدام علامة الحلال العربية لذلك المنتَج أو الخدمة أو النظام، مع الالتزام بشروط استخدام العلامة الواردة في هذا البرنامج.";
 
 const arabicLicensingIntro =
-  "تقوم الجهة المعيَّنة بإصدار الترخيص باستخدام علامة الحلال العربية وفقاً للملحق (7)، وذلك عندما يستوفي المورِّد أو المنشأة ما يلي:";
+  "تقوم الجهة المعيَّنة بإصدار الترخيص باستخدام علامة الحلال العربية، وذلك عندما يستوفي المورِّد أو المنشأة ما يلي:";
 
 const arabicLicensingRequirements = [
   "استيفاء متطلبات إجراءات منح ترخيص استخدام علامة الحلال العربية والمواصفات القياسية ذات العلاقة..",
@@ -36,6 +38,7 @@ const arabicNationalWithoutText =
 
 export default function HalalMark() {
   const { t, i18n } = useTranslation();
+  const [isTemplateOpen, setIsTemplateOpen] = useState(false);
   const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
   const checklist = t("halalMark.conditions.checklist", { returnObjects: true }) as string[];
   const comparison = t("halalMark.conditions.comparison", { returnObjects: true }) as ComparisonItem[];
@@ -183,28 +186,54 @@ export default function HalalMark() {
 
         <PageSection id="license-form">
           <SectionReveal>
-            <div className="grid gap-6 lg:grid-cols-[.82fr_1.18fr] lg:items-stretch">
-              <aside className="overflow-hidden rounded-[1.5rem] border border-stone-200 bg-white shadow-[var(--shadow-ind-card)]">
-                <div className="bg-[#FAF9F6] p-4">
-                  <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white p-3 shadow-[var(--shadow-ind-sharp)]">
-                    <img src="/licence-template.png" alt={t("halalMark.licenseForm.templateAlt")} className="mx-auto h-auto w-full max-w-[360px] object-contain" />
+            <div className="mx-auto max-w-5xl">
+              <aside className="relative overflow-hidden rounded-[1.5rem] border border-[#CA8A04]/25 bg-slate-950 text-white shadow-[var(--shadow-ind-card)]">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_15%,rgba(202,138,4,0.34),transparent_28%),linear-gradient(135deg,rgba(0,122,85,0.26),transparent_48%)]" />
+                <img src="/halal-mark.svg" alt="" aria-hidden="true" className="absolute -end-12 -top-16 h-64 w-64 opacity-[0.06]" />
+                <div className="absolute inset-0 opacity-[0.08]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
+                <div className="relative grid gap-6 p-5 md:grid-cols-[320px_1fr] md:items-center lg:p-7">
+                  <button
+                    type="button"
+                    onClick={() => setIsTemplateOpen(true)}
+                    className="group relative mx-auto block w-full max-w-[300px] overflow-hidden rounded-2xl border border-white/15 bg-white p-3 shadow-[var(--shadow-ind-floating)] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/25"
+                    aria-label={t("halalMark.licenseForm.previewTitle")}
+                  >
+                    <img src="/licence-template.png" alt={t("halalMark.licenseForm.templateAlt")} className="mx-auto h-[300px] w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]" />
+                  </button>
+                  <div className={isRtl ? "text-right" : "text-left"}>
+                    <p className="text-xs font-black uppercase tracking-[.14em] text-[#CA8A04]">{t("halalMark.licenseForm.title")}</p>
+                    <h2 className="mt-3 text-2xl font-black leading-9 text-white lg:text-3xl">{t("halalMark.licenseForm.previewTitle")}</h2>
+                    <p className="mt-3 max-w-2xl text-sm font-bold leading-7 text-stone-300 lg:text-base lg:leading-8">{t("halalMark.licenseForm.previewDescription")}</p>
+                    <div className="mt-5 max-w-md">
+                      <button type="button" onClick={() => setIsTemplateOpen(true)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-black text-slate-950 shadow-[var(--shadow-ind-sharp)] transition-colors hover:bg-[#CA8A04] focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/25">
+                        {isRtl ? "معاينة النموذج" : "Preview model"}
+                      </button>
+                      <Link to="/halal-certificate-application" className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#CA8A04] px-4 py-2 text-sm font-black text-slate-950 shadow-[var(--shadow-ind-sharp)] transition-colors hover:bg-white focus:outline-none focus:ring-4 focus:ring-[#CA8A04]/25">
+                        {isRtl ? "تعبئة نموذج طلب علامة الحلال العربية" : "Request Arab Halal Mark"}
+                      </Link>
+                    </div>
                   </div>
                 </div>
-                <div className="border-t border-stone-200 p-5 text-center">
-                  <h2 className="text-xl font-black leading-8 text-slate-950">{t("halalMark.licenseForm.previewTitle")}</h2>
-                  <p className="mt-2 text-sm font-bold leading-7 text-slate-600">{t("halalMark.licenseForm.previewDescription")}</p>
-                </div>
               </aside>
-              <FinalActionPanel
-                title={t("halalMark.finalCta.title")}
-                description={t("halalMark.finalCta.description")}
-                primary={{ label: t("halalMark.finalCta.primary"), to: "/documents#document-library" }}
-                secondary={{ label: t("halalMark.finalCta.secondary"), to: "/certificate-verification" }}
-              />
             </div>
           </SectionReveal>
         </PageSection>
       </div>
+      {isTemplateOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={t("halalMark.licenseForm.previewTitle")}>
+          <div className="relative max-h-[92vh] w-full max-w-5xl overflow-auto rounded-[1.5rem] border border-white/15 bg-white p-4 shadow-[var(--shadow-ind-floating)]">
+            <button
+              type="button"
+              onClick={() => setIsTemplateOpen(false)}
+              className="absolute end-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-950 text-white shadow-[var(--shadow-ind-floating)] transition-colors hover:bg-[#007A55] focus:outline-none focus:ring-4 focus:ring-[#007A55]/25"
+              aria-label={isRtl ? "إغلاق" : "Close"}
+            >
+              <X size={20} />
+            </button>
+            <img src="/licence-template.png" alt={t("halalMark.licenseForm.templateAlt")} className="mx-auto h-auto max-h-[86vh] w-auto max-w-full object-contain" />
+          </div>
+        </div>
+      )}
     </main>
   );
 }
