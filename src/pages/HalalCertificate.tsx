@@ -132,30 +132,7 @@ export default function HalalCertificate() {
 
         <PageSection id="granting-bodies">
           <InformationPanel title={displayedGrantingBodiesTitle} body={displayedGrantingBodiesBody}>
-            {isRtl ? (
-              <div>
-                <h3 className="text-xl font-black leading-8 text-slate-950">الأطراف المعنية</h3>
-                <div className="mt-4 grid gap-4 lg:grid-cols-3">
-                  {arabicGrantingBodies.map((item) => (
-                    <article key={item.title} className="rounded-2xl border border-stone-200 bg-[#FAF9F6] p-5 shadow-[var(--shadow-ind-sharp)]">
-                      <h4 className="text-lg font-black leading-8 text-slate-950">{item.title}</h4>
-                      <p className="mt-3 text-sm font-bold leading-7 text-slate-700">{item.text}</p>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr_auto_1fr] lg:items-center">
-                {diagramItems.map((item, index) => (
-                  <div key={item} className="contents">
-                    <div className="rounded-2xl border border-stone-200 bg-[#FAF9F6] p-5 text-center shadow-[var(--shadow-ind-sharp)]">
-                      <p className="text-sm font-black leading-7 text-slate-800">{item}</p>
-                    </div>
-                    {index < diagramItems.length - 1 && <span aria-hidden="true" className="hidden h-px w-10 bg-[#CA8A04]/60 lg:block" />}
-                  </div>
-                ))}
-              </div>
-            )}
+           
             <div className="mt-6 flex justify-center">
               <Link to="/halal-sector-authorities" className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl bg-[#007A55] px-5 py-3 text-sm font-black text-white shadow-[var(--shadow-ind-floating)] hover:bg-[#004D36] focus:outline-none focus:ring-4 focus:ring-[#007A55]/20">
                 {displayedGrantingBodiesCta}

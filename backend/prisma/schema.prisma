@@ -1,0 +1,403 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =========================================================================
+// ENUMS
+// =========================================================================
+
+enum ApplicationType {
+  DESIGNATION_BODY
+  HALAL_CERTIFICATE
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  ACCEPTED
+  REJECTED
+}
+
+enum YesNo {
+  YES
+  NO
+}
+
+enum CompanyNature {
+  MANUFACTURER
+  SUPPLIER
+}
+
+enum CertPurpose {
+  ARAB_HALAL_CERTIFICATE
+  ARAB_HALAL_MARK
+}
+
+enum DesignationBodyType {
+  GOVERNMENTAL
+  NON_GOVERNMENTAL
+}
+
+enum EntityStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  WITHDRAWN
+}
+
+enum CertificateStatus {
+  ACTIVE
+  SUSPENDED
+  REVOKED
+  EXPIRED
+}
+
+enum FeeType {
+  DESIGNATION_BODY_3YR
+  CERTIFICATE_USE
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  OVERDUE
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  REVIEWER
+  VIEWER
+}
+
+// =========================================================================
+// 1. Application — shared wrapper for both form types
+// =========================================================================
+
+model Application {
+  id              String            @id @default(uuid())
+  type            ApplicationType
+  status          ApplicationStatus @default(DRAFT)
+  requestNumber   String?           @unique
+  submittedAt     DateTime?
+  reviewedAt      DateTime?
+  reviewedBy      String?
+  rejectionReason String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  reviewer            AdminUser?                    @relation(fields: [reviewedBy], references: [id])
+  designationBodyApp  DesignationBodyApplication?
+  certificateApp      CertificateApplication?
+  attachments         Attachment[]
+
+  @@index([type, status])
+}
+
+// =========================================================================
+// 2. Attachment — polymorphic, covers all file uploads from both forms
+// =========================================================================
+
+model Attachment {
+  id              String   @id @default(uuid())
+  applicationId   String
+  category        String
+  description     String?
+  fileUrl         String
+  fileName        String
+  fileSizeBytes   Int?
+  mimeType        String?
+  uploadedAt      DateTime @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id])
+
+  @@index([applicationId])
+}
+
+// =========================================================================
+// 3. DesignationBodyApplication — Form 1 (Annex 2) data
+// =========================================================================
+
+model DesignationBodyApplication {
+  id            String @id @default(uuid())
+  applicationId String @unique
+
+  // Step 1 — Organization info
+  organizationNameAr    String
+  organizationNameEn    String
+  organizationAddressAr String
+  organizationAddressEn String
+  country               String
+  phone                 String
+  fax                   String?
+  website               String?
+  email                 String
+
+  // Step 2 — Senior management
+  headName   String
+  headEmail  String
+  headMobile String
+
+  // Step 3 — Contact officer
+  contactOfficerName   String
+  contactOfficerEmail  String
+  contactOfficerMobile String
+
+  // Step 4 — Report checklist
+  orgStructureIncluded                          Boolean @default(false)
+  technicalHumanCapacityIncluded                Boolean @default(false)
+  inspectorsTrainingProceduresIncluded          Boolean @default(false)
+  approvedInspectorsAuditorsListIncluded        Boolean @default(false)
+  halalCertificateIssuingProceduresIncluded     Boolean @default(false)
+  documentRecordsProceduresIncluded             Boolean @default(false)
+  nationalHalalCertificatesLast12MonthsIncluded Boolean @default(false)
+  suppliersFacilitiesProductsListIncluded       Boolean @default(false)
+  accreditationCertificatesCopy                 Boolean @default(false)
+  appointmentDesignationCopy                    Boolean @default(false)
+  otherDocuments                                Boolean @default(false)
+  otherDocumentsDescription                     String?
+
+  // Step 5 — National Halal certificates
+  grantsNationalHalalCertificate  YesNo?
+  nationalHalalCertificateName    String?
+  nationalHalalReferenceStandard  String?
+  coveredProductCategories        String?
+  hasOtherNationalHalalBodies     YesNo?
+  otherNationalHalalBodiesNames   String?
+
+  // Step 6 — Other certificates
+  grantsOtherCertificates              YesNo?
+  otherCertificatesNames               String?
+  otherCertificatesReferenceStandards  String?
+  otherCertificatesScope               String?
+
+  // Step 7 — Declaration and signature
+  applicantAcknowledgement Boolean  @default(false)
+  signatureHeadName        String
+  signatureDate            DateTime
+  additionalNotes          String?
+
+  // Operational fields — set by staff after approval, NOT from the form
+  bodyType         DesignationBodyType?
+  status           EntityStatus         @default(PENDING)
+  feeExempt        Boolean              @default(false)
+  contractSignedAt DateTime?
+  contractFileUrl  String?
+
+  application     Application      @relation(fields: [applicationId], references: [id])
+  appointedBodies AppointedBody[]
+  payments        Payment[]
+
+  @@index([country, status])
+}
+
+// =========================================================================
+// 4. CertificateApplication — Form 2 data
+// =========================================================================
+
+model CertificateApplication {
+  id            String @id @default(uuid())
+  applicationId String @unique
+
+  // Step 1 — Company info
+  companyRegisteredNameAr    String
+  companyRegisteredNameEn    String
+  companyRegisteredAddressAr String
+  companyRegisteredAddressEn String
+  country                    String
+  companyNature              CompanyNature
+  phone                      String
+  fax                        String?
+  website                    String?
+  companyEmail               String
+  responsiblePersonName      String
+  managerEmail               String
+  responsiblePersonMobile    String
+  qualityManagerName         String
+  isFirstApplication         YesNo
+  purposes                   CertPurpose[]
+  branchAddresses            Json
+
+  // Step 2 — Product details
+  requestedProducts             Json
+  productDescription             String
+  otherFactoryProducts           Json
+  hasOtherHalalCertificate       YesNo
+  otherHalalCertificateScope     String?
+  otherHalalReferenceStandard    String?
+  otherHalalCertifyingBody       String?
+
+  // Step 3 — Attachment booleans
+  attNationalHalalCertificate         Boolean @default(false)
+  attFinalProductTestCertificate      Boolean @default(false)
+  attRawMaterialTestCertificates      Boolean @default(false)
+  attQualityOrNationalConformityCert  Boolean @default(false)
+  attFactoryLicense                   Boolean @default(false)
+  attOtherFactoryCertificates         Boolean @default(false)
+  attIso22000Certificate              Boolean @default(false)
+  attHaccpCertificate                 Boolean @default(false)
+  attOther                            Boolean @default(false)
+  attOtherDescription                 String?
+
+  // Step 4 — Declaration
+  declarationAccepted Boolean @default(false)
+
+  // Step 5 — Applicant info
+  applicantName     String
+  applicantJobTitle String
+  applicationDate   DateTime
+  additionalNotes   String?
+
+  // Operational fields — set by staff after approval
+  appointedBodyId String?
+  status          EntityStatus @default(PENDING)
+
+  application     Application    @relation(fields: [applicationId], references: [id])
+  appointedBody   AppointedBody? @relation(fields: [appointedBodyId], references: [id])
+  certificates    Certificate[]
+
+  @@index([country, status])
+}
+
+// =========================================================================
+// 5. AppointedBody
+// =========================================================================
+
+model AppointedBody {
+  id                 String       @id @default(uuid())
+  designationBodyId  String
+  name               String
+  accreditationScope String
+  country            String
+  status             EntityStatus @default(ACTIVE)
+  appointedAt        DateTime     @default(now())
+  createdAt          DateTime     @default(now())
+
+  designationBody  DesignationBodyApplication @relation(fields: [designationBodyId], references: [id])
+  certificateApps  CertificateApplication[]
+  certificates     Certificate[]
+
+  @@index([designationBodyId])
+}
+
+// =========================================================================
+// 6. Certificate
+// =========================================================================
+
+model Certificate {
+  id                 String            @id @default(uuid())
+  certificateAppId   String
+  appointedBodyId    String
+  certificateNumber  String            @unique
+  purpose            CertPurpose
+  productNames       Json
+  issueDate          DateTime
+  expiryDate         DateTime
+  status             CertificateStatus @default(ACTIVE)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  certificateApp CertificateApplication  @relation(fields: [certificateAppId], references: [id])
+  appointedBody  AppointedBody           @relation(fields: [appointedBodyId], references: [id])
+  statusHistory  CertificateStatusLog[]
+  payments       Payment[]
+
+  @@index([status, expiryDate])
+}
+
+// =========================================================================
+// 7. CertificateStatusLog — immutable audit trail
+// =========================================================================
+
+model CertificateStatusLog {
+  id            String            @id @default(uuid())
+  certificateId String
+  fromStatus    CertificateStatus
+  toStatus      CertificateStatus
+  reason        String?
+  changedBy     String?
+  changedAt     DateTime          @default(now())
+
+  certificate   Certificate @relation(fields: [certificateId], references: [id])
+  changedByUser AdminUser?  @relation(fields: [changedBy], references: [id])
+
+  @@index([certificateId])
+}
+
+// =========================================================================
+// 8. Payment
+// =========================================================================
+
+model Payment {
+  id                String        @id @default(uuid())
+  feeType           FeeType
+  amountUsd         Decimal       @db.Decimal(10, 2)
+  status            PaymentStatus @default(PENDING)
+  paidAt            DateTime?
+  receiptUrl        String?
+  receiptFileName   String?
+  periodStart       DateTime?
+  periodEnd         DateTime?
+  notes             String?
+  confirmedBy       String?
+  createdAt         DateTime      @default(now())
+
+  designationBodyId String?
+  certificateId     String?
+
+  designationBody  DesignationBodyApplication? @relation(fields: [designationBodyId], references: [id])
+  certificate      Certificate?                @relation(fields: [certificateId], references: [id])
+  confirmedByUser  AdminUser?                  @relation(fields: [confirmedBy], references: [id])
+
+  @@index([status, feeType])
+}
+
+// =========================================================================
+// 9. SurveillanceReport (DB3) — received from external surveillance bodies
+// =========================================================================
+
+model SurveillanceReport {
+  id                        String   @id @default(uuid())
+  surveillanceBodyName      String
+  country                   String
+  periodLabel               String
+  periodStart               DateTime
+  periodEnd                 DateTime
+  reportFileUrl             String
+  reportFileName            String
+  licensedProductsListUrl   String?
+  violationsSummary         String?
+  violationsCount           Int?
+  receivedAt                DateTime @default(now())
+  notes                     String?
+  createdBy                 String?
+
+  createdByUser AdminUser? @relation(fields: [createdBy], references: [id])
+
+  @@index([country])
+}
+
+// =========================================================================
+// 10. AdminUser
+// =========================================================================
+
+model AdminUser {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String
+  role          AdminRole @default(VIEWER)
+  passwordHash  String
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  isActive      Boolean   @default(true)
+
+  reviewedApplications Application[]
+  statusChanges        CertificateStatusLog[]
+  confirmedPayments    Payment[]
+  surveillanceReports  SurveillanceReport[]
+}

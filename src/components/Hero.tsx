@@ -546,17 +546,17 @@ export const Hero = () => {
         <div className="absolute inset-0 z-0 bg-slate-950">
           {/* Static fallback if reduced motion is preferred or while loading */}
           {prefersReducedMotion ? (
-             <img 
-               src={HERO_SLIDES[activeSlide].image} 
+             <img
+               src={HERO_SLIDES[activeSlide].image}
                alt={slideAlts[activeSlide]?.alt ?? ""}
-               className="absolute inset-0 h-full w-full object-cover object-center opacity-60"
+               className="absolute inset-0 h-full w-full object-cover object-center opacity-90"
              />
           ) : (
             <>
               <img
                 src={HERO_SLIDES[activeSlide].image}
                 alt={slideAlts[activeSlide]?.alt ?? ""}
-                className="absolute inset-0 h-full w-full object-cover object-center opacity-60"
+                className="absolute inset-0 h-full w-full object-cover object-center opacity-90"
               />
               <canvas
                 ref={canvasRef}
@@ -565,15 +565,14 @@ export const Hero = () => {
             </>
           )}
 
-          {/* Overlays to ensure text remains highly readable */}
+          {/* Overlays: keep the image bright, darken only behind the RTL headline for legibility */}
           <motion.div
             key={`wash-${activeSlide}`}
             initial={{ opacity: 0.2 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
-            className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_72%_42%,rgba(0,122,85,0.42),transparent_32%),linear-gradient(90deg,rgba(3,7,18,0.26),rgba(3,7,18,0.72)_52%,rgba(3,7,18,0.95))] pointer-events-none"
+            className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_78%_40%,rgba(0,122,85,0.28),transparent_40%),linear-gradient(90deg,rgba(3,7,18,0.02)_0%,rgba(3,7,18,0.24)_55%,rgba(3,7,18,0.6)_100%)] pointer-events-none"
           />
-          <div className="absolute inset-0 z-10 bg-slate-950/20 mix-blend-multiply pointer-events-none"></div>
           <div
             className="absolute inset-0 z-10 opacity-[0.09] pointer-events-none"
             style={{
@@ -721,7 +720,7 @@ export const Hero = () => {
               className="relative p-3 lg:p-4 bg-white rounded-2xl shadow-[var(--shadow-ind-floating)] border border-stone-200"
             >
               <div className="relative z-10 rounded-xl overflow-hidden ind-recessed shadow-[inset_0_4px_10px_rgba(0,0,0,0.1)]">
-                <img src="/sous-hero.png" alt="Editorial Visual" className="w-full h-auto grayscale-[20%] hover:grayscale-0 transition-all duration-700" />
+                <img src="/intro-bg-1.png" alt="Editorial Visual" className="w-full h-auto grayscale-[20%] hover:grayscale-0 transition-all duration-700" />
               </div>
             </motion.div>
           </div>
