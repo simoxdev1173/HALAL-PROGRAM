@@ -24,7 +24,6 @@ export default function HalalCertificate() {
   const [isTemplateOpen, setIsTemplateOpen] = useState(false);
   const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
   const processSteps = t("halalCertificate.process.steps", { returnObjects: true }) as Step[];
-  const diagramItems = t("halalCertificate.grantingBodies.diagram", { returnObjects: true }) as string[];
   const generalRequirements = t("halalCertificate.requirements.general", { returnObjects: true }) as RequirementCopy;
   const technicalRequirements = t("halalCertificate.requirements.technical", { returnObjects: true }) as RequirementCopy;
   const costFees = t("halalCertificate.costs.fees", { returnObjects: true }) as CostFee[];
@@ -63,20 +62,6 @@ export default function HalalCertificate() {
     ? "يوضح هذا المسار الخطوات العملية التي يتبعها المورّد أو المنشأة للحصول على شهادة الحلال العربية والترخيص باستخدام العلامة."
     : t("halalCertificate.process.description");
   const displayedProcessSteps = isRtl ? arabicCertificateJourneySteps : processSteps;
-  const arabicGrantingBodies = [
-    {
-      title: "جهة التعيين الحلال",
-      text: "جهة حكومية مخوّلة بتعيين جهات تقييم المطابقة في مجال الحلال أو تعليق تعيينها أو إلغائه.",
-    },
-    {
-      title: "الجهة المعيّنة",
-      text: "جهة منح الشهادات المرخّص لها بمنح شهادة الحلال العربية.",
-    },
-    {
-      title: "المورّد أو المنشأة",
-      text: "الجهة المتقدّمة بطلب الحصول على الشهادة وعلامة الحلال العربية.",
-    },
-  ];
   const displayedGrantingBodiesTitle = isRtl ? "الجهات المانحة للشهادة" : t("halalCertificate.grantingBodies.title");
   const displayedGrantingBodiesBody = isRtl
     ? "تصدر شهادة الحلال العربية عن الجهة المعيّنة المرخّص لها بمنح شهادة الحلال العربية. إذا كنت مورّداً أو منشأةً راغبة في الحصول على الشهادة أو الترخيص باستخدام علامة الحلال، يمكن لك التواصل مع إحدى الجهات المعيّنة المعتمدة من قبل جهة تعيين عربية، موقّعة على وثيقة التعاون الفنية مع المنظمة وعضو بالبرنامج، وطلب الحصول على الترخيص لمنح الشهادة."
