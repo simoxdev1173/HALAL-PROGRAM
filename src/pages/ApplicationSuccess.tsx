@@ -154,7 +154,7 @@ export default function ApplicationSuccess() {
   return (
     <main
       dir={isRtl ? "rtl" : "ltr"}
-      className={`relative flex min-h-screen items-start justify-center overflow-hidden bg-[#F7F1E3] px-4 py-24 text-stone-900 ${isRtl ? "font-arabic" : "font-english"}`}
+      className={`relative flex min-h-screen items-start justify-center overflow-hidden bg-[#F7F1E3] px-4 py-20 text-stone-900 sm:px-6 sm:py-24 ${isRtl ? "font-arabic" : "font-english"}`}
     >
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center opacity-25" style={{ backgroundImage: "url('/header-bg.png')" }} />
@@ -169,7 +169,7 @@ export default function ApplicationSuccess() {
         <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-[#007A55]/12 to-transparent" />
       </div>
 
-      <div className="absolute top-5 z-20 flex w-full max-w-5xl items-center justify-between px-2">
+      <div className="absolute top-5 z-20 flex w-full max-w-6xl items-center justify-between px-2">
         <img src="/logo.svg" alt="" className="h-12 w-12 object-contain drop-shadow-lg sm:h-14 sm:w-14" />
         <FormLanguageSwitcher />
       </div>
@@ -178,43 +178,39 @@ export default function ApplicationSuccess() {
         initial={{ opacity: 0, y: 24, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 w-full max-w-5xl overflow-hidden rounded-[2rem] border border-[#D6B66A]/40 bg-white/90 p-6 text-center shadow-[0_40px_100px_-30px_rgba(78,60,24,0.45)] ring-1 ring-white/70 backdrop-blur-xl sm:p-10 lg:p-12"
+        className="relative z-10 w-full max-w-6xl overflow-hidden rounded-[2.5rem] border border-[#007A55]/15 bg-white/94 p-7 text-center shadow-[0_45px_130px_-38px_rgba(0,63,45,0.42),0_20px_55px_-34px_rgba(91,66,20,0.28)] ring-1 ring-white/80 backdrop-blur-xl sm:p-12 lg:p-16"
       >
-        <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#007A55] via-[#CA8A04] to-[#007A55]" />
+        <div className="pointer-events-none absolute -right-28 -top-28 h-80 w-80 rounded-full bg-[#007A55]/[0.055] blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-36 -left-24 h-80 w-80 rounded-full bg-[#D6B66A]/[0.08] blur-3xl" />
 
         <motion.div
           initial={{ scale: 0, rotate: -20 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ delay: 0.15, type: "spring", stiffness: 220, damping: 16 }}
-          className="mx-auto mb-7 flex h-24 w-24 items-center justify-center rounded-full bg-[#007A55]/10"
+          className="relative mx-auto mb-8 flex h-28 w-28 items-center justify-center rounded-full bg-[#007A55]/8 ring-1 ring-[#007A55]/10"
         >
-          <span className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-[#007A55] text-white shadow-[0_18px_40px_-12px_rgba(0,122,85,0.6)]">
-            <CheckCircle2 size={44} strokeWidth={2.4} />
+          <span className="flex h-20 w-20 items-center justify-center rounded-full bg-[#007A55] text-white shadow-[0_22px_48px_-14px_rgba(0,122,85,0.65)] ring-8 ring-white">
+            <CheckCircle2 size={46} strokeWidth={2.35} />
           </span>
         </motion.div>
 
-        <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#007A55]/10 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-[#007A55]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#007A55]" />
-          {t.eyebrow}
-        </p>
-
-        <h1 className="text-2xl font-black leading-tight text-stone-900 sm:text-3xl">{t.title}</h1>
-        <p className="mx-auto mt-4 max-w-md text-[15px] font-bold leading-8 text-stone-600">{t.subtitle[type]}</p>
+        <h1 className="text-3xl font-black leading-tight text-stone-900 sm:text-[2.35rem]">{t.title}</h1>
+        <p className="mx-auto mt-5 max-w-xl text-[15px] font-bold leading-8 text-stone-600 sm:text-base">{t.subtitle[type]}</p>
 
         {requestNumber && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
-            className="mx-auto mt-8 max-w-sm rounded-2xl border border-[#D6B66A]/40 bg-[#FFF8E8]/80 p-5"
+            className="relative mx-auto mt-9 max-w-lg overflow-hidden rounded-[1.75rem] border border-[#D6B66A]/45 bg-[linear-gradient(145deg,#FFFCF4_0%,#F7FBF7_100%)] p-6 shadow-[0_20px_48px_-34px_rgba(0,77,54,0.42)] sm:p-7"
           >
             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#8A6D1F]">{t.requestLabel}</p>
-            <div className="mt-2 flex items-center justify-center gap-3">
-              <span className="text-2xl font-black tracking-wider text-[#004D36]" dir="ltr">{requestNumber}</span>
+            <div className="mt-3 flex items-center justify-center gap-3">
+              <span className="break-all text-[clamp(1.2rem,2.2vw,1.7rem)] font-black tracking-[0.08em] text-[#004D36]" dir="ltr">{requestNumber}</span>
               <button
                 type="button"
                 onClick={handleCopy}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-500 transition-colors hover:border-[#007A55] hover:text-[#007A55]"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#007A55]/15 bg-white text-stone-500 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#007A55]/40 hover:text-[#007A55]"
                 aria-label={t.copy}
               >
                 <Copy size={16} />
@@ -229,9 +225,9 @@ export default function ApplicationSuccess() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45 }}
-            className="mt-8 overflow-hidden rounded-2xl border border-stone-200 bg-[#FBFAF5] text-start shadow-sm"
+            className="mt-10 overflow-hidden rounded-[1.75rem] border border-[#007A55]/15 bg-[#FBFCF9] text-start shadow-[0_18px_45px_-36px_rgba(0,63,45,0.45)]"
           >
-            <div className="flex flex-col gap-4 border-b border-stone-200 bg-white/90 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 border-b border-[#007A55]/10 bg-white/90 p-6 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-start gap-3">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#007A55]/10 text-[#007A55]">
                   <FileText size={22} />
@@ -259,8 +255,8 @@ export default function ApplicationSuccess() {
                 {type === "certificate" && certificateSession ? <CertificateApplicationPrintDocument session={certificateSession} /> : null}
               </div>
             ) : (
-              <div className="flex min-h-[220px] items-center justify-center p-8 text-center text-sm font-black leading-7 text-red-700">
-                {t.unavailable}
+              <div className="flex min-h-[220px] items-center justify-center bg-[radial-gradient(circle_at_center,rgba(214,182,106,0.08),transparent_66%)] p-8 text-center">
+                <p className="max-w-xl text-sm font-bold leading-8 text-[#725B26]">{t.unavailable}</p>
               </div>
             )}
           </motion.div>
@@ -268,7 +264,7 @@ export default function ApplicationSuccess() {
 
         <Link
           to="/"
-          className="group mt-9 inline-flex h-[52px] items-center justify-center gap-3 rounded-xl bg-[#007A55] px-8 text-[15px] font-black text-white shadow-[0_20px_40px_-12px_rgba(0,122,85,0.45)] transition-all hover:brightness-110 active:scale-[0.98]"
+          className="group mt-10 inline-flex h-14 items-center justify-center gap-3 rounded-2xl bg-[#007A55] px-9 text-[15px] font-black text-white shadow-[0_22px_45px_-14px_rgba(0,122,85,0.48)] ring-1 ring-[#006F4D] transition-all hover:-translate-y-0.5 hover:bg-[#006F4D] active:scale-[0.98]"
         >
           <HomeArrow size={20} className="transition-transform duration-300 group-hover:-translate-y-0.5" />
           {t.home}

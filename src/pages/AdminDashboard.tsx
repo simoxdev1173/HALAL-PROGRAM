@@ -371,7 +371,74 @@ function useAdminList(config?: ResourceConfig, page = 1, search = "", filters: R
   return { rows, total, isLoading };
 }
 
-function OverviewPage({ notify, confirm, adminUserId }: { notify: NotifyFn; confirm: ConfirmFn; adminUserId?: string }) {
+type ReviewQueueEntry = {
+  item: Record<string, unknown>;
+  resource: "designation-bodies" | "suppliers";
+  kind?: string;
+};
+
+function ReviewQueueGroup({
+  title,
+  description,
+  emptyLabel,
+  entries,
+  icon: Icon,
+}: {
+  title: string;
+  description: string;
+  emptyLabel: string;
+  entries: ReviewQueueEntry[];
+  icon: LucideIcon;
+}) {
+  return (
+    <section className="border-b border-stone-200 last:border-b-0">
+      <header className="flex items-center justify-between gap-4 bg-[#F7F8F6] px-4 py-3.5">
+        <div className="flex min-w-0 items-center gap-3">
+          <Icon size={18} className="shrink-0 text-[#007A55]" />
+          <div className="min-w-0">
+            <h3 className="text-sm font-black text-slate-950">{title}</h3>
+            <p className="mt-0.5 truncate text-[10px] font-bold text-stone-500">{description}</p>
+          </div>
+        </div>
+        <span className="inline-flex min-w-7 items-center justify-center border-r-2 border-[#007A55] px-2 text-sm font-black text-slate-900">{entries.length}</span>
+      </header>
+
+      {entries.length === 0 ? (
+        <p className="px-4 py-5 text-xs font-bold text-stone-400">{emptyLabel}</p>
+      ) : (
+        <div>
+          {entries.map(({ item, resource, kind }) => {
+            const id = String(item.id);
+            return (
+              <article key={`${resource}-${id}`} className="grid gap-3 border-b border-stone-100 px-4 py-3.5 last:border-b-0 hover:bg-stone-50/70 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-black text-slate-950">{getValue(item, "name") || "طلب بدون اسم"}</p>
+                  {kind && <p className="mt-1 text-[10px] font-black text-[#007A55]">{kind}</p>}
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-bold text-stone-500">
+                    <span dir="ltr">{getValue(item, "requestNumber") || "غير متوفر"}</span>
+                    <CountryFlag country={getValue(item, "country")} />
+                    <span>{getValue(item, "registeredAt") || getValue(item, "joinedAt") || "غير متوفر"}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => window.open(`/admin/application-preview/${resource}/${encodeURIComponent(id)}`, "_blank", "noopener,noreferrer")}
+                  className="group inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 text-[11px] font-black text-[#007A55] transition-colors hover:border-[#007A55]/40 hover:bg-white active:translate-y-px"
+                >
+                  <Eye size={15} />
+                  مراجعة التفاصيل
+                  <ChevronLeft size={14} className="transition-transform group-hover:-translate-x-0.5" />
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function OverviewPage() {
   const [activity, setActivity] = useState<Record<string, unknown>[]>([]);
   const [approvals, setApprovals] = useState<Record<string, unknown>[]>([]);
   const [demands, setDemands] = useState<Record<string, unknown>[]>([]);
@@ -408,31 +475,6 @@ function OverviewPage({ notify, confirm, adminUserId }: { notify: NotifyFn; conf
     void load();
   }, []);
 
-  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
-
-  const handleDecision = async (resource: "designation-bodies" | "suppliers", id: string, action: "approve" | "reject") => {
-    setPendingIds((current) => new Set(current).add(id));
-    const ok = await runResourceAction(resource, id, action, notify, adminUserId);
-    if (ok) {
-      if (resource === "suppliers") setDemands((current) => current.filter((row) => String(row.id) !== id));
-      else setApprovals((current) => current.filter((row) => String(row.id) !== id));
-    }
-    setPendingIds((current) => {
-      const next = new Set(current);
-      next.delete(id);
-      return next;
-    });
-  };
-
-  const requestReject = (resource: "designation-bodies" | "suppliers", id: string) => {
-    confirm({
-      title: "رفض الطلب",
-      body: "هل تريد رفض هذا الطلب؟ سيتم تسجيل القرار ويمكن التراجع عنه من سجل العمليات.",
-      confirmLabel: "رفض الطلب",
-      onConfirm: () => void handleDecision(resource, id, "reject"),
-    });
-  };
-
   const statCards = [
     { label: "إجمالي جهات التعيين", key: "designationBodies", icon: Building2, tone: "text-[#007A55]" },
     { label: "إجمالي الجهات المعيّنة", key: "appointedBodies", icon: BadgeCheck, tone: "text-[#007A55]" },
@@ -440,10 +482,13 @@ function OverviewPage({ notify, confirm, adminUserId }: { notify: NotifyFn; conf
     { label: "طلبات بانتظار القرار", key: "pendingApplications", icon: FileClock, tone: "text-[#9A6700]" },
   ];
 
-  const queue = [
-    ...demands.map((item) => ({ item, resource: "suppliers" as const, kind: getValue(item, "purpose") || "طلب شهادة أو علامة" })),
-    ...approvals.map((item) => ({ item, resource: "designation-bodies" as const, kind: "طلب انضمام جهة تعيين" })),
-  ];
+  const joinQueue: ReviewQueueEntry[] = approvals.map((item) => ({ item, resource: "designation-bodies" }));
+  const certificateQueue: ReviewQueueEntry[] = demands.map((item) => ({
+    item,
+    resource: "suppliers",
+    kind: getValue(item, "purpose") || "شهادة أو علامة الحلال العربية",
+  }));
+  const pendingReviewCount = joinQueue.length + certificateQueue.length;
 
   return (
     <div className="space-y-3">
@@ -458,7 +503,7 @@ function OverviewPage({ notify, confirm, adminUserId }: { notify: NotifyFn; conf
                 </div>
                 <div className="min-w-0">
                   <p className="text-[11px] font-black text-stone-500">{card.label}</p>
-                  <p className="mt-0.5 text-xl font-black text-slate-950">{String(stats[card.key] ?? "—")}</p>
+                  <p className="mt-0.5 text-xl font-black text-slate-950">{String(stats[card.key] ?? "غير متوفر")}</p>
                 </div>
               </div>
             </article>
@@ -470,44 +515,26 @@ function OverviewPage({ notify, confirm, adminUserId }: { notify: NotifyFn; conf
         <section className="flex min-h-[460px] flex-col overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3">
             <div>
-              <p className="text-[10px] font-black text-[#007A55]">مساحة القرار</p>
-              <h2 className="mt-0.5 text-base font-black text-slate-950">الطلبات التي تحتاج مراجعة</h2>
+              <h2 className="text-base font-black text-slate-950">الطلبات التي تحتاج مراجعة</h2>
             </div>
-            <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-md bg-slate-950 px-2 text-xs font-black text-white">{queue.length}</span>
+            <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-md bg-slate-950 px-2 text-xs font-black text-white">{pendingReviewCount}</span>
           </div>
-          {queue.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
-              <CheckCircle2 size={30} className="text-emerald-600" />
-              <p className="mt-3 text-sm font-black text-slate-900">لا توجد قرارات معلّقة</p>
-              <p className="mt-1 text-xs font-bold text-stone-500">تمت معالجة جميع الطلبات الحالية.</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-stone-100">
-              {queue.map(({ item, resource, kind }) => {
-                const id = String(item.id);
-                const isBusy = pendingIds.has(id);
-                return (
-                  <article key={`${resource}-${id}`} className="grid gap-3 px-4 py-3 transition-colors hover:bg-stone-50 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="truncate text-sm font-black text-slate-950">{getValue(item, "name") || "طلب بدون اسم"}</p>
-                        <span className={`rounded px-2 py-1 text-[10px] font-black ${resource === "suppliers" ? "bg-amber-50 text-[#8A5A00]" : "bg-emerald-50 text-[#007A55]"}`}>{kind}</span>
-                      </div>
-                      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-bold text-stone-500">
-                        <span dir="ltr">{getValue(item, "requestNumber") || "—"}</span>
-                        <CountryFlag country={getValue(item, "country")} />
-                        <span>{getValue(item, "registeredAt") || getValue(item, "joinedAt") || "—"}</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-1.5">
-                      <button type="button" disabled={isBusy} onClick={() => void handleDecision(resource, id, "approve")} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#007A55] px-3 text-[11px] font-black text-white disabled:opacity-50"><Check size={14} /> اعتماد</button>
-                      <button type="button" disabled={isBusy} onClick={() => requestReject(resource, id)} className="inline-flex h-8 items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 text-[11px] font-black text-red-700 disabled:opacity-50"><X size={14} /> رفض</button>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          )}
+          <div className="flex-1 overflow-y-auto">
+            <ReviewQueueGroup
+              title="طلبات الانضمام إلى البرنامج"
+              description="طلبات جهات التعيين الراغبة في الانضمام"
+              emptyLabel="لا توجد طلبات انضمام بانتظار المراجعة."
+              entries={joinQueue}
+              icon={Building2}
+            />
+            <ReviewQueueGroup
+              title="طلبات شهادة وعلامة الحلال"
+              description="طلبات الموردين والمنشآت للحصول على الشهادة أو العلامة"
+              emptyLabel="لا توجد طلبات شهادة أو علامة بانتظار المراجعة."
+              entries={certificateQueue}
+              icon={FileBadge2}
+            />
+          </div>
         </section>
 
         <div className="grid min-h-[460px] gap-3 xl:grid-rows-2">
@@ -779,7 +806,7 @@ function SimpleTable({
                     ) : column.key === "country" ? (
                       <CountryFlag country={getValue(row, column.key)} />
                     ) : (
-                      getValue(row, column.key) || "—"
+                      getValue(row, column.key) || "غير متوفر"
                     )}
                   </td>
                 ))}
@@ -883,7 +910,7 @@ function DetailDrawer({ row, title, onClose }: { row: Record<string, unknown>; t
               <div key={key} className="rounded-xl border border-stone-200 bg-[#FAF9F6] p-4">
                 <p className="text-xs font-black text-stone-500">{detailFieldLabels[key] ?? key}</p>
                 <p className="mt-1 text-sm font-bold text-slate-800">
-                  {key === "country" ? <CountryFlag country={String(value ?? "")} /> : typeof value === "object" ? JSON.stringify(value) : String(value || "—")}
+                  {key === "country" ? <CountryFlag country={String(value ?? "")} /> : typeof value === "object" ? JSON.stringify(value) : String(value || "غير متوفر")}
                 </p>
               </div>
             ))
@@ -1042,8 +1069,8 @@ function PaymentsPage({ notify, adminUserId }: { notify: NotifyFn; adminUserId?:
                     <td className="whitespace-nowrap px-4 py-3">{row.feeType}</td>
                     <td className="whitespace-nowrap px-4 py-3 font-black" dir="ltr">{Number(row.amount).toLocaleString("ar-MA")} {row.currency}</td>
                     <td className="whitespace-nowrap px-4 py-3"><StatusBadge status={row.status} /></td>
-                    <td className="whitespace-nowrap px-4 py-3">{row.paidAt || "—"}</td>
-                    <td className="whitespace-nowrap px-4 py-3">{row.receiptUrl ? <a href={row.receiptUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-[#007A55]"><ReceiptText size={14} /> {row.receipt}</a> : "—"}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.paidAt || "غير متوفر"}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.receiptUrl ? <a href={row.receiptUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-[#007A55]"><ReceiptText size={14} /> {row.receipt}</a> : "غير متوفر"}</td>
                     <td className="whitespace-nowrap px-4 py-3"><div className="flex gap-1.5">
                       {row.status !== "paid" && <button type="button" disabled={busyId === row.id} onClick={() => void updateStatus(row, "paid")} className="flex h-8 w-8 items-center justify-center rounded-md bg-[#007A55] text-white disabled:opacity-40" title="تأكيد الدفع"><Check size={15} /></button>}
                       {row.status === "pending" && <button type="button" disabled={busyId === row.id} onClick={() => void updateStatus(row, "overdue")} className="flex h-8 w-8 items-center justify-center rounded-md border border-red-200 bg-red-50 text-red-700 disabled:opacity-40" title="تصنيف كمتأخر"><Clock3 size={15} /></button>}
@@ -1223,7 +1250,7 @@ function HistoryPage({ notify, adminUserId }: { notify: NotifyFn; adminUserId?: 
                   <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#007A55]"><Clock3 size={18} /></div>
                   <div>
                     <p className="text-sm font-black text-slate-950">
-                      {entry.actionLabel} — {entry.resourceLabel} <span className="text-stone-500">"{entry.entityName}"</span>
+                      {entry.actionLabel} - {entry.resourceLabel} <span className="text-stone-500">"{entry.entityName}"</span>
                     </p>
                     <p className="mt-1 text-xs font-bold text-stone-500">
                       {entry.actor} · {new Date(entry.createdAt).toLocaleString("ar")}
@@ -1446,16 +1473,7 @@ export default function AdminDashboard() {
             <p className="hidden text-[10px] font-black text-[#007A55] sm:block">لوحة إدارة داخلية</p>
             <h1 className="text-base font-black text-slate-950 sm:mt-0.5 sm:text-lg">{pageTitle}</h1>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="hidden items-center gap-2 border-l border-stone-200 pl-3 md:flex">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-[#007A55]"><User size={16} /></div>
-              <div>
-                <p className="text-xs font-black text-slate-900">{adminUser?.name ?? "مدير النظام"}</p>
-                <p className="text-[10px] font-bold text-stone-500">{adminUser?.role ?? "ADMIN"}</p>
-              </div>
-            </div>
-            <button type="button" onClick={logout} className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-950 text-white" aria-label="تسجيل الخروج" title="تسجيل الخروج"><LogOut size={17} /></button>
-          </div>
+          <button type="button" onClick={logout} className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-950 text-white" aria-label="تسجيل الخروج" title="تسجيل الخروج"><LogOut size={17} /></button>
         </div>
       </header>
 
@@ -1495,7 +1513,7 @@ export default function AdminDashboard() {
 
       <section className="min-h-screen pt-16 lg:pr-56">
         <div className="w-full px-3 py-3 pb-28 sm:px-4 lg:px-5 lg:py-4">
-          {activeSection === "overview" && <OverviewPage notify={notify} confirm={setConfirmAction} adminUserId={adminUser?.id} />}
+          {activeSection === "overview" && <OverviewPage />}
           {activeSection === "settings" && <SettingsPage notify={notify} />}
           {activeSection === "payments" && <PaymentsPage notify={notify} adminUserId={adminUser?.id} />}
           {activeSection === "history" && <HistoryPage notify={notify} adminUserId={adminUser?.id} />}

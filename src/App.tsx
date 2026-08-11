@@ -1,6 +1,6 @@
 ﻿// App.js
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Navigate, Routes, Route, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Navbar from "./components/Navbar";
 import FloatingBreadcrumb from "./components/FloatingBreadcrumb";
@@ -173,6 +173,7 @@ function AppContent() {
             <Route path="/application-submitted" element={<ApplicationSuccess />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/application-preview/:resource/:id" element={<AdminApplicationPreview />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
 
           {!isFocusedApplication && <Footer lang={lang} onChatOpen={() => handleSetChatOpen(true)} />}

@@ -426,7 +426,7 @@ app.patch("/api/admin/users/:id", asyncRoute(async (req, res) => {
 // ---------------------------------------------------------------------------
 // Error handling
 // ---------------------------------------------------------------------------
-app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   void _next;
   if (err instanceof ValidationError) {
     return res.status(400).json({ ok: false, error: "VALIDATION_ERROR", fields: err.fields, message: "يرجى مراجعة الحقول المطلوبة." });
@@ -441,7 +441,22 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     return res.status(400).json({ ok: false, error: err.code, message: "تعذر رفع الملفات. تأكد من الحجم والصيغة." });
   }
   if (typeof err === "object" && err !== null && "code" in err && (err as { code?: string }).code === "P2002") {
-    return res.status(409).json({ ok: false, error: "DUPLICATE", message: "البريد الإلكتروني مستخدم بالفعل." });
+    const target = (err as { meta?: { target?: unknown } }).meta?.target;
+    const duplicateFields = Array.isArray(target)
+      ? target.map(String)
+      : typeof target === "string"
+        ? [target]
+        : [];
+    const isAdminEmail = req.path.startsWith("/api/admin/users")
+      && duplicateFields.some((field) => field.includes("email"));
+
+    return res.status(409).json({
+      ok: false,
+      error: "DUPLICATE",
+      message: isAdminEmail
+        ? "يوجد حساب إداري بهذا البريد الإلكتروني بالفعل."
+        : "تعذر حفظ الطلب بسبب تعارض مؤقت. يرجى إعادة المحاولة.",
+    });
   }
   console.error("[api] unhandled error:", err);
   res.status(500).json({ ok: false, error: "SERVER_ERROR", message: "حدث خطأ في الخادم. يرجى المحاولة لاحقاً." });
