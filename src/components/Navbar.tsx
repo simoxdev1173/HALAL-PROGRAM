@@ -48,11 +48,6 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
     navigate(`/certificate-verification${query ? `?${params.toString()}` : ""}`);
   };
 
-  const goToCertificateVerification = () => {
-    setIsSearchOpen(false);
-    navigate("/certificate-verification");
-  };
-
   // Keyboard shortcut to close search modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -197,7 +192,8 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
 
   return (
     <>
-      <nav 
+      <nav
+        id="site-navbar"
         className={`fixed top-0 w-full z-40 transition-all duration-300 bg-[#FAF9F6] ${
           scrolled 
             ? "shadow-[var(--shadow-ind-floating)] border-b border-stone-200" 
@@ -214,7 +210,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           <div className="relative flex h-full w-24 sm:w-28 lg:w-32 xl:w-36 shrink-0 items-center z-40">
             {/* BIG ROUND LOGO - Scaled for different screens */}
             <Link to="/" className="relative group block h-full w-full" aria-label="Arab Halal Program home">
-               <div className="absolute top-[4px] lg:top-[6px] xl:top-[4px] left-1/2 -translate-x-1/2 w-24 h-24 lg:w-30 xl:w-34 lg:h-30 xl:h-34 bg-white rounded-full shadow-[var(--shadow-ind-floating)] border border-stone-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 active:scale-95 z-40 overflow-hidden">
+               <div id="site-navbar-logo" className="absolute top-[4px] lg:top-[6px] xl:top-[4px] left-1/2 -translate-x-1/2 w-24 h-24 lg:w-30 xl:w-34 lg:h-30 xl:h-34 bg-white rounded-full shadow-[var(--shadow-ind-floating)] border border-stone-100 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 active:scale-95 z-40 overflow-hidden">
                   <div className="absolute inset-0 bg-stone-50/50 ind-recessed rounded-full m-1"></div>
                   <img 
                     src="/logo.svg" 
@@ -310,7 +306,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-              <span className={`${isRtl ? "hidden xl:block" : "hidden 2xl:block"} min-w-0 flex-1 truncate text-[11px] font-bold tracking-wide text-start text-stone-500 font-mono uppercase`}>
+              <span className={`${isRtl ? "hidden xl:block" : "hidden 2xl:block"} min-w-0 flex-1 truncate text-sm font-medium text-start text-stone-500`}>
                 {d.searchPlaceholder}
               </span>
             </button>
@@ -388,7 +384,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                   placeholder={d.searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="min-w-[180px] flex-1 px-5 text-lg font-mono font-bold bg-transparent outline-none text-stone-800 placeholder-stone-400 focus-visible:shadow-none"
+                  className="min-w-[180px] flex-1 px-5 text-lg font-medium bg-transparent outline-none text-stone-800 placeholder:text-stone-400 placeholder:font-normal focus-visible:shadow-none"
                 />
                 <button
                   type="submit"
@@ -413,22 +409,20 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                 </h5>
                 <div className="flex flex-wrap gap-3">
                   {d.searchSuggestions.map((suggestion, idx) => (
-                    <button 
+                    <button
                       key={idx}
-                      onClick={() => setSearchQuery(suggestion)}
+                      type="button"
+                      onClick={() => {
+                        setIsSearchOpen(false);
+                        setSearchQuery("");
+                        navigate(idx === 0 ? "/certificate-verification" : `/certificate-verification?category=${encodeURIComponent(suggestion)}`);
+                      }}
                       className="px-4 py-2 bg-white shadow-[var(--shadow-ind-card)] hover:shadow-[var(--shadow-ind-floating)] hover:-translate-y-[1px] active:translate-y-[1px] active:shadow-[var(--shadow-ind-pressed)] border border-stone-200 rounded-md text-sm font-bold text-stone-600 hover:text-[#007A55] transition-all"
                     >
                       {suggestion}
                     </button>
                   ))}
                 </div>
-                <button
-                  type="button"
-                  onClick={goToCertificateVerification}
-                  className="mt-6 w-full rounded-lg border border-[#007A55]/20 bg-[#007A55]/5 px-5 py-4 text-sm font-black text-[#007A55] shadow-[var(--shadow-ind-card)] hover:bg-[#007A55] hover:text-white"
-                >
-                  {d.searchAction}
-                </button>
               </div>
             </motion.form>
           </div>

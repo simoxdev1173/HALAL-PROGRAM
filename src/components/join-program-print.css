@@ -1,0 +1,449 @@
+.join-document-preview {
+  overflow-x: auto;
+  background: #e8e8e6;
+  padding: 24px;
+}
+
+.join-print-document {
+  --document-green: #174f33;
+  --document-gold: #e5a900;
+  --document-gray: #dedede;
+  --document-ink: #111;
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  color: var(--document-ink);
+  font-family: "Noto Sans Arabic", Tahoma, sans-serif;
+  font-size: 9pt;
+  line-height: 1.55;
+}
+
+.join-print-page {
+  box-sizing: border-box;
+  position: relative;
+  width: 210mm;
+  min-height: 297mm;
+  overflow: hidden;
+  background: #fff;
+  padding: 10mm 12mm 12mm;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.16);
+  direction: rtl;
+}
+
+.join-print-content {
+  padding-bottom: 13mm;
+}
+
+.join-print-masthead {
+  display: flex;
+  height: 8mm;
+  align-items: center;
+  border-bottom: 0.7mm solid var(--document-gold);
+  color: #53575a;
+  font-size: 12.5pt;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.join-print-masthead__tag {
+  align-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 3.5mm;
+  background: var(--document-green);
+  color: #fff;
+  white-space: nowrap;
+}
+
+.join-print-masthead__title {
+  padding: 0 2.5mm;
+  white-space: nowrap;
+}
+
+.join-print-form-title {
+  margin: 4mm 0 2.5mm;
+  text-align: center;
+  font-size: 10pt;
+  font-weight: 900;
+}
+
+.join-print-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.join-print-table td,
+.join-print-table th {
+  border: 0.32mm solid #111;
+  padding: 1.25mm 2mm;
+  vertical-align: middle;
+}
+
+.join-print-table--meta td {
+  height: 5.8mm;
+}
+
+.join-print-table--meta td:first-child {
+  width: 50%;
+}
+
+.join-print-meta-organization {
+  text-align: center;
+  font-size: 8pt;
+  font-weight: 700;
+}
+
+.join-print-label--inline,
+.join-print-value--inline {
+  display: inline;
+}
+
+.join-print-value--inline {
+  margin-inline-start: 2mm;
+}
+
+.join-print-label {
+  display: block;
+  color: #111;
+  font-size: 7.25pt;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.join-print-value {
+  display: block;
+  min-height: 4mm;
+  color: #111;
+  font-size: 8.6pt;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.join-print-value--ltr {
+  direction: ltr;
+  text-align: left;
+}
+
+.join-print-intro {
+  margin: 2.2mm 1mm 1.2mm;
+  text-align: center;
+  font-size: 7.6pt;
+  font-weight: 600;
+  line-height: 1.7;
+}
+
+.join-print-emails {
+  display: flex;
+  justify-content: center;
+  gap: 22mm;
+  margin: 0 0 1.6mm;
+  direction: ltr;
+  color: #0878ca;
+  font-family: Georgia, serif;
+  font-size: 9pt;
+}
+
+.join-print-section-row th,
+.join-print-section-row td {
+  height: 6.8mm;
+  background: var(--document-gray);
+  text-align: right;
+  font-size: 8.2pt;
+  font-weight: 900;
+}
+
+.join-print-section-row small {
+  display: block;
+  margin-top: 0.6mm;
+  font-size: 6.7pt;
+  font-weight: 600;
+}
+
+.join-print-bilingual-labels td {
+  height: 5.8mm;
+}
+
+.join-print-bilingual-values td {
+  height: 6.5mm;
+}
+
+.join-print-field-label {
+  width: 25%;
+  text-align: right;
+  font-size: 7.25pt;
+  font-weight: 700;
+}
+
+.join-print-single-field td {
+  height: 5.8mm;
+}
+
+.join-print-data-row td {
+  height: 9mm;
+}
+
+.join-print-data-row--compact td {
+  height: 7.2mm;
+}
+
+.join-print-report {
+  margin-top: 2.8mm;
+  border: 0.32mm solid #111;
+  padding: 3mm 4mm 2.4mm;
+}
+
+.join-print-report__title {
+  margin: 0 0 1.2mm;
+  font-size: 7.6pt;
+  font-weight: 900;
+}
+
+.join-print-report ol {
+  margin: 0;
+  padding-right: 5mm;
+  list-style-type: decimal;
+  font-size: 6.8pt;
+  line-height: 1.5;
+}
+
+.join-print-report li {
+  padding-right: 0.8mm;
+}
+
+.join-print-check {
+  display: inline-flex;
+  width: 3.6mm;
+  height: 3.6mm;
+  align-items: center;
+  justify-content: center;
+  margin-left: 1.4mm;
+  border: 0.32mm solid #111;
+  font-family: sans-serif;
+  font-size: 7pt;
+  font-weight: 900;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.join-print-attachments {
+  margin-top: -0.32mm;
+}
+
+.join-print-attachments__note {
+  text-align: center;
+  font-size: 6.6pt;
+  font-weight: 700;
+}
+
+.join-print-attachment-cell {
+  height: 7mm;
+  font-size: 7pt;
+  font-weight: 700;
+}
+
+.join-print-files {
+  color: #343434;
+  font-size: 6.6pt;
+  font-weight: 600;
+}
+
+.join-print-question-box {
+  margin-top: 5mm;
+  border: 0.32mm solid #111;
+}
+
+.join-print-question {
+  padding: 3.2mm 3.8mm;
+}
+
+.join-print-question + .join-print-question {
+  border-top: 0.32mm solid #111;
+}
+
+.join-print-question__prompt {
+  margin: 0 0 1.5mm;
+  font-size: 7.7pt;
+  font-weight: 700;
+}
+
+.join-print-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7mm;
+  margin-bottom: 1.4mm;
+  font-size: 7.5pt;
+  font-weight: 700;
+}
+
+.join-print-question__branch {
+  margin: 1.4mm 0 0;
+  font-size: 7.4pt;
+  font-weight: 900;
+}
+
+.join-print-line {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2mm;
+  align-items: end;
+  margin-top: 1.2mm;
+  font-size: 7.3pt;
+}
+
+.join-print-line__value {
+  min-height: 5mm;
+  border-bottom: 0.32mm dotted #222;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.join-print-legal {
+  margin: 5mm 0 3.5mm;
+  font-size: 7pt;
+}
+
+.join-print-legal h3 {
+  margin: 0 0 1.4mm;
+  font-family: inherit;
+  font-size: 8pt;
+  font-weight: 900;
+}
+
+.join-print-legal ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.join-print-legal li {
+  position: relative;
+  margin: 1.1mm 0;
+  padding-right: 4mm;
+}
+
+.join-print-legal li::before {
+  position: absolute;
+  right: 0;
+  content: "-";
+}
+
+.join-print-signature td {
+  height: 9mm;
+}
+
+.join-print-signature__label {
+  width: 30%;
+  font-size: 7.4pt;
+  font-weight: 900;
+}
+
+.join-print-notes {
+  margin-top: 3.5mm;
+}
+
+.join-print-notes__value {
+  height: 23mm;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 5.5mm, #111 5.5mm, #111 5.82mm);
+  padding: 1.5mm 2mm;
+  font-size: 7.5pt;
+  font-weight: 700;
+  white-space: pre-wrap;
+}
+
+.join-print-footer {
+  position: absolute;
+  right: 12mm;
+  bottom: 5mm;
+  left: 12mm;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: end;
+  height: 8mm;
+  border-top: 0.7mm solid var(--document-gold);
+  direction: ltr;
+  font-family: Georgia, serif;
+  font-size: 6.8pt;
+}
+
+.join-print-footer span:nth-child(2) {
+  text-align: center;
+}
+
+.join-print-footer span:nth-child(3) {
+  text-align: right;
+}
+
+.join-print-footer__page {
+  position: absolute;
+  right: 0;
+  bottom: -4.5mm;
+  color: #aaa;
+  font-family: "Noto Sans Arabic", Tahoma, sans-serif;
+}
+
+.join-print-footer__badge {
+  position: absolute;
+  left: 0;
+  bottom: -4.5mm;
+  min-width: 10mm;
+  background: var(--document-green);
+  color: #fff;
+  padding: 0.7mm 2.3mm;
+  text-align: center;
+  font-family: sans-serif;
+  font-size: 7pt;
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .join-document-preview {
+    padding: 14px;
+  }
+}
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .join-document-preview {
+    overflow: visible;
+    background: #fff;
+    padding: 0;
+  }
+
+  .join-print-document {
+    display: block;
+    width: 210mm;
+    min-width: 210mm;
+  }
+
+  .join-print-page {
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+    margin: 0;
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .join-print-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+}

@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { 
-   X } from "lucide-react";
+import { DollarSign, X } from "lucide-react";
 import {
   DefinitionPanel,
   InformationPanel,
@@ -11,6 +10,8 @@ import {
   ProcessTimeline,
   RequirementGroup,
   SectionHeading,
+  SectionNav,
+  type SectionNavItem,
   SectionReveal,
 } from "../components/InternalPage";
 
@@ -113,12 +114,29 @@ export default function HalalCertificate() {
       }
     : technicalRequirements;
 
+  const exemptBadge = isRtl ? "الجهات الحكومية معفاة" : "Government bodies exempt";
+  const additionalCostsPayer = isRtl ? "يتحملها مقدم الطلب" : "Borne by the applicant";
+
+  const navItems = useMemo<SectionNavItem[]>(
+    () => [
+      { id: "definition", label: isRtl ? "التعريف" : "Definition" },
+      { id: "journey", label: isRtl ? "مسار الحصول" : "Process" },
+      { id: "granting-bodies", label: isRtl ? "الجهات المانحة" : "Granting bodies" },
+      { id: "requirements", label: isRtl ? "المتطلبات" : "Requirements" },
+      { id: "costs", label: isRtl ? "التكاليف" : "Costs" },
+      { id: "application", label: isRtl ? "التقديم" : "Apply" },
+    ],
+    [isRtl],
+  );
+
   return (
     <main className={`min-h-screen w-full max-w-full overflow-x-hidden bg-[#FAF9F6] ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
       <InnerPageHero
         title={t("halalCertificate.hero.title")}
         description={t("halalCertificate.hero.description")}
       />
+
+      <SectionNav items={navItems} isRtl={isRtl} />
 
       <div>
         <PageSection id="definition">
@@ -150,46 +168,70 @@ export default function HalalCertificate() {
         </PageSection>
 
         <PageSection id="costs">
-          <SectionHeading title={t("halalCertificate.costs.title")} description={t("halalCertificate.costs.description")} />
-          <SectionReveal>
-            <article className="overflow-hidden rounded-[1.5rem] border border-stone-200 bg-white shadow-[var(--shadow-ind-card)]">
-              <div className="grid gap-0 lg:grid-cols-[.92fr_1.08fr]">
-                <div className="border-b border-stone-200 bg-[#FAF9F6] p-6 lg:border-b-0 lg:border-e lg:p-8">
-                  <p className="text-md font-black uppercase tracking-[.14em] text-[#007A55]">{t("halalCertificate.costs.authorityTitle")}</p>
-                  <p className="mt-4 text-base font-bold leading-9 text-slate-700">{t("halalCertificate.costs.authorityBody")}</p>
-                </div>
-                <div className="p-6 lg:p-8">
-                  <p className="text-md font-black uppercase tracking-[.14em] text-[#CA8A04]">{t("halalCertificate.costs.organizationTitle")}</p>
-                  <p className="mt-4 text-base font-bold leading-9 text-slate-700">{t("halalCertificate.costs.organizationBody")}</p>
-                </div>
-              </div>
+          <div className="overflow-hidden rounded-2xl border border-[#007A55]/20 bg-white shadow-[0_26px_65px_-48px_rgba(0,77,54,.55)]">
+            <header className="border-b border-[#007A55]/15 bg-[#E8F3EE] px-6 py-8 text-center sm:px-8 lg:px-10 lg:py-10">
+              <h2 className="text-3xl font-black leading-tight text-[#073B2C] lg:text-4xl">{t("halalCertificate.costs.title")}</h2>
+              <p className="mx-auto mt-4 max-w-3xl text-base font-bold leading-8 text-slate-700 lg:text-lg lg:leading-9">{t("halalCertificate.costs.description")}</p>
+            </header>
 
-              <div className="border-t border-stone-200 bg-slate-950 p-5 text-white lg:p-7">
-                <div className="grid gap-4 md:grid-cols-2">
-                  {costFees.map((fee) => (
-                    <section key={fee.title} className="rounded-2xl border border-white/10 bg-white/[0.06] p-5">
-                      <p className="text-2xl font-black leading-none text-[#CA8A04]">{fee.amount}</p>
-                      <p className="mt-2 text-sm font-black leading-6 text-stone-100">{fee.label}</p>
-                      <div className="mt-5 border-t border-white/10 pt-5">
-                        <h3 className="text-lg font-black leading-8 text-white">{fee.title}</h3>
-                        <p className="mt-3 text-sm font-bold leading-7 text-stone-300">{fee.body}</p>
-                      </div>
-                    </section>
-                  ))}
-                </div>
-              </div>
+            <SectionReveal>
+              <div>
+                <div className="grid items-stretch gap-5 border-b border-[#007A55]/15 bg-[#F8FBF9] p-5 md:grid-cols-2 lg:p-6">
+                  <article className="h-full rounded-xl border border-[#007A55]/15 border-t-[3px] border-t-[#007A55] bg-white p-6 shadow-[0_14px_32px_-28px_rgba(0,77,54,.55)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-[#007A55]/30 hover:shadow-[0_24px_44px_-26px_rgba(0,77,54,.42)] motion-reduce:transform-none motion-reduce:transition-none lg:p-8">
+                    <h3 className="text-xl font-black leading-8 text-[#006747] md:min-h-16">{t("halalCertificate.costs.authorityTitle")}</h3>
+                    <p className="mt-4 text-base font-bold leading-8 text-slate-700 lg:leading-9">{t("halalCertificate.costs.authorityBody")}</p>
+                  </article>
 
-              <div className="flex flex-col gap-4 border-t border-stone-200 p-6 lg:grid-cols-[1fr_auto] lg:items-start lg:p-8">
-                <div>
-                  <h3 className="text-2xl font-black leading-9 text-slate-950">{t("halalCertificate.costs.additionalCostsTitle")}</h3>
-                  <p className="mt-4 text-base font-bold leading-9 text-slate-700">{t("halalCertificate.costs.additionalCostsBody")}</p>
+                  <article className="h-full rounded-xl border border-[#007A55]/15 border-t-[3px] border-t-[#007A55] bg-white p-6 shadow-[0_14px_32px_-28px_rgba(0,77,54,.55)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-[#007A55]/30 hover:shadow-[0_24px_44px_-26px_rgba(0,77,54,.42)] motion-reduce:transform-none motion-reduce:transition-none lg:p-8">
+                    <h3 className="text-xl font-black leading-8 text-[#006747] md:min-h-16">{t("halalCertificate.costs.organizationTitle")}</h3>
+                    <p className="mt-4 text-base font-bold leading-8 text-slate-700 lg:leading-9">{t("halalCertificate.costs.organizationBody")}</p>
+                  </article>
                 </div>
-                <p className="rounded-2xl w-full border border-[#CA8A04]/30 bg-[#CA8A04]/10 p-5 text-center text-sm font-black leading-7 text-[#7A5200] ">
+
+                <div className="divide-y divide-[#007A55]/15">
+                  {costFees.map((fee, index) => {
+                    const numeric = fee.amount.match(/[\d.,]+/)?.[0] ?? fee.amount;
+                    const currency = fee.amount.replace(numeric, "").trim();
+                    const isExempt = index === 0;
+                    return (
+                      <article key={fee.title} className="relative z-0 grid bg-white transition-[transform,box-shadow] duration-300 hover:z-10 hover:-translate-y-1 hover:shadow-[0_22px_42px_-30px_rgba(0,77,54,.4)] motion-reduce:transform-none motion-reduce:transition-none lg:grid-cols-[230px_1fr]">
+                        <div className={`bg-[#EDF6F1] p-6 text-center lg:p-8 ${isRtl ? "lg:border-l" : "lg:border-r"} border-[#007A55]/15`}>
+                          <div className="flex items-center justify-center gap-1 text-[#064E3B]" dir="ltr">
+                            <DollarSign size={38} strokeWidth={2.1} aria-hidden="true" />
+                            <span className="block text-6xl font-black leading-none tracking-tight lg:text-7xl">{numeric}</span>
+                          </div>
+                          {currency && <span className="mt-3 block text-base font-black text-[#007A55]">{currency}</span>}
+                          <p className="mt-5 text-base font-black leading-8 text-[#073B2C]">{fee.label}</p>
+                          {isExempt && (
+                            <p className="mt-5 border-t border-[#007A55]/20 pt-4 text-sm font-black leading-7 text-[#006747]">
+                              {exemptBadge}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col p-6 lg:p-8">
+                          <h3 className="text-2xl font-black leading-9 text-[#073B2C]">{fee.title}</h3>
+                          <p className="mt-4 text-base font-bold leading-8 text-slate-700 lg:leading-9">{fee.body}</p>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+
+                <article className="relative z-0 grid border-t border-[#007A55]/15 bg-[#F8FBF9] transition-[transform,box-shadow] duration-300 hover:z-10 hover:-translate-y-1 hover:shadow-[0_22px_42px_-30px_rgba(0,77,54,.4)] motion-reduce:transform-none motion-reduce:transition-none lg:grid-cols-[230px_1fr]">
+                  <div className={`bg-[#E2F0E9] p-6 text-center lg:p-8 ${isRtl ? "lg:border-l" : "lg:border-r"} border-[#007A55]/15`}>
+                    <h3 className="text-xl font-black leading-8 text-[#073B2C]">{t("halalCertificate.costs.additionalCostsTitle")}</h3>
+                    <p className="mt-4 text-base font-black leading-8 text-[#006747]">{additionalCostsPayer}</p>
+                  </div>
+                  <p className="p-6 text-base font-bold leading-8 text-slate-700 lg:p-8 lg:leading-9">{t("halalCertificate.costs.additionalCostsBody")}</p>
+                </article>
+
+                <p className="border-t border-[#007A55]/15 bg-[#075E45] px-6 py-5 text-center text-base font-black leading-8 text-white lg:text-lg">
                   {t("halalCertificate.costs.notice")}
                 </p>
               </div>
-            </article>
-          </SectionReveal>
+            </SectionReveal>
+          </div>
         </PageSection>
 
         <PageSection id="application" tone="soft">

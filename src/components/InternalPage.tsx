@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -20,6 +20,68 @@ export function SectionReveal({ children, className = "" }: { children: ReactNod
     >
       {children}
     </motion.div>
+  );
+}
+
+export type SectionNavItem = { id: string; label: string };
+
+export function SectionNav({ items, isRtl = false }: { items: SectionNavItem[]; isRtl?: boolean }) {
+  const [active, setActive] = useState(items[0]?.id ?? "");
+  const idsKey = items.map((item) => item.id).join(",");
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        });
+      },
+      { rootMargin: "-42% 0px -52% 0px", threshold: 0 },
+    );
+    items.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idsKey]);
+
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    event.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActive(id);
+    }
+  };
+
+  return (
+    <nav
+      dir={isRtl ? "rtl" : "ltr"}
+      aria-label="Section navigation"
+      className="sticky top-20 z-30 border-b border-stone-200 bg-[#FAF9F6]/85 backdrop-blur-md lg:top-24"
+    >
+      <div className="mx-auto max-w-5xl px-4">
+        <ul className="flex items-center justify-start gap-2 overflow-x-auto py-2.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:justify-center">
+          {items.map(({ id, label }) => (
+            <li key={id} className="shrink-0">
+              <a
+                href={`#${id}`}
+                onClick={(event) => handleClick(event, id)}
+                aria-current={active === id ? "true" : undefined}
+                className={`inline-flex items-center rounded-full border px-4 py-2 text-xs font-black transition-colors lg:text-sm ${
+                  active === id
+                    ? "border-[#007A55] bg-[#007A55] text-white shadow-[var(--shadow-ind-sharp)]"
+                    : "border-stone-200 bg-white text-slate-600 hover:border-[#007A55]/40 hover:text-[#007A55]"
+                }`}
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </nav>
   );
 }
 
@@ -48,9 +110,9 @@ export function InnerPageHero({
         />
       </div>
 
-      <div className="relative z-10 mx-auto flex min-h-[340px] max-w-4xl flex-col items-center justify-center px-6 py-16 text-center lg:min-h-[410px]">
-        <h1 className="text-2xl md:text-3xl lg:text-6xl font-black leading-[1.08] tracking-normal text-white">{title}</h1>
-        <p className="mt-6 max-w-3xl text-base font-bold leading-8 text-stone-100 lg:text-xl">{description}</p>
+      <div className="relative z-10 mx-auto flex min-h-[260px] max-w-4xl flex-col items-center justify-center px-6 py-12 text-center lg:min-h-[320px]">
+        <h1 className="text-2xl md:text-3xl lg:text-5xl font-black leading-[1.08] tracking-normal text-white">{title}</h1>
+        <p className="mt-5 max-w-3xl text-sm font-bold leading-7 text-stone-100 lg:text-lg">{description}</p>
       </div>
     </section>
   );
@@ -73,7 +135,7 @@ export function PageSection({
         : "bg-[#FAF9F6]";
 
   return (
-    <section id={id} className={`relative scroll-mt-28 px-6 py-16 lg:py-24 ${toneClass}`}>
+    <section id={id} className={`relative scroll-mt-[9rem] px-6 py-12 lg:scroll-mt-[10.5rem] lg:py-16 ${toneClass}`}>
       {tone !== "default" && (
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <img src="/cover-2.png" alt="" className={`h-full w-full object-cover ${tone === "dark" ? "opacity-[0.92]" : "opacity-[0.43]"}`} />
@@ -87,9 +149,9 @@ export function PageSection({
 
 export function SectionHeading({ title, description, align = "center" }: { title: string; description?: string; align?: "center" | "start" }) {
   return (
-    <div className={`mb-10 ${align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}`}>
-      <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] font-black leading-tight text-inherit">{title}</h2>
-      {description && <p className="mt-4 text-base font-bold leading-8 text-slate-600 lg:text-lg">{description}</p>}
+    <div className={`mb-8 ${align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}`}>
+      <h2 className="text-[clamp(1.5rem,2.6vw,2.1rem)] font-black leading-tight text-inherit">{title}</h2>
+      {description && <p className="mt-3 text-sm font-bold leading-7 text-slate-600 lg:text-base">{description}</p>}
     </div>
   );
 }

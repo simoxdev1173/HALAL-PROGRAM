@@ -1,0 +1,38 @@
+.admin-template-canvas {
+  overflow: auto;
+  padding: 24px;
+  background: #dcdedb;
+  border: 1px solid #d6d3d1;
+  border-radius: 8px;
+}
+
+.admin-template-canvas .join-print-document {
+  margin-inline: auto;
+}
+
+@media (max-width: 900px) {
+  .admin-template-canvas {
+    padding: 12px;
+  }
+}
+
+@media print {
+  .admin-preview-chrome,
+  .admin-application-preview > header {
+    display: none !important;
+  }
+
+  .admin-application-preview,
+  .admin-application-preview > div,
+  .admin-template-section,
+  .admin-template-canvas {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: #fff !important;
+  }
+
+  .admin-template-section {
+    display: block !important;
+  }
+}

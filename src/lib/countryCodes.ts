@@ -1,0 +1,57 @@
+// Arabic/English country name -> ISO 3166-1 alpha-2, for flagcdn.com lookups.
+// Covers the country list used across the public application forms
+// (see `countries` / `countriesEnglish` in HalalCertificateApplication.tsx).
+
+const COUNTRY_TO_ISO: Record<string, string> = {
+  "الأردن": "jo",
+  "Jordan": "jo",
+  "الإمارات العربية المتحدة": "ae",
+  "الامارات العربية المتحدة": "ae",
+  "الإمارات": "ae",
+  "United Arab Emirates": "ae",
+  "البحرين": "bh",
+  "Bahrain": "bh",
+  "تونس": "tn",
+  "Tunisia": "tn",
+  "الجزائر": "dz",
+  "Algeria": "dz",
+  "جيبوتي": "dj",
+  "Djibouti": "dj",
+  "السعودية": "sa",
+  "المملكة العربية السعودية": "sa",
+  "Saudi Arabia": "sa",
+  "السودان": "sd",
+  "Sudan": "sd",
+  "سوريا": "sy",
+  "سورية": "sy",
+  "Syria": "sy",
+  "الصومال": "so",
+  "Somalia": "so",
+  "العراق": "iq",
+  "Iraq": "iq",
+  "عُمان": "om",
+  "عمان": "om",
+  "Oman": "om",
+  "فلسطين": "ps",
+  "Palestine": "ps",
+  "قطر": "qa",
+  "Qatar": "qa",
+  "الكويت": "kw",
+  "Kuwait": "kw",
+  "لبنان": "lb",
+  "Lebanon": "lb",
+  "ليبيا": "ly",
+  "Libya": "ly",
+  "مصر": "eg",
+  "Egypt": "eg",
+  "المغرب": "ma",
+  "Morocco": "ma",
+  "موريتانيا": "mr",
+  "Mauritania": "mr",
+  "اليمن": "ye",
+  "Yemen": "ye",
+};
+
+export function countryIsoCode(name: string): string | null {
+  return COUNTRY_TO_ISO[name.trim()] ?? null;
+}

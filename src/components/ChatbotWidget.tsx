@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Compass, Mic, X } from "lucide-react";
+import { ArrowRight, Mic, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 type Sender = "user" | "bot";
@@ -12,7 +12,6 @@ interface Message {
   text: string;
   sender: Sender;
   status?: MessageStatus;
-  references?: unknown[];
   followups?: string[];
 }
 
@@ -59,6 +58,7 @@ declare global {
 const LIGHTRAG_ENDPOINT = "http://188.165.162.105:9999/query/stream";
 const STREAM_SLICE_SIZE = 10;
 const STREAM_SLICE_DELAY_MS = 14;
+const REFERENCES_SECTION_RE = /\n{1,3}\s*(?:References|Sources|المراجع|المصادر)\s*[:\n]/i;
 
 const fallbackFollowups = {
   ar: ["من يحق له الانضمام؟", "ما هي الوثائق المطلوبة؟", "كم تستغرق دراسة الطلب؟"],
@@ -132,7 +132,6 @@ export const ChatbotWidget = ({
           ? "تعذر الاتصال بالمساعد الآن. يرجى المحاولة مرة أخرى."
           : "The assistant could not connect right now. Please try again.",
       followupTitle: lang === "ar" ? "أسئلة متابعة" : "Follow-up questions",
-      references: lang === "ar" ? "مصادر" : "References",
       quickReplyHint: lang === "ar" ? "إجابة مختصرة، بحد أقصى 4 أسطر." : "Brief answer, max 4 lines.",
     }),
     [bubbleTextOverride, lang, t]
@@ -284,7 +283,7 @@ export const ChatbotWidget = ({
       setMessages((prev) => [
         ...prev,
         userMessage,
-        { id: botId, text: "", sender: "bot", status: "streaming", references: [] },
+        { id: botId, text: "", sender: "bot", status: "streaming" },
       ]);
 
       let completeAnswer = "";
@@ -299,6 +298,23 @@ export const ChatbotWidget = ({
         }
       };
 
+      // LightRAG sometimes appends a "References"/"المراجع" section to the answer
+      // text itself even when include_references is false. Track the raw stream
+      // separately so we can detect that heading and stop revealing before it,
+      // instead of showing it and then having to cut it back out.
+      let rawSoFar = "";
+      let revealedRawLength = 0;
+      const feedChunk = async (chunk: string) => {
+        rawSoFar += chunk;
+        const match = REFERENCES_SECTION_RE.exec(rawSoFar);
+        const safeEnd = match ? match.index : rawSoFar.length;
+        if (safeEnd > revealedRawLength) {
+          const toReveal = rawSoFar.slice(revealedRawLength, safeEnd);
+          revealedRawLength = safeEnd;
+          await revealText(toReveal);
+        }
+      };
+
       try {
         const history = buildConversationHistory([...messages, userMessage]);
         const response = await fetch(LIGHTRAG_ENDPOINT, {
@@ -309,7 +325,7 @@ export const ChatbotWidget = ({
           },
           body: JSON.stringify({
             query: trimmed,
-            mode: "mix",
+            mode: "hybrid",
             stream: true,
             include_references: false,
             include_chunk_content: false,
@@ -333,7 +349,8 @@ export const ChatbotWidget = ({
 - اجعل إجابتك عملية ومباشرة ولا تتجاوز 4 أسطر أو نقاط كحد أقصى.
 - لا تضف مقدمات طويلة أو تكرار للسؤال.
 - إذا كان الطلب غامضاً، اسأل سؤالاً توضيحياً واحداً فقط قبل الإجابة.
-- اختم بعرض المساعدة أو بتوجيه واضح للخطوة التالية.`
+- اختم بعرض المساعدة أو بتوجيه واضح للخطوة التالية.
+- لا تُضِف أبداً قسم "مراجع" أو "مصادر" أو أي قائمة استشهادات مرقّمة في نهاية إجابتك — الإجابة النهائية فقط، بدون ذكر مصادرها.`
                 : `You are "Halal Bot", the official AI assistant of the Arab Unified Halal Program under the Arab Organization for Industrial Development, Standardization and Mining (AIDSMO).
 
 ## Your Role
@@ -349,7 +366,8 @@ You are the first point of contact for visitors and program beneficiaries. Your 
 - Use simple Markdown when helpful (lists, bold key terms).
 - Do not add long preambles or repeat the user's question back to them.
 - If a request is ambiguous, ask only one clarifying question before answering.
-- Always end with a clear next step or offer further assistance.`,
+- Always end with a clear next step or offer further assistance.
+- Never add a "References" or "Sources" section, or a numbered citation list, at the end of your answer — the final answer only, with no source listing.`,
             max_total_tokens: 420,
           }),
           signal: controller.signal,
@@ -381,14 +399,8 @@ You are the first point of contact for visitors and program beneficiaries. Your 
               error?: string;
             };
 
-            if (data.references) {
-              setMessages((prev) =>
-                prev.map((item) => (item.id === botId ? { ...item, references: data.references } : item))
-              );
-            }
-
             if (data.response) {
-              await revealText(data.response);
+              await feedChunk(data.response);
             }
 
             if (data.error) {
@@ -400,13 +412,8 @@ You are the first point of contact for visitors and program beneficiaries. Your 
         if (buffer.trim()) {
           const data = JSON.parse(buffer.trim()) as { response?: string; references?: unknown[]; error?: string };
           if (data.error) throw new Error(data.error);
-          if (data.references) {
-            setMessages((prev) =>
-              prev.map((item) => (item.id === botId ? { ...item, references: data.references } : item))
-            );
-          }
           if (data.response) {
-            await revealText(data.response);
+            await feedChunk(data.response);
           }
         }
 
@@ -671,13 +678,6 @@ You are the first point of contact for visitors and program beneficiaries. Your 
                         </div>
                       )}
                       
-                      {msg.sender === "bot" && msg.references && msg.references.length > 0 && msg.status !== "streaming" && (
-                        <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-[10px] font-bold text-slate-500 flex items-center gap-2 uppercase tracking-wider">
-                          <Compass size={12} />
-                          {ui.references}: {msg.references.length}
-                        </div>
-                      )}
-
                       {msg.sender === "bot" && msg.status !== "streaming" && msg.followups && msg.followups.length > 0 && (
                         <div className="mt-5 border-t border-slate-100 pt-5">
                           <p className="mb-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{ui.followupTitle}</p>

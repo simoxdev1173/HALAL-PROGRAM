@@ -581,6 +581,7 @@ export const Hero = () => {
               backgroundSize: "54px 54px",
             }}
           />
+          <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
         </div>
 
         {/* --- UI CONTROLS --- */}

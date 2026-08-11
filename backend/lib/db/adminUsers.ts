@@ -40,3 +40,22 @@ export async function listAdminUsers(): Promise<AdminUserSafe[]> {
     orderBy: { name: "asc" },
   });
 }
+
+export async function updateAdminUser(
+  id: string,
+  data: { isActive?: boolean; role?: AdminRole; name?: string }
+): Promise<AdminUserSafe> {
+  return prisma.adminUser.update({
+    where: { id },
+    data,
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      lastLoginAt: true,
+      createdAt: true,
+      isActive: true,
+    },
+  });
+}

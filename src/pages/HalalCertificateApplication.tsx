@@ -2,9 +2,13 @@ import { useMemo, useState } from "react";
 import type { ChangeEvent, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, FileUp, House, Trash2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FormLanguageSwitcher } from "../components/FormLanguageSwitcher";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { submitCertificateApplication } from "../lib/api";
+import { CERTIFICATE_APPLICATION_PRINT_SESSION_KEY } from "../lib/certificateApplicationPrint";
+import { countryIsoCode } from "../lib/countryCodes";
 
 type YesNo = "" | "نعم" | "لا";
 type CompanyNature = "" | "مصنعة" | "موردة";
@@ -139,6 +143,12 @@ const countriesEnglish = [
   "Mauritania",
   "Yemen",
 ];
+
+const countryOptions = countries.map((ar, index) => ({
+  ar,
+  en: countriesEnglish[index] ?? ar,
+  iso: countryIsoCode(ar) ?? "",
+}));
 
 const steps = [
   { title: "معلومات عامة", microcopy: "البيانات الرسمية للشركة ومعلومات الاتصال والغرض من تقديم الطلب." },
@@ -549,6 +559,53 @@ function Field({
   );
 }
 
+function CountrySelectControl({
+  value,
+  isRtl,
+  error,
+  onChange,
+}: {
+  value: string;
+  isRtl: boolean;
+  error?: string;
+  onChange: (value: string) => void;
+}) {
+  const lang = isRtl ? "ar" : "en";
+  return (
+    <Select value={value} onValueChange={onChange} dir={isRtl ? "rtl" : "ltr"}>
+      <SelectTrigger
+        className={`min-h-12 w-full rounded-xl border bg-white px-3.5 py-3 text-[14px] font-medium text-[#0C111D] shadow-[var(--shadow-premium-sm)] outline-none focus:ring-4 focus:ring-[#007A55]/10 ${error ? "border-red-500 bg-red-50/40" : "border-stone-200 hover:border-stone-300"}`}
+        aria-label={isRtl ? "اختيار الدولة" : "Select country"}
+      >
+        <SelectValue placeholder={isRtl ? "اختر الدولة" : "Select country"}>{value || undefined}</SelectValue>
+      </SelectTrigger>
+      <SelectContent className="max-h-80 border-stone-200 bg-white shadow-2xl" position="popper" sideOffset={6}>
+        <SelectGroup>
+          {countryOptions.map((country) => {
+            const label = country[lang];
+            return (
+              <SelectItem key={country.iso} value={label} className="min-h-10 cursor-pointer rounded-lg py-2 pe-9 ps-3 text-sm font-bold text-stone-800 focus:bg-[#F0FDF4] focus:text-[#004D36]">
+                <span className="flex items-center gap-3">
+                  <img
+                    src={`https://flagcdn.com/w40/${country.iso}.png`}
+                    srcSet={`https://flagcdn.com/w80/${country.iso}.png 2x`}
+                    width={28}
+                    height={21}
+                    alt=""
+                    loading="lazy"
+                    className="h-[18px] w-6 shrink-0 rounded-[2px] object-cover ring-1 ring-black/10"
+                  />
+                  <span>{label}</span>
+                </span>
+              </SelectItem>
+            );
+          })}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
+}
+
 function RadioGroup<T extends string>({
   label,
   value,
@@ -684,9 +741,10 @@ function StepRail({ activeStep, completed, onJump, stepItems, isRtl }: { activeS
           {stepItems.map((step, index) => {
             const active = index === activeStep;
             const done = completed.has(index);
+            const reachable = index <= activeStep || done;
             return (
-              <button key={step.title} type="button" onClick={() => onJump(index)} className="group relative z-10 flex flex-col items-center focus:outline-none" aria-current={active ? "step" : undefined}>
-                <span className={`flex h-11 w-11 items-center justify-center rounded-full border-2 transition-all ${active ? "scale-110 border-[#007A55] bg-[#007A55] text-white shadow-[0_0_0_8px_rgba(0,122,85,0.1)]" : done ? "border-[#007A55] bg-white text-[#007A55]" : "border-stone-200 bg-white text-stone-300 shadow-sm group-hover:border-stone-400 group-hover:text-stone-500"}`}>
+              <button key={step.title} type="button" onClick={() => reachable && onJump(index)} disabled={!reachable} aria-disabled={!reachable} className="group relative z-10 flex flex-col items-center focus:outline-none disabled:cursor-not-allowed" aria-current={active ? "step" : undefined}>
+                <span className={`flex h-11 w-11 items-center justify-center rounded-full border-2 transition-all ${active ? "scale-110 border-[#007A55] bg-[#007A55] text-white shadow-[0_0_0_8px_rgba(0,122,85,0.1)]" : done ? "border-[#007A55] bg-white text-[#007A55]" : reachable ? "border-stone-200 bg-white text-stone-300 shadow-sm group-hover:border-stone-400 group-hover:text-stone-500" : "border-stone-100 bg-stone-50 text-stone-300 opacity-60"}`}>
                   {done ? <Check size={20} strokeWidth={3} /> : <span className="text-base font-black">{index + 1}</span>}
                 </span>
                 <span className={`absolute top-14 hidden whitespace-nowrap rounded-full bg-white/90 px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] shadow-sm ring-1 ring-stone-200/70 transition-all md:block ${active ? "translate-y-0 text-[#007A55] opacity-100" : "-translate-y-1 text-stone-400 opacity-0 group-hover:translate-y-0 group-hover:opacity-100"}`}>{step.title}</span>
@@ -726,8 +784,10 @@ export default function HalalCertificateApplication() {
   const [activeStep, setActiveStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [errors, setErrors] = useState<ErrorMap>({});
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "error">("idle");
+  const [submitError, setSubmitError] = useState("");
 
   const payload = useMemo(() => createPayload(data), [data]);
   const localizedSteps = isRtl ? steps : certificateEnglish.steps;
@@ -813,10 +873,20 @@ export default function HalalCertificateApplication() {
   };
 
   const jumpToStep = (step: number) => {
+    if (step > activeStep && !completedSteps.has(step)) return;
     setActiveStep(step);
   };
 
-  const submitApplication = () => {
+  const stepForField = (key: string): number => {
+    if (key.startsWith("attachments.")) return 2;
+    if (["declarationAccepted"].includes(key)) return 3;
+    if (applicantFields.some((field) => field.key === key) || key === "applicantSignature") return 4;
+    if (["requestedProducts", "productDescription", "hasOtherHalalCertificate", "otherHalalCertificateScope", "otherHalalReferenceStandard", "otherHalalCertifyingBody"].includes(key)) return 1;
+    return 0;
+  };
+
+  const submitApplication = async () => {
+    if (isSubmitting) return;
     const allErrors = validate(data, undefined, lang);
     setErrors(allErrors);
     if (Object.keys(allErrors).length > 0) {
@@ -824,18 +894,37 @@ export default function HalalCertificateApplication() {
       setActiveStep(firstInvalidStep);
       return;
     }
+
     setIsSubmitting(true);
     setStatus("idle");
+    setSubmitError("");
     const submission = createSubmitFormData(data);
-    console.info("Arab Halal Certification Application Payload", submission.payload);
-    console.info("Arab Halal Certification Application FormData", submission.formData);
-    window.setTimeout(() => {
-      setIsSubmitting(false);
-      setStatus("success");
-      setData(initialData());
-      setCompletedSteps(new Set());
-      setActiveStep(0);
-    }, 500);
+    const result = await submitCertificateApplication(submission.formData);
+    setIsSubmitting(false);
+
+    if (result.ok) {
+      sessionStorage.setItem(
+        CERTIFICATE_APPLICATION_PRINT_SESSION_KEY,
+        JSON.stringify({
+          requestNumber: result.data.requestNumber ?? "",
+          submittedAt: new Date().toISOString(),
+          data: submission.payload,
+        }),
+      );
+      navigate(`/application-submitted?type=certificate&ref=${encodeURIComponent(result.data.requestNumber ?? "")}`);
+      return;
+    }
+
+    if (result.fields && Object.keys(result.fields).length > 0) {
+      setErrors(result.fields);
+      const firstKey = Object.keys(result.fields)[0];
+      setActiveStep(stepForField(firstKey));
+      setStatus("error");
+      setSubmitError(result.message);
+      return;
+    }
+    setStatus("error");
+    setSubmitError(result.message);
   };
 
   const renderArrayFields = (key: "branchAddresses" | "requestedProducts" | "otherFactoryProducts", label: string, type: "text" | "textarea", required?: boolean) => (
@@ -938,11 +1027,10 @@ export default function HalalCertificateApplication() {
                     {generalFields.map((field) => (
                       <Field key={field.key} field={localizedField(field)} value={String(data[field.key] ?? "")} error={errors[String(field.key)]} onChange={updateField}>
                         {field.key === "country" ? (
-                          <input list="arab-countries" value={data.country} onChange={(event) => updateField("country", event.target.value)} className={`w-full scroll-mt-32 rounded-xl border bg-white px-3.5 py-3 text-[14px] font-medium text-[#0C111D] shadow-[var(--shadow-premium-sm)] outline-none focus:border-[#007A55] focus:ring-4 focus:ring-[#007A55]/10 ${errors.country ? "border-red-500 bg-red-50/40" : "border-stone-200"}`} />
+                          <CountrySelectControl value={data.country} isRtl={isRtl} error={errors.country} onChange={(value) => updateField("country", value)} />
                         ) : undefined}
                       </Field>
                     ))}
-                    <datalist id="arab-countries">{(isRtl ? countries : countriesEnglish).map((country) => <option key={country} value={country} />)}</datalist>
                   </div>
                 </SectionGroup>
                 <SectionGroup title={isRtl ? "طبيعة الطلب" : section.requestNature}>
@@ -1115,8 +1203,7 @@ export default function HalalCertificateApplication() {
                   { label: fieldLabel(applicantFields[3]), value: payload.applicantInformation.additionalNotes },
                   { label: isRtl ? "الموافقة على التعهدات" : "Declaration acceptance", value: payload.declarationAccepted ? (isRtl ? "تمت الموافقة" : reviewText.accepted) : (isRtl ? "لم تتم الموافقة" : reviewText.notAccepted) },
                 ]} />
-                {status === "success" && <p className="rounded-xl border border-[#007A55]/20 bg-[#007A55]/10 px-4 py-3 text-sm font-black leading-7 text-[#004D36]">{isRtl ? "تم إرسال طلبكم بنجاح. سيتم التحقق من البيانات والوثائق المرفقة والتواصل معكم بعد مراجعة الطلب." : uiLabels.success}</p>}
-                {status === "error" && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black leading-7 text-red-700">{isRtl ? "تعذر إرسال الطلب حالياً. يرجى التحقق من البيانات والمحاولة مرة أخرى." : uiLabels.error}</p>}
+                {status === "error" && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black leading-7 text-red-700">{submitError || (isRtl ? "تعذر إرسال الطلب حالياً. يرجى التحقق من البيانات والمحاولة مرة أخرى." : uiLabels.error)}</p>}
               </div>
             )}
           </div>
@@ -1129,7 +1216,13 @@ export default function HalalCertificateApplication() {
           <div className="flex items-center gap-3">
             <button type="button" onClick={goPrevious} disabled={activeStep === 0 || isSubmitting} className="inline-flex h-11 min-w-[104px] items-center justify-center rounded-xl border-2 border-stone-200 bg-white px-6 text-[13px] font-black text-stone-900 transition-all hover:border-stone-400 hover:bg-stone-50 disabled:opacity-30">{isRtl ? "السابق" : uiLabels.previous}</button>
             {activeStep === steps.length - 1 ? (
-              <button type="button" onClick={submitApplication} disabled={isSubmitting} className="inline-flex h-11 min-w-[168px] items-center justify-center rounded-xl bg-[#007A55] px-7 text-[13px] font-black text-white shadow-[0_20px_40px_-12px_rgba(0,122,85,0.4)] transition-all hover:brightness-110 disabled:opacity-50">
+              <button type="button" onClick={submitApplication} disabled={isSubmitting} className="inline-flex h-11 min-w-[168px] items-center justify-center gap-2 rounded-xl bg-[#007A55] px-7 text-[13px] font-black text-white shadow-[0_20px_40px_-12px_rgba(0,122,85,0.4)] transition-all hover:brightness-110 disabled:opacity-50">
+                {isSubmitting && (
+                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                )}
                 {isSubmitting ? (isRtl ? "جار الإرسال..." : uiLabels.submitting) : (isRtl ? "إرسال الطلب الآن" : uiLabels.submit)}
               </button>
             ) : (

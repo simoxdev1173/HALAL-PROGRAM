@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {  X } from "lucide-react";
@@ -9,6 +9,8 @@ import {
   PageSection,
   ProcessTimeline,
   SectionHeading,
+  SectionNav,
+  type SectionNavItem,
   SectionReveal,
 } from "../components/InternalPage";
 
@@ -45,12 +47,26 @@ export default function HalalMark() {
   const licensingSteps = t("halalMark.licensing.steps", { returnObjects: true }) as Step[];
   const nationalOptions = t("halalMark.nationalIntegration.withNationalOptions", { returnObjects: true }) as string[];
 
+  const navItems = useMemo<SectionNavItem[]>(
+    () => [
+      { id: "definition", label: isRtl ? "التعريف" : "Definition" },
+      { id: "ownership", label: isRtl ? "ملكية العلامة" : "Ownership" },
+      { id: "conditions", label: isRtl ? "شروط الاستخدام" : "Conditions" },
+      { id: "licensing", label: isRtl ? "الترخيص" : "Licensing" },
+      { id: "national-integration", label: isRtl ? "العلامة الوطنية" : "National mark" },
+      { id: "license-form", label: isRtl ? "التقديم" : "Apply" },
+    ],
+    [isRtl],
+  );
+
   return (
     <main className={`min-h-screen w-full max-w-full overflow-x-hidden bg-[#FAF9F6] ${isRtl ? "font-arabic" : "font-english"}`} dir={isRtl ? "rtl" : "ltr"}>
       <InnerPageHero
         title={t("halalMark.hero.title")}
         description={t("halalMark.hero.description")}
       />
+
+      <SectionNav items={navItems} isRtl={isRtl} />
 
       <div>
         <PageSection id="definition">

@@ -2,10 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ChangeEvent, KeyboardEvent, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { House } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ChatbotWidget } from "../components/ChatbotWidget";
 import { FormLanguageSwitcher } from "../components/FormLanguageSwitcher";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { submitDesignationBodyApplication } from "../lib/api";
+import { JOIN_PROGRAM_PRINT_SESSION_KEY } from "../lib/joinProgramPrint";
 
 type YesNo = "" | "نعم" | "لا";
 type FormValue = string | boolean | string[] | null;
@@ -50,14 +53,7 @@ const initialData: FormData = {
   contactOfficerName: "",
   contactOfficerEmail: "",
   contactOfficerMobile: "",
-  orgStructureIncluded: false,
-  technicalHumanCapacityIncluded: false,
-  inspectorsTrainingProceduresIncluded: false,
-  approvedInspectorsAuditorsListIncluded: false,
-  halalCertificateIssuingProceduresIncluded: false,
-  documentRecordsProceduresIncluded: false,
-  nationalHalalCertificatesLast12MonthsIncluded: false,
-  suppliersFacilitiesProductsListIncluded: false,
+  isFirstApplication: "",
   firstApplicationReportFiles: [],
   accreditationCertificatesCopy: false,
   accreditationCertificatesFiles: [],
@@ -154,6 +150,7 @@ const joinEnglish = {
     otherDocumentsFiles: "Upload additional documents",
   },
   questions: {
+    isFirstApplication: "Is this the first time this authority is applying to join the program?",
     grantsNationalHalalCertificate: "Does the Halal authority currently grant a national Halal certificate?",
     hasOtherNationalHalalBodies: "Are there other national authorities that grant Halal certificates?",
     grantsOtherCertificates: "Does the authority grant other certificates, such as quality management systems, product certificates, or similar certificates?",
@@ -168,6 +165,7 @@ const joinEnglish = {
     acknowledgement: "I confirm that all information provided in this application is correct, and I fully agree to the legal terms and clarifications stated above.",
   },
   reviewLabels: {
+    isFirstApplication: "First-time application",
     firstApplicationReportFiles: "Report or supporting documents",
     accreditationCertificatesFiles: "Accreditation certificate files",
     appointmentDesignationFiles: "Designation appointment files",
@@ -188,7 +186,7 @@ const joinEnglish = {
     contact: "Contact Officer Information",
     contactHelper: "Please identify a person who represents the Halal authority for direct communication.",
     report: "Phase One Report",
-    reportHelper: "For first-time applications, please select available documents and attach supporting files.",
+    reportHelper: "For a first-time application, attach one report covering all eight points listed below.",
     attachments: "Documents Attached with the Application",
     national: "National Halal Certificates",
     otherCertificates: "Other Certificates Granted by the Authority",
@@ -239,6 +237,7 @@ const requiredByStep: Record<number, string[]> = {
   ],
   1: ["headName", "headEmail", "headMobile"],
   2: ["contactOfficerName", "contactOfficerEmail", "contactOfficerMobile"],
+  3: ["isFirstApplication"],
   4: ["grantsNationalHalalCertificate"],
   5: ["grantsOtherCertificates"],
   6: ["applicantAcknowledgement", "signatureHeadName", "signatureDate"],
@@ -247,6 +246,30 @@ const requiredByStep: Record<number, string[]> = {
 const emailFields = new Set(["email", "headEmail", "contactOfficerEmail"]);
 const urlFields = new Set(["website"]);
 const phoneFields = new Set(["phone", "fax", "headMobile", "contactOfficerMobile"]);
+
+const countryOptions = [
+  { ar: "الأردن", en: "Jordan", iso: "jo" },
+  { ar: "الإمارات العربية المتحدة", en: "United Arab Emirates", iso: "ae" },
+  { ar: "البحرين", en: "Bahrain", iso: "bh" },
+  { ar: "تونس", en: "Tunisia", iso: "tn" },
+  { ar: "الجزائر", en: "Algeria", iso: "dz" },
+  { ar: "جيبوتي", en: "Djibouti", iso: "dj" },
+  { ar: "السعودية", en: "Saudi Arabia", iso: "sa" },
+  { ar: "السودان", en: "Sudan", iso: "sd" },
+  { ar: "سوريا", en: "Syria", iso: "sy" },
+  { ar: "الصومال", en: "Somalia", iso: "so" },
+  { ar: "العراق", en: "Iraq", iso: "iq" },
+  { ar: "عمان", en: "Oman", iso: "om" },
+  { ar: "فلسطين", en: "Palestine", iso: "ps" },
+  { ar: "قطر", en: "Qatar", iso: "qa" },
+  { ar: "الكويت", en: "Kuwait", iso: "kw" },
+  { ar: "لبنان", en: "Lebanon", iso: "lb" },
+  { ar: "ليبيا", en: "Libya", iso: "ly" },
+  { ar: "مصر", en: "Egypt", iso: "eg" },
+  { ar: "المغرب", en: "Morocco", iso: "ma" },
+  { ar: "موريتانيا", en: "Mauritania", iso: "mr" },
+  { ar: "اليمن", en: "Yemen", iso: "ye" },
+];
 
 const organizationFields: FieldConfig[] = [
   { key: "organizationNameAr", label: "اسم الجهة المعنية بالحلال المسجلة بالعربية", required: true },
@@ -337,6 +360,10 @@ const isPhone = (value: string) => !value.trim() || /^[+\d\s().-]{6,24}$/.test(v
 function getRequiredFields(stepIndex: number, data: FormData) {
   const fields = [...(requiredByStep[stepIndex] ?? [])];
 
+  if (stepIndex === 3 && data.isFirstApplication === YES) {
+    fields.push("firstApplicationReportFiles");
+  }
+
   if (stepIndex === 4) {
     if (data.grantsNationalHalalCertificate === YES) {
       fields.push("nationalHalalCertificateName", "nationalHalalReferenceStandard", "coveredProductCategories");
@@ -360,7 +387,7 @@ function getStepFieldKeys(stepIndex: number, data: FormData) {
   if (stepIndex === 2) return contactFields.map((field) => field.key);
   if (stepIndex === 3) {
     return [
-      ...reportChecklist.map((item) => item.key),
+      "isFirstApplication",
       "firstApplicationReportFiles",
       "accreditationCertificatesCopy",
       "accreditationCertificatesFiles",
@@ -415,6 +442,7 @@ function validateFields(keys: string[], data: FormData, lang: "ar" | "en" = "ar"
 
   return nextErrors;
 }
+
 function createPayload(data: FormData) {
   return {
     requestNumber: normalize(data.requestNumber),
@@ -441,14 +469,7 @@ function createPayload(data: FormData) {
       mobile: normalize(data.contactOfficerMobile),
     },
     firstApplicationReport: {
-      orgStructureIncluded: Boolean(data.orgStructureIncluded),
-      technicalHumanCapacityIncluded: Boolean(data.technicalHumanCapacityIncluded),
-      inspectorsTrainingProceduresIncluded: Boolean(data.inspectorsTrainingProceduresIncluded),
-      approvedInspectorsAuditorsListIncluded: Boolean(data.approvedInspectorsAuditorsListIncluded),
-      halalCertificateIssuingProceduresIncluded: Boolean(data.halalCertificateIssuingProceduresIncluded),
-      documentRecordsProceduresIncluded: Boolean(data.documentRecordsProceduresIncluded),
-      nationalHalalCertificatesLast12MonthsIncluded: Boolean(data.nationalHalalCertificatesLast12MonthsIncluded),
-      suppliersFacilitiesProductsListIncluded: Boolean(data.suppliersFacilitiesProductsListIncluded),
+      isFirstApplication: normalize(data.isFirstApplication),
       files: data.firstApplicationReportFiles,
     },
     attachments: {
@@ -572,41 +593,134 @@ function InputField({
   );
 }
 
+function CountrySelect({
+  field,
+  value,
+  error,
+  lang,
+  onChange,
+}: {
+  field: FieldConfig;
+  value: string;
+  error?: string;
+  lang: "ar" | "en";
+  onChange: (key: string, value: string) => void;
+}) {
+  const selected = countryOptions.find((country) => country.ar === value || country.en === value);
+  const placeholder = lang === "ar" ? "اختر الدولة" : "Select country";
+
+  return (
+    <label className="block group">
+      <span className="mb-2 block text-[12px] font-bold text-emerald-950/75 transition-colors group-focus-within:text-[#007A55]">
+        {field.label}
+        {field.required && <span className="mr-1 text-[#D6B66A]">*</span>}
+      </span>
+      <Select value={selected?.[lang]} onValueChange={(nextValue) => onChange(field.key, nextValue)}>
+        <SelectTrigger
+          className={`h-[50px] scroll-mt-32 px-4 text-[15px] ${
+            error ? "border-red-500 bg-red-50/40" : "border-stone-200 hover:border-[#007A55]/40"
+          }`}
+        >
+          <span className="flex min-w-0 items-center gap-3">
+            <SelectValue placeholder={placeholder} />
+          </span>
+        </SelectTrigger>
+        <SelectContent className="max-h-72">
+          <SelectGroup>
+            {countryOptions.map((country) => (
+              <SelectItem key={country.iso} value={country[lang]}>
+                <span className="flex items-center gap-3">
+                  <img
+                    src={`https://flagcdn.com/w40/${country.iso}.png`}
+                    srcSet={`https://flagcdn.com/w80/${country.iso}.png 2x`}
+                    width={24}
+                    height={18}
+                    alt=""
+                    loading="lazy"
+                    className="rounded-[3px] object-cover shadow-sm ring-1 ring-black/10"
+                  />
+                  <span>{country[lang]}</span>
+                </span>
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <AnimatePresence>
+        {error && (
+          <motion.span
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-2 block text-xs font-bold text-red-600"
+          >
+            {error}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </label>
+  );
+}
+
 function FileUploadBox({
   label,
   helper,
   value,
   onChange,
+  selectedFiles = [],
+  onFilesChange,
+  compact = false,
+  multiple = true,
+  accept = ".pdf,.doc,.docx,.jpg,.jpeg,.png",
 }: {
   label: string;
   helper?: string;
   value: string[];
   onChange: (files: string[]) => void;
+  selectedFiles?: File[];
+  onFilesChange?: (files: File[]) => void;
+  compact?: boolean;
+  multiple?: boolean;
+  accept?: string;
 }) {
   const { i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("en") ? "en" : "ar";
   const handleFiles = (event: ChangeEvent<HTMLInputElement>) => {
-    const names = Array.from(event.target.files ?? []).map((file) => file.name);
-    onChange(names);
+    const files = Array.from(event.target.files ?? []).slice(0, multiple ? undefined : 1);
+    if (!multiple) {
+      onChange(files.map((file) => file.name));
+      onFilesChange?.(files);
+      event.target.value = "";
+      return;
+    }
+    const mergedFiles = [...selectedFiles];
+    files.forEach((file) => {
+      const duplicateIndex = mergedFiles.findIndex((selected) => selected.name === file.name);
+      if (duplicateIndex >= 0) mergedFiles[duplicateIndex] = file;
+      else mergedFiles.push(file);
+    });
+    onChange([...new Set([...value, ...files.map((file) => file.name)])]);
+    onFilesChange?.(mergedFiles);
+    event.target.value = "";
   };
 
   return (
     <div className="space-y-2.5">
       <span className="block text-[12px] font-bold text-stone-600">{label}</span>
-      <label className="relative flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-stone-200 bg-stone-50/50 px-5 py-6 text-center transition-all hover:border-[#007A55]/30 hover:bg-[#F0FDF4]/30 group">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-stone-200 transition-transform group-hover:scale-110 group-hover:ring-[#007A55]/20">
+      <label className={`relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-stone-200 bg-stone-50/50 text-center transition-all hover:border-[#007A55]/40 hover:bg-[#F0FDF4]/40 group ${compact ? "min-h-24 px-4 py-4" : "min-h-28 px-5 py-6"}`}>
+        <div className={`flex items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-stone-200 transition-transform group-hover:-translate-y-0.5 group-hover:ring-[#007A55]/20 ${compact ? "h-9 w-9" : "h-10 w-10"}`}>
           <svg className="h-5 w-5 text-stone-400 transition-colors group-hover:text-[#007A55]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
         </div>
-        <div className="mt-3 space-y-1">
+        <div className={`${compact ? "mt-2" : "mt-3"} space-y-1`}>
           <span className="block text-[13px] font-bold text-stone-900">{lang === "ar" ? "اضغط لرفع الملفات" : joinEnglish.ui.uploadClick}</span>
           {helper && <span className="block text-xs font-medium text-stone-400">{helper}</span>}
         </div>
         <input
           type="file"
-          multiple
-          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+          multiple={multiple}
+          accept={accept}
           onChange={handleFiles}
           className="sr-only"
         />
@@ -622,6 +736,7 @@ function FileUploadBox({
                 onClick={(e) => {
                   e.preventDefault();
                   onChange(value.filter(v => v !== file));
+                  onFilesChange?.(selectedFiles.filter((selected) => selected.name !== file));
                 }}
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -714,11 +829,11 @@ function SectionGroup({ title, helper, children }: { title?: string; helper?: st
     <section className="space-y-4">
       {(title || helper) && (
         <div className="space-y-1.5">
-          {title && <h2 className="text-lg font-black text-stone-900">{title}</h2>}
-          {helper && <p className="text-[14px] font-bold leading-7 text-stone-800">{helper}</p>}
+          {title && <h2 className="text-lg font-black text-[#003F2D]">{title}</h2>}
+          {helper && <p className="text-[14px] font-bold leading-7 text-emerald-950/75">{helper}</p>}
         </div>
       )}
-      <div className="relative overflow-hidden rounded-2xl border border-[#D6B66A]/35 bg-[#FFF8E8]/94 p-6 shadow-[0_18px_50px_-28px_rgba(78,60,24,0.35)] ring-1 ring-white/80 backdrop-blur-xl md:p-8">
+      <div className="relative overflow-hidden rounded-2xl border border-[#D6B66A]/35 bg-[#FFFDF6]/94 p-6 shadow-[0_22px_60px_-36px_rgba(0,77,54,0.38)] ring-1 ring-white/80 backdrop-blur-xl md:p-8">
         <div className="relative z-10">
           {children}
         </div>
@@ -741,10 +856,10 @@ function StepRail({
   isRtl: boolean;
 }) {
   return (
-    <nav aria-label={isRtl ? "مراحل الطلب" : "Application steps"} className="sticky top-0 z-40 border-b border-[#D6B66A]/30 bg-[#FFFDF6]/90 backdrop-blur-2xl">
+    <nav aria-label={isRtl ? "مراحل الطلب" : "Application steps"} className="sticky top-0 z-40 border-b border-[#D6B66A]/35 bg-[#F5FBF4]/88 shadow-[0_18px_60px_-42px_rgba(0,63,45,0.7)] backdrop-blur-2xl">
       <div className="mx-auto max-w-5xl px-5 pb-10 pt-5 lg:px-8">
         <div className="relative flex justify-between">
-          <div className="absolute top-1/2 inset-x-0 h-1 -translate-y-1/2 bg-stone-100 rounded-full overflow-hidden">
+          <div className="absolute top-1/2 inset-x-0 h-1 -translate-y-1/2 bg-[#004D36]/12 rounded-full overflow-hidden">
             <motion.div 
               className={`h-full bg-[#007A55] ${isRtl ? "origin-right" : "origin-left"}`}
               initial={false}
@@ -755,20 +870,25 @@ function StepRail({
           {stepItems.map((step, index) => {
             const active = index === activeStep;
             const done = completed.has(index);
+            const reachable = index <= activeStep || done;
             return (
               <button
                 key={step.title}
                 type="button"
-                onClick={() => onJump(index)}
-                className="group relative z-10 flex flex-col items-center focus:outline-none"
+                onClick={() => reachable && onJump(index)}
+                disabled={!reachable}
+                aria-disabled={!reachable}
+                className="group relative z-10 flex flex-col items-center focus:outline-none disabled:cursor-not-allowed"
               >
-                <div 
-                  className={`flex h-11 w-11 items-center justify-center rounded-full border-2 transition-all duration-500 ${
-                    active 
-                      ? "border-[#007A55] bg-[#007A55] text-white shadow-[0_0_0_8px_rgba(0,122,85,0.1)] scale-110" 
-                      : done 
-                        ? "border-[#007A55] bg-white text-[#007A55]" 
-                        : "border-stone-200 bg-white text-stone-300 group-hover:border-stone-400 group-hover:text-stone-500 shadow-sm"
+                <div
+                  className={`flex h-11 w-11 items-center justify-center rounded-full border-2 ring-4 ring-[#F5FBF4] transition-all duration-500 ${
+                    active
+                      ? "border-[#D6B66A] bg-[#004D36] text-white shadow-[0_0_0_8px_rgba(0,122,85,0.13)] scale-110"
+                      : done
+                        ? "border-[#007A55] bg-white text-[#007A55]"
+                        : reachable
+                          ? "border-[#007A55]/20 bg-white text-emerald-900/35 shadow-sm group-hover:border-[#007A55]/50 group-hover:text-[#007A55]"
+                          : "border-emerald-900/10 bg-emerald-50/60 text-emerald-900/20 opacity-60"
                   }`}
                 >
                   {done ? (
@@ -779,7 +899,7 @@ function StepRail({
                     <span className="text-base font-black">{index + 1}</span>
                   )}
                 </div>
-                <span className={`absolute top-14 whitespace-nowrap rounded-full bg-white/90 px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] shadow-sm ring-1 ring-stone-200/70 transition-all duration-300 ${
+                <span className={`absolute top-14 whitespace-nowrap rounded-full bg-white/95 px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] shadow-sm ring-1 ring-[#007A55]/15 transition-all duration-300 ${
                   active ? "text-[#007A55] opacity-100 translate-y-0" : "text-stone-400 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0"
                 } hidden md:block`}>
                   {step.title}
@@ -835,8 +955,11 @@ export default function JoinProgram() {
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [data, setData] = useState<FormData>(() => loadInitialData());
   const [errors, setErrors] = useState<Errors>({});
+  const navigate = useNavigate();
   const [showReview, setShowReview] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [uploadFiles, setUploadFiles] = useState<Record<string, File[]>>({});
   const [, setLastSavedAt] = useState("");
   const [isChatOpen, setIsChatOpen] = useState(false);
   const localizedSteps = isRtl ? steps : joinEnglish.steps;
@@ -853,6 +976,9 @@ export default function JoinProgram() {
   const attachmentLabel = useCallback((key: keyof typeof joinEnglish.attachments, fallback: string) => (
     isRtl ? fallback : joinEnglish.attachments[key]
   ), [isRtl]);
+  const setFilesForField = useCallback((field: string, files: File[]) => {
+    setUploadFiles((current) => ({ ...current, [field]: files }));
+  }, []);
   const questionLabel = useCallback((key: keyof typeof joinEnglish.questions, fallback: string) => (
     isRtl ? fallback : joinEnglish.questions[key]
   ), [isRtl]);
@@ -882,6 +1008,13 @@ export default function JoinProgram() {
   };
 
   const goNext = () => {
+    const requiredKeys = getRequiredFields(activeStep, data);
+    const visibleKeys = getStepFieldKeys(activeStep, data);
+    const stepErrors = validateFields(requiredKeys, data, lang);
+    const visibleErrors = Object.fromEntries(Object.entries(stepErrors).filter(([key]) => visibleKeys.includes(key)));
+    setErrors(visibleErrors);
+    if (Object.keys(visibleErrors).length > 0) return;
+
     setCompletedSteps((current) => new Set([...current, activeStep]));
     setErrors({});
     if (activeStep === steps.length - 1) {
@@ -904,21 +1037,55 @@ export default function JoinProgram() {
     setLastSavedAt(new Intl.DateTimeFormat("ar", { hour: "2-digit", minute: "2-digit" }).format(new Date()));
   };
 
-  const submitApplication = () => {
+  const jumpToFirstError = (fieldErrors: Errors) => {
+    setShowReview(false);
+    const firstStepWithError = steps.findIndex((_, index) =>
+      getStepFieldKeys(index, data).some((key) => fieldErrors[key])
+    );
+    setActiveStep(Math.max(firstStepWithError, 0));
+  };
+
+  const submitApplication = async () => {
+    if (isSubmitting) return;
+    setSubmitError("");
+
     const allRequired = steps.flatMap((_, index) => getRequiredFields(index, data));
     const allVisible = steps.flatMap((_, index) => getStepFieldKeys(index, data));
     const allErrors = validateFields(allRequired, data, lang);
     const visibleErrors = Object.fromEntries(Object.entries(allErrors).filter(([key]) => allVisible.includes(key)));
     setErrors(visibleErrors);
     if (Object.keys(visibleErrors).length > 0) {
-      setShowReview(false);
-      const firstStepWithError = steps.findIndex((_, index) => getStepFieldKeys(index, data).some((key) => visibleErrors[key]));
-      setActiveStep(Math.max(firstStepWithError, 0));
+      jumpToFirstError(visibleErrors);
       return;
     }
-    console.info("Arab Halal Join Application Payload", payload);
-    localStorage.removeItem(STORAGE_KEY);
-    setSubmitted(true);
+
+    setIsSubmitting(true);
+    const formData = new globalThis.FormData();
+    formData.append("payload", JSON.stringify(payload));
+    Object.entries(uploadFiles).forEach(([field, files]) => files.forEach((file) => formData.append(field, file, file.name)));
+    const result = await submitDesignationBodyApplication(formData);
+    setIsSubmitting(false);
+
+    if (result.ok) {
+      sessionStorage.setItem(
+        JOIN_PROGRAM_PRINT_SESSION_KEY,
+        JSON.stringify({
+          requestNumber: result.data.requestNumber ?? "",
+          submittedAt: new Date().toISOString(),
+          data,
+        })
+      );
+      localStorage.removeItem(STORAGE_KEY);
+      navigate(`/application-submitted?type=join&ref=${encodeURIComponent(result.data.requestNumber ?? "")}`);
+      return;
+    }
+
+    if (result.fields && Object.keys(result.fields).length > 0) {
+      setErrors(result.fields);
+      jumpToFirstError(result.fields);
+      return;
+    }
+    setSubmitError(result.message);
   };
 
   const handleStageKeyDown = (event: KeyboardEvent<HTMLElement>) => {
@@ -952,8 +1119,8 @@ export default function JoinProgram() {
         title: isRtl ? "التقرير والوثائق" : joinEnglish.steps[3].title,
         step: 3,
         items: [
-          ...reportChecklist.map((item) => ({ label: reportLabel(item), value: data[item.key] })),
-          { label: attachmentLabel("firstApplicationReportFiles", "تحميل التقرير أو الوثائق الداعمة"), value: data.firstApplicationReportFiles },
+          { label: questionLabel("isFirstApplication", "هل يتم تقديم طلب الانضمام لأول مرة؟"), value: data.isFirstApplication },
+          { label: attachmentLabel("firstApplicationReportFiles", "تقرير التقديم لأول مرة"), value: data.firstApplicationReportFiles },
           { label: attachmentLabel("accreditationCertificatesCopy", "نسخة عن شهادات الاعتماد"), value: data.accreditationCertificatesCopy },
           { label: attachmentLabel("accreditationCertificatesFiles", "ملفات شهادات الاعتماد"), value: data.accreditationCertificatesFiles },
           { label: attachmentLabel("appointmentDesignationCopy", "نسخة عن التكليف بالتعيين"), value: data.appointmentDesignationCopy },
@@ -998,7 +1165,7 @@ export default function JoinProgram() {
         ],
       },
     ],
-    [attachmentLabel, data, isRtl, labelFor, localizeField, questionLabel, reportLabel]
+    [attachmentLabel, data, isRtl, labelFor, localizeField, questionLabel]
   );
 
   return (
@@ -1008,21 +1175,21 @@ export default function JoinProgram() {
       dir={isRtl ? "rtl" : "ltr"}
       onKeyDown={handleStageKeyDown}
     >
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#F7F1E3]">
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#F3F7EF]">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-28"
+          className="absolute inset-0 bg-cover bg-center opacity-20"
           style={{ backgroundImage: "url('/header-bg.png')" }}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,250,238,0.97)_0%,rgba(250,242,220,0.88)_45%,rgba(232,238,235,0.76)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,253,246,0.97)_0%,rgba(236,246,238,0.9)_48%,rgba(222,239,228,0.78)_100%)]" />
         <div
-          className="absolute inset-0 opacity-[0.09]"
+          className="absolute inset-0 opacity-[0.07]"
           style={{
             backgroundImage:
-              "linear-gradient(90deg, rgba(89,111,105,0.22) 1px, transparent 1px), linear-gradient(rgba(202,138,4,0.2) 1px, transparent 1px)",
+              "linear-gradient(90deg, rgba(89,111,105,0.18) 1px, transparent 1px), linear-gradient(rgba(0,122,85,0.16) 1px, transparent 1px)",
             backgroundSize: "56px 56px",
           }}
         />
-        <div className="absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-[#CA8A04]/18 to-transparent opacity-45" />
+        <div className="absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-[#007A55]/10 to-transparent" />
       </div>
       
       <header className="relative z-10 border-b border-[#D6B66A]/30 bg-[#FFFDF6]/90 backdrop-blur-xl">
@@ -1095,21 +1262,20 @@ export default function JoinProgram() {
                   />
                 ))}
               </div>
-              {submitted && (
+              {submitError && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="relative mt-14 overflow-hidden rounded-[2rem] border-4 border-white bg-green-500 p-12 text-center text-white shadow-[0_40px_100px_-20px_rgba(34,197,94,0.5)]"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-10 flex items-start gap-4 rounded-2xl border-2 border-red-200 bg-red-50 p-6 text-red-800"
                 >
-                  <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-                  <div className="relative z-10">
-                    <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-white text-green-500 shadow-2xl">
-                      <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <h2 className="mb-4 text-3xl font-black">{isRtl ? "تم إرسال طلبك بنجاح" : joinEnglish.ui.successTitle}</h2>
-                    <p className="text-lg font-bold opacity-90">{isRtl ? "سيتواصل معك فريق البرنامج العربي للحلال عبر البريد الإلكتروني قريباً." : joinEnglish.ui.successText}</p>
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M12 3a9 9 0 100 18 9 9 0 000-18z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-base font-black">{isRtl ? "تعذر إرسال الطلب" : "Submission failed"}</p>
+                    <p className="mt-1 text-sm font-bold leading-6">{submitError}</p>
                   </div>
                 </motion.div>
               )}
@@ -1119,15 +1285,27 @@ export default function JoinProgram() {
               {activeStep === 0 && (
                 <SectionGroup title={isRtl ? "معلومات عامة" : joinEnglish.sections.general}>
                   <div className="grid gap-x-8 gap-y-8 lg:grid-cols-2">
-                    {organizationFields.map((field) => (
-                      <InputField
-                        key={field.key}
-                        field={localizeField(field)}
-                        value={fieldValue(data, field.key)}
-                        error={errors[field.key]}
-                        onChange={updateField}
-                      />
-                    ))}
+                    {organizationFields.map((field) => {
+                      const localized = localizeField(field);
+                      return field.key === "country" ? (
+                        <CountrySelect
+                          key={field.key}
+                          field={localized}
+                          value={fieldValue(data, field.key)}
+                          error={errors[field.key]}
+                          lang={lang}
+                          onChange={updateField}
+                        />
+                      ) : (
+                        <InputField
+                          key={field.key}
+                          field={localized}
+                          value={fieldValue(data, field.key)}
+                          error={errors[field.key]}
+                          onChange={updateField}
+                        />
+                      );
+                    })}
                   </div>
                 </SectionGroup>
               )}
@@ -1166,43 +1344,63 @@ export default function JoinProgram() {
 
               {activeStep === 3 && (
                 <div className="space-y-12">
-                  <SectionGroup title={isRtl ? "تقرير المرحلة الأولى" : joinEnglish.sections.report} helper={isRtl ? "في حال التقديم لأول مرة، يرجى تحديد الوثائق المتوفرة وإرفاق الملفات الداعمة." : joinEnglish.sections.reportHelper}>
-                    <div className="grid gap-4">
-                      {reportChecklist.map((item) => (
-                        <label
-                          key={item.key}
-                          className={`flex cursor-pointer items-start gap-4 rounded-[1.25rem] border-2 p-5 transition-all duration-300 ${
-                            data[item.key]
-                              ? "border-[#007A55] bg-[#007A55]/5 shadow-sm"
-                              : "border-stone-100 bg-white hover:border-stone-200 hover:bg-stone-50/50"
-                          }`}
+                  <SectionGroup title={isRtl ? "تقرير التقديم لأول مرة" : joinEnglish.sections.report} helper={isRtl ? "يُرفق تقرير واحد يغطي النقاط الثمانية أدناه عند تقديم طلب الانضمام لأول مرة." : joinEnglish.sections.reportHelper}>
+                    <div className="space-y-7">
+                      <RadioGroupYesNo
+                        label={questionLabel("isFirstApplication", "هل يتم تقديم طلب الانضمام لأول مرة؟")}
+                        value={data.isFirstApplication}
+                        error={errors.isFirstApplication}
+                        onChange={(value) => {
+                          updateField("isFirstApplication", value);
+                          if (value === NO) {
+                            updateField("firstApplicationReportFiles", []);
+                            setFilesForField("firstApplicationReportFiles", []);
+                          }
+                        }}
+                      />
+
+                      {data.isFirstApplication === YES && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="overflow-hidden rounded-2xl border border-[#007A55]/25 bg-white shadow-[0_18px_40px_-34px_rgba(0,86,61,0.65)]"
                         >
-                          <div className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border-2 transition-all duration-300 ${
-                            data[item.key] ? "border-[#007A55] bg-[#007A55] text-white" : "border-stone-200 bg-white"
-                          }`}>
-                            {data[item.key] && (
-                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" />
-                              </svg>
+                          <div className="border-b border-[#007A55]/15 bg-[#F3FAF6] px-5 py-4 sm:px-6">
+                            <p className="text-[15px] font-black text-[#004D36]">
+                              {isRtl ? "يجب أن يتضمن التقرير النقاط التالية:" : "The report must cover all of the following points:"}
+                            </p>
+                          </div>
+                          <ol className="grid gap-0 divide-y divide-stone-100 px-5 sm:px-6">
+                            {reportChecklist.map((item, index) => (
+                              <li key={item.key} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 py-4 text-[15px] font-bold leading-7 text-stone-800">
+                                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#007A55] text-xs font-black text-white">{index + 1}</span>
+                                <span>{reportLabel(item)}</span>
+                              </li>
+                            ))}
+                          </ol>
+                          <div className="border-t border-stone-200 bg-stone-50/60 p-5 sm:p-6">
+                            <FileUploadBox
+                              multiple={false}
+                              accept=".pdf,.doc,.docx"
+                              label={isRtl ? "رفع تقرير التقديم لأول مرة" : "Upload the first-application report"}
+                              helper={isRtl ? "تقرير واحد بصيغة PDF أو DOC أو DOCX — 10 ميجابايت كحد أقصى" : "One PDF, DOC, or DOCX report — maximum 10 MB"}
+                              value={(data.firstApplicationReportFiles as string[]) ?? []}
+                              onChange={(files) => updateField("firstApplicationReportFiles", files.slice(0, 1))}
+                              selectedFiles={uploadFiles.firstApplicationReportFiles ?? []}
+                              onFilesChange={(files) => setFilesForField("firstApplicationReportFiles", files.slice(0, 1))}
+                            />
+                            {errors.firstApplicationReportFiles && (
+                              <p className="mt-3 text-xs font-bold text-red-600">{errors.firstApplicationReportFiles}</p>
                             )}
                           </div>
-                          <input
-                            type="checkbox"
-                            checked={Boolean(data[item.key])}
-                            onChange={(event) => updateField(item.key, event.target.checked)}
-                            className="sr-only"
-                          />
-                          <span className="text-[15px] font-bold leading-relaxed text-stone-800">{reportLabel(item)}</span>
-                        </label>
-                      ))}
-                    </div>
-                    <div className="pt-4">
-                      <FileUploadBox
-                        label={attachmentLabel("firstApplicationReportFiles", "تحميل التقرير أو الوثائق الداعمة")}
-                        helper={isRtl ? "PDF, DOC, DOCX, JPG, PNG (حد أقصى 10 ميجابايت للملف)" : joinEnglish.attachments.firstApplicationReportHelper}
-                        value={(data.firstApplicationReportFiles as string[]) ?? []}
-                        onChange={(files) => updateField("firstApplicationReportFiles", files)}
-                      />
+                        </motion.div>
+                      )}
+
+                      {data.isFirstApplication === NO && (
+                        <div className="rounded-xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm font-bold leading-7 text-stone-600">
+                          {isRtl ? "لا يلزم إرفاق تقرير المرحلة الأولى لهذا الطلب." : "A phase-one report is not required for this application."}
+                        </div>
+                      )}
                     </div>
                   </SectionGroup>
 
@@ -1235,6 +1433,8 @@ export default function JoinProgram() {
                             label={isRtl ? `تحميل الملفات الخاصة بـ ${item.label}` : attachmentLabel(item.upload as keyof typeof joinEnglish.attachments, item.label)}
                             value={(data[item.upload] as string[]) ?? []}
                             onChange={(files) => updateField(item.upload, files)}
+                            selectedFiles={uploadFiles[item.upload] ?? []}
+                            onFilesChange={(files) => setFilesForField(item.upload, files)}
                           />
                         </div>
                       ))}
@@ -1267,6 +1467,8 @@ export default function JoinProgram() {
                             label={attachmentLabel("otherDocumentsFiles", "تحميل الوثائق الإضافية")}
                             value={(data.otherDocumentsFiles as string[]) ?? []}
                             onChange={(files) => updateField("otherDocumentsFiles", files)}
+                            selectedFiles={uploadFiles.otherDocumentsFiles ?? []}
+                            onFilesChange={(files) => setFilesForField("otherDocumentsFiles", files)}
                           />
                         </div>
                       </div>
@@ -1383,8 +1585,8 @@ export default function JoinProgram() {
                     <div className="grid gap-x-10 gap-y-10 lg:grid-cols-2">
                       <InputField field={localizeField({ key: "signatureHeadName", label: "اسم رئيس الجهة المعنية بالحلال", required: true })} value={fieldValue(data, "signatureHeadName")} error={errors.signatureHeadName} onChange={updateField} />
                       <InputField field={localizeField({ key: "signatureDate", label: "تاريخ الطلب", type: "date", required: true })} value={fieldValue(data, "signatureDate")} error={errors.signatureDate} onChange={updateField} />
-                      <FileUploadBox label={isRtl ? "صورة التوقيع" : joinEnglish.ui.signatureImage} helper={isRtl ? "يرجى إرفاق صورة واضحة للتوقيع (PNG, JPG, PDF)" : joinEnglish.ui.signatureHelper} value={data.signature ? [String(data.signature)] : []} onChange={(files) => updateField("signature", files[0] ?? null)} />
-                      <FileUploadBox label={isRtl ? "الختم الرسمي للجهة" : joinEnglish.ui.officialSeal} helper={isRtl ? "يرجى إرفاق صورة واضحة للختم الرسمي (PNG, JPG, PDF)" : joinEnglish.ui.sealHelper} value={data.officialSeal ? [String(data.officialSeal)] : []} onChange={(files) => updateField("officialSeal", files[0] ?? null)} />
+                      <FileUploadBox label={isRtl ? "صورة التوقيع" : joinEnglish.ui.signatureImage} helper={isRtl ? "يرجى إرفاق صورة واضحة للتوقيع (PNG, JPG, PDF)" : joinEnglish.ui.signatureHelper} value={data.signature ? [String(data.signature)] : []} onChange={(files) => updateField("signature", files[0] ?? null)} selectedFiles={uploadFiles.signature ?? []} onFilesChange={(files) => setFilesForField("signature", files)} />
+                      <FileUploadBox label={isRtl ? "الختم الرسمي للجهة" : joinEnglish.ui.officialSeal} helper={isRtl ? "يرجى إرفاق صورة واضحة للختم الرسمي (PNG, JPG, PDF)" : joinEnglish.ui.sealHelper} value={data.officialSeal ? [String(data.officialSeal)] : []} onChange={(files) => updateField("officialSeal", files[0] ?? null)} selectedFiles={uploadFiles.officialSeal ?? []} onFilesChange={(files) => setFilesForField("officialSeal", files)} />
                       <div className="lg:col-span-2">
                         <InputField field={localizeField({ key: "additionalNotes", label: "ملاحظات أو تعليقات إضافية", type: "textarea" })} value={fieldValue(data, "additionalNotes")} onChange={updateField} />
                       </div>
@@ -1426,10 +1628,16 @@ export default function JoinProgram() {
                 <button
                   type="button"
                   onClick={submitApplication}
-                  disabled={submitted}
-                  className="inline-flex h-12 min-w-[180px] items-center justify-center rounded-xl bg-[#007A55] px-8 text-[14px] font-black text-white shadow-[0_20px_40px_-12px_rgba(0,122,85,0.4)] transition-all hover:brightness-110 active:scale-95 disabled:opacity-50"
+                  disabled={isSubmitting}
+                  className="inline-flex h-12 min-w-[180px] items-center justify-center gap-2 rounded-xl bg-[#007A55] px-8 text-[14px] font-black text-white shadow-[0_20px_40px_-12px_rgba(0,122,85,0.4)] transition-all hover:brightness-110 active:scale-95 disabled:opacity-50"
                 >
-                  {isRtl ? "إرسال الطلب الآن" : joinEnglish.ui.submit}
+                  {isSubmitting && (
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  )}
+                  {isSubmitting ? (isRtl ? "جارٍ الإرسال..." : "Submitting...") : (isRtl ? "إرسال الطلب الآن" : joinEnglish.ui.submit)}
                 </button>
               ) : (
                 <button

@@ -21,6 +21,7 @@ const routeByPath: Record<string, RouteEntry> = {
   "/documents": { main: "certificate", sub: "documents", parentTo: "/#directory" },
   "/halal-certificate": { main: "certificate", sub: "halalCertificate", parentTo: "/#directory" },
   "/halal-mark": { main: "certificate", sub: "halalMark", parentTo: "/#directory" },
+  "/fees-and-payment-policy": { main: "certificate", sub: "feesAndPayment", parentTo: "/halal-certificate" },
   "/halal-certificate-mark": { main: "certificate", sub: "halalCertificate", parentTo: "/#directory" },
 };
 
@@ -83,6 +84,7 @@ export const FloatingBreadcrumb = () => {
 
   return (
     <nav
+      id="site-breadcrumb"
       dir={isRtl ? "rtl" : "ltr"}
       aria-label={t("breadcrumbs.ariaLabel")}
       className="pointer-events-none fixed inset-x-0 top-20 z-30 lg:top-24"

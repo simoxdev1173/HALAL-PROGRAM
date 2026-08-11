@@ -56,7 +56,7 @@ const ar = {
       searchModalTitle: "البحث والتحقق",
       searchAction: "التحقق من شهادة حلال",
       searchInputLabel: "رقم شهادة الحلال أو عبارة البحث",
-      searchSuggestions: ["شروط الانضمام", "الدول المنضمة", "شهادة وعلامة حلال", "الجهات المعنية بقطاع الحلال"],
+      searchSuggestions: ["الكل", "لحوم ومنتجاتها", "حلويات وسكاكر", "ألبان وأجبان", "زيوت ودهون", "حبوب وبقوليات", "مشروبات", "مخبوزات"],
       joinProgramCta: "الانضمام للبرنامج",
       menuBtn: "القائمة",
     },
@@ -97,6 +97,7 @@ const ar = {
         documents: "النماذج الرسمية",
         halalCertificate: "شهادة الحلال",
         halalMark: "علامة الحلال",
+        feesAndPayment: "الرسوم والتكاليف وسياسة الدفع",
         current: "الصفحة الحالية",
       },
     },
@@ -482,7 +483,7 @@ const en = {
       searchModalTitle: "Search & Verification",
       searchAction: "Verify Halal Certificate",
       searchInputLabel: "Halal certificate number or search query",
-      searchSuggestions: ["Joining Requirements", "Joined Countries", "Halal Certificate & Mark", "Halal Sector Authorities"],
+      searchSuggestions: ["All", "Meat & Meat Products", "Sweets & Confectionery", "Dairy & Cheese", "Oils & Fats", "Grains & Legumes", "Beverages", "Baked Goods"],
       joinProgramCta: "Join the Program",
       menuBtn: "Menu",
     },
@@ -523,6 +524,7 @@ const en = {
         documents: "Official Forms",
         halalCertificate: "Halal Certificate",
         halalMark: "Halal Mark",
+        feesAndPayment: "Fees and Payment Policy",
         current: "Current Page",
       },
     },
@@ -863,4 +865,3 @@ i18n.use(initReactI18next).init({
 });
 
 export default i18n;
-

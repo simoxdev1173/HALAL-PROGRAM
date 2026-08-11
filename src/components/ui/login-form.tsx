@@ -1,14 +1,33 @@
 import { useState } from "react";
-import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
+import { AlertTriangle, Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { adminLogin, type AdminUser } from "../../lib/api";
 
 type LoginFormProps = {
-  onLogin: () => void;
+  onLogin: (user: AdminUser) => void;
   className?: string;
 };
 
 export default function LoginForm({ onLogin, className }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("admin@aidsmo.org");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (isSubmitting) return;
+    setError("");
+    setIsSubmitting(true);
+    const result = await adminLogin(email, password);
+    setIsSubmitting(false);
+    if (result.ok) {
+      onLogin(result.data.user);
+    } else {
+      setError(result.message);
+    }
+  };
 
   return (
     <section
@@ -34,10 +53,7 @@ export default function LoginForm({ onLogin, className }: LoginFormProps) {
       <div dir="rtl" className="relative flex min-h-[720px] items-center p-6 sm:p-8 lg:order-1 lg:p-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_12%,rgba(0,122,85,.18),transparent_34%),radial-gradient(circle_at_12%_82%,rgba(202,138,4,.16),transparent_34%)] lg:hidden" />
         <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            onLogin();
-          }}
+          onSubmit={handleSubmit}
           className="relative mx-auto flex w-full max-w-md flex-col"
         >
           <div className="mb-8 flex items-center justify-center lg:hidden">
@@ -58,7 +74,8 @@ export default function LoginForm({ onLogin, className }: LoginFormProps) {
             <span className="sr-only">البريد الإلكتروني</span>
             <input
               type="email"
-              defaultValue="admin@aidsmo.org"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               className="h-full min-w-0 flex-1 bg-transparent text-sm font-bold text-white outline-none placeholder:text-stone-500"
               placeholder="البريد الإلكتروني"
               required
@@ -70,7 +87,8 @@ export default function LoginForm({ onLogin, className }: LoginFormProps) {
             <span className="sr-only">كلمة المرور</span>
             <input
               type={showPassword ? "text" : "password"}
-              defaultValue="admin"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
               className="h-full min-w-0 flex-1 bg-transparent text-sm font-bold text-white outline-none placeholder:text-stone-500"
               placeholder="كلمة المرور"
               required
@@ -95,11 +113,25 @@ export default function LoginForm({ onLogin, className }: LoginFormProps) {
             </button>
           </div>
 
+          {error && (
+            <div className="mt-6 flex items-center gap-3 rounded-2xl border border-red-400/40 bg-red-500/15 px-4 py-3 text-sm font-bold text-red-100">
+              <AlertTriangle size={18} className="shrink-0 text-red-300" />
+              <span>{error}</span>
+            </div>
+          )}
+
           <button
             type="submit"
-            className="mt-8 h-12 w-full cursor-pointer rounded-full bg-[linear-gradient(145deg,#00A36F,#006747)] text-sm font-black text-white shadow-[0_22px_55px_rgba(0,122,85,.34),inset_1px_1px_2px_rgba(255,255,255,.35),inset_-2px_-2px_4px_rgba(0,0,0,.24)] outline-none transition-all hover:-translate-y-0.5 hover:shadow-[0_28px_70px_rgba(0,122,85,.42)] focus-visible:ring-4 focus-visible:ring-[#CA8A04]/35 active:translate-y-0"
+            disabled={isSubmitting}
+            className="mt-8 flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[linear-gradient(145deg,#00A36F,#006747)] text-sm font-black text-white shadow-[0_22px_55px_rgba(0,122,85,.34),inset_1px_1px_2px_rgba(255,255,255,.35),inset_-2px_-2px_4px_rgba(0,0,0,.24)] outline-none transition-all hover:-translate-y-0.5 hover:shadow-[0_28px_70px_rgba(0,122,85,.42)] focus-visible:ring-4 focus-visible:ring-[#CA8A04]/35 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            الدخول إلى لوحة الإدارة
+            {isSubmitting && (
+              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            )}
+            {isSubmitting ? "جارٍ التحقق..." : "الدخول إلى لوحة الإدارة"}
           </button>
         </form>
       </div>

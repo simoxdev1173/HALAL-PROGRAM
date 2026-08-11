@@ -138,7 +138,7 @@ const statusConfig = {
 const CertificateVerification: React.FC = () => {
   const location = useLocation();
   const [query, setQuery] = useState(() => new URLSearchParams(location.search).get("q") ?? "");
-  const [activeCategory, setActiveCategory] = useState<string>("الكل");
+  const [activeCategory, setActiveCategory] = useState<string>(() => new URLSearchParams(location.search).get("category") ?? "الكل");
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
 
   const categories = ["الكل", ...Array.from(new Set(MOCK_DATA.map(item => item.category)))];
@@ -168,20 +168,27 @@ const CertificateVerification: React.FC = () => {
   }, [selectedCert]);
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6]  font-arabic flex flex-col overflow-hidden" dir="rtl">
+    <div
+      className="min-h-screen bg-[#FAF9F6] font-arabic flex flex-col"
+      style={{ paddingTop: "var(--fixed-chrome-offset, 128px)" }}
+      dir="rtl"
+    >
       
       {/* Industrial noise overlay */}
       <div className="fixed inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none z-50" style={{ backgroundImage: 'url("https://transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
 
       {/* 1. Header & Search Area (Industrial Control Panel) */}
-      <div className="sticky top-16 lg:top-20 z-30 bg-[#e0e5ec] border-b border-stone-300 shadow-[var(--shadow-ind-card)] pt-6 pb-2 px-6 lg:px-10">
+      <div
+        className="sticky z-30 bg-[#e0e5ec] border-b border-stone-300 shadow-[var(--shadow-ind-card)] pt-6 pb-2 px-6 lg:px-10"
+        style={{ top: "var(--fixed-chrome-offset, 128px)" }}
+      >
         <div className="max-w-7xl mx-auto">
-          
+
           <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-12 justify-between mb-8">
-            
+
             <div className="w-full lg:w-auto">
-              <h1 className="text-2xl lg:text-3xl pr-21 font-black text-stone-800 tracking-tight drop-shadow-[0_1px_1px_#ffffff]">الدليل الرقمي الموحد</h1>
-              
+              <h1 className="text-2xl lg:text-3xl font-black text-stone-800 tracking-tight drop-shadow-[0_1px_1px_#ffffff]">الدليل الرقمي الموحد</h1>
+
             </div>
 
             {/* Recessed Search Bar */}
@@ -304,7 +311,7 @@ const CertificateVerification: React.FC = () => {
 
                           <div className="pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
                              <div className="flex flex-col">
-                                <span className="text-[8px] font-mono font-black text-stone-400 uppercase tracking-tighter">License ID</span>
+                                <span className="text-[8px] font-mono font-black text-stone-400 uppercase tracking-tighter">رقم الترخيص</span>
                                 <span className="text-xs font-mono font-black text-[#007A55] tracking-tight">{cert.licenseNumber}</span>
                              </div>
                              
@@ -350,7 +357,7 @@ const CertificateVerification: React.FC = () => {
                 <div className="flex flex-col gap-1">
                    <div className="flex items-center gap-2">
                       <div className={`w-2.5 h-2.5 rounded-full ${statusConfig[selectedCert.status].led} shadow-[0_0_10px_rgba(0,0,0,0.1)]`} />
-                      <span className="text-[10px] font-mono font-black text-stone-500 uppercase tracking-widest">Technical Report</span>
+                      <span className="text-[10px] font-mono font-black text-stone-500 uppercase tracking-widest">التقرير الفني</span>
                    </div>
                    <h2 className="text-xl lg:text-2xl font-black text-stone-800 tracking-tight">{selectedCert.companyName}</h2>
                 </div>
@@ -389,12 +396,12 @@ const CertificateVerification: React.FC = () => {
                 {/* Technical Data Points */}
                 <div className="grid grid-cols-2 gap-6 lg:gap-8">
                    {[
-                     { label: "License Number", value: selectedCert.licenseNumber, mono: true, color: "text-[#007A55]" },
-                     { label: "Issuance Category", value: selectedCert.category, mono: false },
-                     { label: "Geographic Location", value: selectedCert.location, mono: false },
-                     { label: "Expiry Protocol", value: selectedCert.expiryDate, mono: true, color: "text-rose-600" },
-                     { label: "Certification Status", value: statusConfig[selectedCert.status].label, mono: false, status: true },
-                     { label: "Next Technical Audit", value: selectedCert.nextFollowUp, mono: true }
+                     { label: "رقم الترخيص", value: selectedCert.licenseNumber, mono: true, color: "text-[#007A55]" },
+                     { label: "الفئة", value: selectedCert.category, mono: false },
+                     { label: "الموقع", value: selectedCert.location, mono: false },
+                     { label: "تاريخ انتهاء الصلاحية", value: selectedCert.expiryDate, mono: true, color: "text-rose-600" },
+                     { label: "حالة الشهادة", value: statusConfig[selectedCert.status].label, mono: false, status: true },
+                     { label: "تاريخ المتابعة القادمة", value: selectedCert.nextFollowUp, mono: true }
                    ].map((item, idx) => (
                      <div key={idx} className="space-y-1.5">
                         <span className="text-[10px] font-mono font-black text-stone-400 uppercase tracking-widest block">{item.label}</span>
@@ -409,7 +416,7 @@ const CertificateVerification: React.FC = () => {
                 <div className="ind-card p-6 border border-stone-200/50 bg-[#e0e5ec]/30 space-y-4">
                    <div className="flex items-center gap-2 mb-2">
                       <Target size={14} className="text-[#CA8A04]" />
-                      <span className="text-[10px] font-mono font-black text-stone-500 uppercase tracking-widest">Compliance Standards</span>
+                      <span className="text-[10px] font-mono font-black text-stone-500 uppercase tracking-widest">المواصفات المعتمدة</span>
                    </div>
                    <div className="flex flex-wrap gap-3">
                       {selectedCert.standards.map((std, i) => (

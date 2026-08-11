@@ -148,7 +148,10 @@ model DesignationBodyApplication {
   contactOfficerEmail  String
   contactOfficerMobile String
 
-  // Step 4 — Report checklist
+  // Step 4 — First-application report
+  isFirstApplication                             YesNo?
+
+  // Legacy checklist fields kept for compatibility with existing records.
   orgStructureIncluded                          Boolean @default(false)
   technicalHumanCapacityIncluded                Boolean @default(false)
   inspectorsTrainingProceduresIncluded          Boolean @default(false)
@@ -400,4 +403,27 @@ model AdminUser {
   statusChanges        CertificateStatusLog[]
   confirmedPayments    Payment[]
   surveillanceReports  SurveillanceReport[]
+  actionLogs           AdminActionLog[]
+}
+
+// =========================================================================
+// 11. AdminActionLog — generic history/undo trail for dashboard actions
+// =========================================================================
+
+model AdminActionLog {
+  id         String   @id @default(uuid())
+  entityType String
+  entityId   String
+  action     String
+  fromStatus String?
+  toStatus   String?
+  reason     String?
+  actorId    String?
+  undone     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  actor AdminUser? @relation(fields: [actorId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
 }

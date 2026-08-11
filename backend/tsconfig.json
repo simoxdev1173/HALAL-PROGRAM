@@ -15,6 +15,6 @@
     "resolveJsonModule": true,
     "declaration": true
   },
-  "include": ["lib/**/*.ts", "prisma/**/*.ts"],
+  "include": ["lib/**/*.ts", "prisma/**/*.ts", "server.ts"],
   "exclude": ["node_modules", "dist"]
 }

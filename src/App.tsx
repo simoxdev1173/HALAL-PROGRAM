@@ -27,7 +27,10 @@ import ProgramScope from "./pages/ProgramScope";
 import HalalCertificate from "./pages/HalalCertificate";
 import HalalCertificateApplication from "./pages/HalalCertificateApplication";
 import HalalMark from "./pages/HalalMark";
+import FeesAndPaymentPolicy from "./pages/FeesAndPaymentPolicy";
+import ApplicationSuccess from "./pages/ApplicationSuccess";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminApplicationPreview from "./pages/AdminApplicationPreview";
 import { motion } from "framer-motion";
 
 const ScrollToHash = () => {
@@ -82,7 +85,7 @@ function AppContent() {
   const lang = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("en") ? "en" : "ar";
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const isFocusedApplication = location.pathname === "/join-program" || location.pathname === "/halal-certificate-application" || location.pathname.startsWith("/admin");
+  const isFocusedApplication = location.pathname === "/join-program" || location.pathname === "/halal-certificate-application" || location.pathname === "/application-submitted" || location.pathname.startsWith("/admin");
 
   const handleSetChatOpen = (val: boolean) => {
     if (val) {
@@ -106,6 +109,33 @@ function AppContent() {
     document.documentElement.dataset.lang = lang;
     document.body.dir = lang === "ar" ? "rtl" : "ltr";
   }, [lang]);
+
+  // Measures the real, on-screen bottom edge of the fixed navbar + floating
+  // breadcrumb (they change per breakpoint and are hidden on focused-application
+  // pages), so any page needing to clear them can use `var(--fixed-chrome-offset)`
+  // instead of guessing pixel values that drift whenever the chrome's size changes.
+  // The navbar's round logo is deliberately larger than the navbar's own box and
+  // floats past its bottom edge, so it's measured directly too — using only the
+  // navbar's box height would undercount the space it actually occupies on screen.
+  useEffect(() => {
+    const root = document.documentElement;
+
+    const updateChromeOffset = () => {
+      const bottomOf = (id: string) => document.getElementById(id)?.getBoundingClientRect().bottom ?? 0;
+      const offset = Math.max(bottomOf("site-navbar"), bottomOf("site-navbar-logo"), bottomOf("site-breadcrumb"));
+      root.style.setProperty("--fixed-chrome-offset", `${Math.ceil(offset)}px`);
+    };
+
+    updateChromeOffset();
+
+    const observer = new ResizeObserver(updateChromeOffset);
+    ["site-navbar", "site-navbar-logo", "site-breadcrumb"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [isFocusedApplication, location.pathname]);
 
   const setLang = (nextLang: "ar" | "en") => {
     void i18n.changeLanguage(nextLang);
@@ -138,8 +168,11 @@ function AppContent() {
             <Route path="/halal-certificate" element={<HalalCertificate />} />
             <Route path="/halal-certificate-application" element={<HalalCertificateApplication />} />
             <Route path="/halal-mark" element={<HalalMark />} />
+            <Route path="/fees-and-payment-policy" element={<FeesAndPaymentPolicy />} />
             <Route path="/halal-certificate-mark" element={<HalalCertificate />} />
+            <Route path="/application-submitted" element={<ApplicationSuccess />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/application-preview/:resource/:id" element={<AdminApplicationPreview />} />
           </Routes>
 
           {!isFocusedApplication && <Footer lang={lang} onChatOpen={() => handleSetChatOpen(true)} />}

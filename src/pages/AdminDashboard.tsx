@@ -5,34 +5,53 @@ import {
   ArrowUpDown,
   BadgeCheck,
   Ban,
-  Bell,
   Building2,
   Check,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  CircleDollarSign,
   Clock3,
   CreditCard,
+  Database,
   Download,
   Eye,
+  FileBadge2,
   FileCheck2,
+  FileClock,
   Filter,
+  History as HistoryIcon,
+  Landmark,
   LayoutDashboard,
   ListChecks,
   LogOut,
-  Mail,
   Plus,
+  ReceiptText,
+  RefreshCw,
   RotateCcw,
   Save,
   Search,
-  Settings,
   ShieldCheck,
-  Store,
+  SlidersHorizontal,
+  Trash,
   Trash2,
+  Undo2,
   User,
+  Users as UsersIcon,
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import LoginForm from "../components/ui/login-form";
+import {
+  performResourceAction,
+  undoResourceAction,
+  fetchActionLog,
+  fetchAdminUsers,
+  createAdminUserApi,
+  updateAdminUserApi,
+} from "../lib/api";
+import type { AdminUser, ResourceKind, ActionLogEntry, AdminUserRecord } from "../lib/api";
+import { CountryFlag } from "../lib/countryFlags";
 
 type AdminSection =
   | "overview"
@@ -40,9 +59,12 @@ type AdminSection =
   | "appointed-bodies"
   | "suppliers"
   | "certificates"
-  | "violations"
   | "payments"
+  | "history"
+  | "users"
   | "settings";
+
+type ResourceSection = Exclude<AdminSection, "overview" | "history" | "users" | "settings">;
 
 type StatusKind = "active" | "suspended" | "revoked" | "review" | "expired" | "pending" | "paid" | "overdue" | "resolved" | "open";
 
@@ -72,18 +94,20 @@ type ApiListResponse = {
   limit?: number;
 };
 
-type Toast = { id: number; text: string; tone: "success" | "warning" };
-type ConfirmAction = { title: string; body: string; confirmLabel: string } | null;
+type Toast = { id: number; text: string; tone: "success" | "warning"; onUndo?: () => void };
+type ConfirmAction = { title: string; body: string; confirmLabel: string; onConfirm: () => void } | null;
+type NotifyFn = (text: string, tone?: Toast["tone"], onUndo?: () => void) => void;
+type ConfirmFn = (action: ConfirmAction) => void;
 
 const navItems: { section: AdminSection; label: string; icon: LucideIcon }[] = [
   { section: "overview", label: "لوحة التحكم", icon: LayoutDashboard },
   { section: "designation-bodies", label: "جهات التعيين", icon: Building2 },
   { section: "appointed-bodies", label: "الجهات المعيّنة", icon: BadgeCheck },
-  { section: "suppliers", label: "الموردون والمنشآت", icon: Store },
+  { section: "suppliers", label: "طلبات الشهادة والعلامة", icon: FileBadge2 },
   { section: "certificates", label: "الشهادات والتراخيص", icon: FileCheck2 },
-  { section: "violations", label: "تقارير المخالفات", icon: AlertTriangle },
   { section: "payments", label: "الرسوم والمدفوعات", icon: CreditCard },
-  { section: "settings", label: "الإعدادات", icon: Settings },
+  { section: "history", label: "سجل العمليات", icon: HistoryIcon },
+  { section: "users", label: "المستخدمون", icon: UsersIcon },
 ];
 
 const statusLabels: Record<string, string> = {
@@ -121,7 +145,7 @@ const allStatuses = [
   { value: "revoked", label: "مسحوب" },
 ];
 
-const resourceConfigs: Record<Exclude<AdminSection, "overview" | "settings">, ResourceConfig> = {
+const resourceConfigs: Record<ResourceSection, ResourceConfig> = {
   "designation-bodies": {
     section: "designation-bodies",
     resource: "designation-bodies",
@@ -164,21 +188,22 @@ const resourceConfigs: Record<Exclude<AdminSection, "overview" | "settings">, Re
   suppliers: {
     section: "suppliers",
     resource: "suppliers",
-    title: "الموردون والمنشآت",
-    eyebrow: "متابعة المنشآت والمنتجات والشهادات والمدفوعات",
-    searchPlaceholder: "بحث بالاسم أو رقم التسجيل",
-    primaryAction: "إضافة مورد",
+    title: "طلبات الشهادة والعلامة",
+    eyebrow: "مراجعة طلبات شهادة الحلال العربية وعلامة الحلال العربية",
+    searchPlaceholder: "بحث باسم المنشأة أو رقم الطلب",
+    primaryAction: "تصدير الطلبات",
     columns: [
+      { key: "requestNumber", label: "رقم الطلب" },
       { key: "name", label: "اسم المنشأة" },
+      { key: "purpose", label: "الغرض من الطلب" },
       { key: "country", label: "الدولة" },
-      { key: "category", label: "الفئة" },
-      { key: "appointedBodyName", label: "الجهة المعيّنة" },
       { key: "registeredAt", label: "تاريخ التسجيل" },
       { key: "status", label: "الحالة" },
     ],
-    emptyTitle: "لا توجد منشآت مطابقة للمرشحات الحالية",
-    emptyAction: "إضافة مورد",
+    emptyTitle: "لا توجد طلبات مطابقة للمرشحات الحالية",
+    emptyAction: "إعادة ضبط المرشحات",
     filters: [
+      { key: "purpose", label: "نوع الطلب", options: [{ value: "all", label: "كل الطلبات" }, { value: "ARAB_HALAL_CERTIFICATE", label: "طلبات الشهادة" }, { value: "ARAB_HALAL_MARK", label: "طلبات العلامة" }] },
       { key: "country", label: "الدولة", options: [{ value: "all", label: "كل الدول" }] },
       { key: "category", label: "الفئة", options: [{ value: "all", label: "كل الفئات" }] },
       { key: "appointedBody", label: "الجهة المعيّنة", options: [{ value: "all", label: "كل الجهات" }] },
@@ -209,34 +234,13 @@ const resourceConfigs: Record<Exclude<AdminSection, "overview" | "settings">, Re
       { key: "dateRange", label: "الفترة", options: [{ value: "all", label: "كل الفترات" }, { value: "issue", label: "تاريخ الإصدار" }, { value: "expiry", label: "تاريخ الانتهاء" }] },
     ],
   },
-  violations: {
-    section: "violations",
-    resource: "violations",
-    title: "تقارير المخالفات",
-    eyebrow: "بلاغات التفتيش والإشعارات وسجل المعالجة",
-    columns: [
-      { key: "inspectionDate", label: "تاريخ التفتيش" },
-      { key: "location", label: "الموقع" },
-      { key: "productName", label: "المنتج المخالف" },
-      { key: "supplierName", label: "المورد" },
-      { key: "severity", label: "درجة الخطورة" },
-      { key: "designationBodyName", label: "جهة التعيين المُبلَّغة" },
-      { key: "status", label: "الحالة" },
-    ],
-    emptyTitle: "لا توجد تقارير مخالفات ضمن المرشحات الحالية",
-    emptyAction: "إرسال إشعار",
-    filters: [
-      { key: "severity", label: "الخطورة", options: [{ value: "all", label: "كل الدرجات" }, { value: "low", label: "منخفضة" }, { value: "medium", label: "متوسطة" }, { value: "high", label: "عالية" }] },
-      { key: "status", label: "الحالة", options: [{ value: "all", label: "كل الحالات" }, { value: "open", label: "مفتوح" }, { value: "review", label: "قيد المراجعة" }, { value: "resolved", label: "تم الحل" }] },
-      { key: "designationBody", label: "جهة التعيين", options: [{ value: "all", label: "كل الجهات" }] },
-      { key: "dateRange", label: "الفترة", options: [{ value: "all", label: "كل الفترات" }] },
-    ],
-  },
   payments: {
     section: "payments",
     resource: "payments",
     title: "الرسوم والمدفوعات",
-    eyebrow: "رسوم التفويض واستخدام الشهادات وحالة الإيصالات",
+    eyebrow: "سجل مالي موحد للرسوم والتحصيل والإيصالات",
+    searchPlaceholder: "بحث باسم الدافع أو رقم الشهادة",
+    primaryAction: "تصدير CSV",
     columns: [
       { key: "payerName", label: "اسم الجهة/المورد" },
       { key: "feeType", label: "نوع الرسوم" },
@@ -263,10 +267,46 @@ const getValue = (row: Record<string, unknown>, key: string) => {
   return "";
 };
 
+const actionSuccessLabel: Record<string, string> = {
+  approve: "تم اعتماد الطلب",
+  reject: "تم رفض الطلب",
+  suspend: "تم تعليق السجل",
+  revoke: "تم سحب السجل",
+  reactivate: "تمت إعادة تفعيل السجل",
+  renew: "تم تجديد الشهادة",
+  delete: "تم حذف السجل نهائياً",
+};
+
+async function runResourceAction(
+  resource: ResourceKind,
+  id: string,
+  action: string,
+  notify: NotifyFn,
+  actorId?: string,
+  reason?: string
+): Promise<boolean> {
+  const result = await performResourceAction(resource, id, action, { actorId, reason });
+  if (!result.ok) {
+    notify(result.message, "warning");
+    return false;
+  }
+  if (action === "delete") {
+    notify(actionSuccessLabel.delete, "success");
+    return true;
+  }
+  const { logId } = result.data;
+  notify(actionSuccessLabel[action] ?? "تم تنفيذ الإجراء وتسجيله في سجل العمليات", "success", () => {
+    void undoResourceAction(logId, actorId).then((undoResult) => {
+      notify(undoResult.ok ? "تم التراجع عن الإجراء" : undoResult.message, undoResult.ok ? "success" : "warning");
+    });
+  });
+  return true;
+}
+
 function StatusBadge({ status }: { status?: string }) {
   const normalized = status || "review";
   return (
-    <span className={`inline-flex min-h-7 items-center rounded-full border px-3 text-xs font-black ${statusTone[normalized] ?? statusTone.review}`}>
+    <span className={`inline-flex min-h-6 items-center rounded-full border px-2.5 text-[11px] font-black ${statusTone[normalized] ?? statusTone.review}`}>
       {statusLabels[normalized] ?? normalized}
     </span>
   );
@@ -274,20 +314,20 @@ function StatusBadge({ status }: { status?: string }) {
 
 function EmptyState({ title, action, onAction }: { title: string; action: string; onAction: () => void }) {
   return (
-    <div className="flex min-h-[280px] flex-col items-center justify-center rounded-2xl border border-dashed border-stone-300 bg-[#FAF9F6] p-8 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#007A55] shadow-[var(--shadow-ind-card)]">
-        <ListChecks size={26} />
+    <div className="flex min-h-[150px] flex-col items-center justify-center border border-dashed border-stone-300 bg-stone-50/70 p-5 text-center">
+      <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-emerald-100 bg-emerald-50 text-[#007A55]">
+        <ListChecks size={18} />
       </div>
-      <h3 className="mt-5 text-xl font-black text-slate-950">{title}</h3>
-      <p className="mt-2 max-w-md text-sm font-bold leading-7 text-stone-500">لا توجد بيانات من واجهة الربط حالياً. ستظهر السجلات هنا تلقائياً عند توفرها من النظام الخلفي.</p>
-      <button type="button" onClick={onAction} className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-[#007A55] px-5 text-sm font-black text-white shadow-[var(--shadow-ind-sharp)] hover:bg-[#004D36]">
+      <h3 className="mt-3 text-base font-black text-slate-950">{title}</h3>
+      <p className="mt-1 max-w-md text-xs font-bold leading-6 text-stone-500">لا توجد بيانات لعرضها حالياً. ستظهر السجلات هنا تلقائياً عند توفرها.</p>
+      <button type="button" onClick={onAction} className="mt-3 inline-flex h-9 items-center justify-center rounded-lg border border-stone-200 bg-white px-4 text-xs font-black text-slate-700 hover:border-emerald-300 hover:text-[#007A55]">
         {action}
       </button>
     </div>
   );
 }
 
-function AdminLogin({ onLogin }: { onLogin: () => void }) {
+function AdminLogin({ onLogin }: { onLogin: (user: AdminUser) => void }) {
   return (
     <main dir="rtl" className="min-h-screen overflow-hidden bg-[#020617] font-arabic text-white">
       <div className="relative flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
@@ -300,10 +340,10 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
   );
 }
 
-function useAdminList(config?: ResourceConfig, page = 1, search = "", filters: Record<string, string> = {}) {
+function useAdminList(config?: ResourceConfig, page = 1, search = "", filters: Record<string, string> = {}, reloadToken = 0) {
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [total, setTotal] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!config) return;
@@ -313,7 +353,6 @@ function useAdminList(config?: ResourceConfig, page = 1, search = "", filters: R
     Object.entries(filters).forEach(([key, value]) => {
       if (value && value !== "all") params.set(key, value);
     });
-    setIsLoading(true);
     fetch(`/api/admin/${config.resource}?${params.toString()}`, { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("API not ready"))))
       .then((payload: ApiListResponse) => {
@@ -327,118 +366,185 @@ function useAdminList(config?: ResourceConfig, page = 1, search = "", filters: R
       })
       .finally(() => setIsLoading(false));
     return () => controller.abort();
-  }, [config, filters, page, search]);
+  }, [config, filters, page, search, reloadToken]);
 
   return { rows, total, isLoading };
 }
 
-function OverviewPage({ notify, confirm }: { notify: (text: string) => void; confirm: (action: ConfirmAction) => void }) {
+function OverviewPage({ notify, confirm, adminUserId }: { notify: NotifyFn; confirm: ConfirmFn; adminUserId?: string }) {
   const [activity, setActivity] = useState<Record<string, unknown>[]>([]);
   const [approvals, setApprovals] = useState<Record<string, unknown>[]>([]);
+  const [demands, setDemands] = useState<Record<string, unknown>[]>([]);
   const [expiring, setExpiring] = useState<Record<string, unknown>[]>([]);
   const [stats, setStats] = useState<Record<string, unknown>>({});
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [statsRes, activityRes, approvalsRes, expiringRes] = await Promise.all([
+        const [statsRes, activityRes, approvalsRes, demandsRes, expiringRes] = await Promise.all([
           fetch("/api/admin/overview/stats"),
           fetch("/api/admin/audit-log?limit=10"),
           fetch("/api/admin/designation-bodies?status=pending&limit=10"),
+          fetch("/api/admin/suppliers?status=pending&limit=10"),
           fetch("/api/admin/certificates?expiresWithin=30&limit=20"),
         ]);
         setStats(statsRes.ok ? await statsRes.json() : {});
         const activityJson: ApiListResponse = activityRes.ok ? await activityRes.json() : {};
         const approvalsJson: ApiListResponse = approvalsRes.ok ? await approvalsRes.json() : {};
+        const demandsJson: ApiListResponse = demandsRes.ok ? await demandsRes.json() : {};
         const expiringJson: ApiListResponse = expiringRes.ok ? await expiringRes.json() : {};
         setActivity(activityJson.data ?? activityJson.items ?? []);
         setApprovals(approvalsJson.data ?? approvalsJson.items ?? []);
+        setDemands(demandsJson.data ?? demandsJson.items ?? []);
         setExpiring(expiringJson.data ?? expiringJson.items ?? []);
       } catch {
         setStats({});
         setActivity([]);
         setApprovals([]);
+        setDemands([]);
         setExpiring([]);
       }
     };
     void load();
   }, []);
 
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+
+  const handleDecision = async (resource: "designation-bodies" | "suppliers", id: string, action: "approve" | "reject") => {
+    setPendingIds((current) => new Set(current).add(id));
+    const ok = await runResourceAction(resource, id, action, notify, adminUserId);
+    if (ok) {
+      if (resource === "suppliers") setDemands((current) => current.filter((row) => String(row.id) !== id));
+      else setApprovals((current) => current.filter((row) => String(row.id) !== id));
+    }
+    setPendingIds((current) => {
+      const next = new Set(current);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const requestReject = (resource: "designation-bodies" | "suppliers", id: string) => {
+    confirm({
+      title: "رفض الطلب",
+      body: "هل تريد رفض هذا الطلب؟ سيتم تسجيل القرار ويمكن التراجع عنه من سجل العمليات.",
+      confirmLabel: "رفض الطلب",
+      onConfirm: () => void handleDecision(resource, id, "reject"),
+    });
+  };
+
   const statCards = [
     { label: "إجمالي جهات التعيين", key: "designationBodies", icon: Building2, tone: "text-[#007A55]" },
     { label: "إجمالي الجهات المعيّنة", key: "appointedBodies", icon: BadgeCheck, tone: "text-[#007A55]" },
     { label: "الشهادات النشطة", key: "activeCertificates", icon: FileCheck2, tone: "text-[#007A55]" },
-    { label: "المخالفات المفتوحة", key: "openViolations", icon: AlertTriangle, tone: "text-red-600" },
+    { label: "طلبات بانتظار القرار", key: "pendingApplications", icon: FileClock, tone: "text-[#9A6700]" },
+  ];
+
+  const queue = [
+    ...demands.map((item) => ({ item, resource: "suppliers" as const, kind: getValue(item, "purpose") || "طلب شهادة أو علامة" })),
+    ...approvals.map((item) => ({ item, resource: "designation-bodies" as const, kind: "طلب انضمام جهة تعيين" })),
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <div className="space-y-3">
+      <div className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm sm:grid sm:grid-cols-2 xl:grid-cols-4 sm:divide-x sm:divide-x-reverse sm:divide-stone-200">
         {statCards.map((card) => {
           const Icon = card.icon;
           return (
-            <article key={card.key} className="rounded-2xl border border-stone-200 bg-white p-5 shadow-[var(--shadow-ind-card)]">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-black text-stone-500">{card.label}</p>
-                  <p className="mt-3 text-3xl font-black text-slate-950">{String(stats[card.key] ?? "—")}</p>
+            <article key={card.key} className="border-b border-stone-200 p-3.5 last:border-b-0 sm:border-b-0">
+              <div className="flex items-center gap-3">
+                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 ${card.tone}`}>
+                  <Icon size={19} />
                 </div>
-                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FAF9F6] ${card.tone}`}>
-                  <Icon size={24} />
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black text-stone-500">{card.label}</p>
+                  <p className="mt-0.5 text-xl font-black text-slate-950">{String(stats[card.key] ?? "—")}</p>
                 </div>
               </div>
-              <p className="mt-4 text-xs font-black text-stone-500">يتم احتساب المؤشر من API عند الربط</p>
             </article>
           );
         })}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-[var(--shadow-ind-card)]">
-          <h2 className="text-xl font-black text-slate-950">آخر النشاطات</h2>
-          {activity.length === 0 ? (
-            <EmptyState title="لا توجد نشاطات حديثة" action="تحديث السجل" onAction={() => notify("سيتم تحديث السجل عند توفر واجهة الربط")} />
+      <div className="grid min-h-[calc(100vh-164px)] gap-3 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,.75fr)]">
+        <section className="flex min-h-[460px] flex-col overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3">
+            <div>
+              <p className="text-[10px] font-black text-[#007A55]">مساحة القرار</p>
+              <h2 className="mt-0.5 text-base font-black text-slate-950">الطلبات التي تحتاج مراجعة</h2>
+            </div>
+            <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-md bg-slate-950 px-2 text-xs font-black text-white">{queue.length}</span>
+          </div>
+          {queue.length === 0 ? (
+            <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+              <CheckCircle2 size={30} className="text-emerald-600" />
+              <p className="mt-3 text-sm font-black text-slate-900">لا توجد قرارات معلّقة</p>
+              <p className="mt-1 text-xs font-bold text-stone-500">تمت معالجة جميع الطلبات الحالية.</p>
+            </div>
           ) : (
-            <div className="mt-5 space-y-3">{activity.slice(0, 10).map((item, index) => <AuditLine key={index} item={item} />)}</div>
-          )}
-        </section>
-        <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-[var(--shadow-ind-card)]">
-          <h2 className="text-xl font-black text-slate-950">طلبات بانتظار الاعتماد</h2>
-          {approvals.length === 0 ? (
-            <EmptyState title="لا توجد طلبات اعتماد معلّقة" action="مراجعة الطلبات" onAction={() => notify("لا توجد طلبات معلقة حالياً")} />
-          ) : (
-            <div className="mt-5 space-y-3">
-              {approvals.map((item, index) => (
-                <article key={index} className="rounded-xl border border-stone-100 bg-[#FAF9F6] p-4">
-                  <p className="font-black text-slate-950">{getValue(item, "name") || "طلب جهة تعيين"}</p>
-                  <div className="mt-3 flex gap-2">
-                    <button type="button" onClick={() => notify("تم اعتماد الطلب")} className="h-9 rounded-lg bg-[#007A55] px-4 text-xs font-black text-white">اعتماد</button>
-                    <button type="button" onClick={() => confirm({ title: "رفض الطلب", body: "هل تريد رفض طلب الاعتماد؟", confirmLabel: "رفض الطلب" })} className="h-9 rounded-lg bg-red-600 px-4 text-xs font-black text-white">رفض</button>
-                  </div>
-                </article>
-              ))}
+            <div className="divide-y divide-stone-100">
+              {queue.map(({ item, resource, kind }) => {
+                const id = String(item.id);
+                const isBusy = pendingIds.has(id);
+                return (
+                  <article key={`${resource}-${id}`} className="grid gap-3 px-4 py-3 transition-colors hover:bg-stone-50 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate text-sm font-black text-slate-950">{getValue(item, "name") || "طلب بدون اسم"}</p>
+                        <span className={`rounded px-2 py-1 text-[10px] font-black ${resource === "suppliers" ? "bg-amber-50 text-[#8A5A00]" : "bg-emerald-50 text-[#007A55]"}`}>{kind}</span>
+                      </div>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-bold text-stone-500">
+                        <span dir="ltr">{getValue(item, "requestNumber") || "—"}</span>
+                        <CountryFlag country={getValue(item, "country")} />
+                        <span>{getValue(item, "registeredAt") || getValue(item, "joinedAt") || "—"}</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <button type="button" disabled={isBusy} onClick={() => void handleDecision(resource, id, "approve")} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[#007A55] px-3 text-[11px] font-black text-white disabled:opacity-50"><Check size={14} /> اعتماد</button>
+                      <button type="button" disabled={isBusy} onClick={() => requestReject(resource, id)} className="inline-flex h-8 items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 text-[11px] font-black text-red-700 disabled:opacity-50"><X size={14} /> رفض</button>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           )}
         </section>
-      </div>
 
-      <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-[var(--shadow-ind-card)]">
-        <h2 className="text-xl font-black text-slate-950">الشهادات المنتهية خلال 30 يوماً</h2>
-        {expiring.length === 0 ? (
-          <EmptyState title="لا توجد شهادات قريبة الانتهاء" action="عرض الشهادات" onAction={() => notify("سيتم فتح سجل الشهادات عند توفر البيانات")} />
-        ) : (
-          <SimpleTable rows={expiring} columns={[{ key: "supplierName", label: "اسم المورد" }, { key: "certificateNumber", label: "رقم الشهادة" }, { key: "expiresAt", label: "تاريخ الانتهاء" }, { key: "appointedBodyName", label: "الجهة المعيّنة" }]} onConfirm={confirm} onNotify={notify} />
-        )}
-      </section>
+        <div className="grid min-h-[460px] gap-3 xl:grid-rows-2">
+          <section className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3">
+              <h2 className="text-sm font-black text-slate-950">آخر النشاطات</h2>
+              <HistoryIcon size={16} className="text-stone-400" />
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-3">
+              {activity.length === 0 ? <p className="flex h-full min-h-28 items-center justify-center text-xs font-bold text-stone-400">لا توجد نشاطات حديثة</p> : <div className="space-y-2">{activity.slice(0, 6).map((item, index) => <AuditLine key={index} item={item} />)}</div>}
+            </div>
+          </section>
+          <section className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3">
+              <h2 className="text-sm font-black text-slate-950">استحقاقات خلال 30 يوماً</h2>
+              <FileClock size={16} className="text-[#9A6700]" />
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              {expiring.length === 0 ? <p className="flex h-full min-h-28 items-center justify-center px-4 text-center text-xs font-bold text-stone-400">لا توجد شهادات قريبة الانتهاء</p> : expiring.slice(0, 6).map((item) => (
+                <div key={String(item.id)} className="flex items-center justify-between gap-3 border-b border-stone-100 px-4 py-3 last:border-0">
+                  <div className="min-w-0"><p className="truncate text-xs font-black text-slate-900">{getValue(item, "supplierName")}</p><p className="mt-1 text-[10px] font-bold text-stone-500" dir="ltr">{getValue(item, "certificateNumber")}</p></div>
+                  <span className="shrink-0 text-[11px] font-black text-[#9A6700]">{getValue(item, "expiresAt")}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      </div>
     </div>
   );
 }
 
 function AuditLine({ item }: { item: Record<string, unknown> }) {
   return (
-    <div className="flex gap-3 rounded-xl border border-stone-100 bg-[#FAF9F6] p-4">
-      <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#007A55] shadow-[var(--shadow-ind-card)]">
-        <Clock3 size={18} />
+    <div className="flex gap-3 rounded-lg border border-stone-100 bg-stone-50 p-3">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-[#007A55] ring-1 ring-stone-200">
+        <Clock3 size={16} />
       </div>
       <div>
         <p className="text-sm font-black text-slate-950">{getValue(item, "actionType") || getValue(item, "action") || "إجراء إداري"}</p>
@@ -448,43 +554,75 @@ function AuditLine({ item }: { item: Record<string, unknown> }) {
   );
 }
 
-function ResourcePage({ config, notify, confirm }: { config: ResourceConfig; notify: (text: string) => void; confirm: (action: ConfirmAction) => void }) {
+const ACTIONABLE_RESOURCES = new Set<string>(["designation-bodies", "appointed-bodies", "suppliers", "certificates"]);
+
+function ResourcePage({ config, notify, confirm, adminUserId }: { config: ResourceConfig; notify: NotifyFn; confirm: ConfirmFn; adminUserId?: string }) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [sortKey, setSortKey] = useState(config.columns[0]?.key ?? "name");
   const [filters, setFilters] = useState<Record<string, string>>(() => Object.fromEntries(config.filters.map((filter) => [filter.key, "all"])));
   const [drawerRow, setDrawerRow] = useState<Record<string, unknown> | null>(null);
-  const { rows, total, isLoading } = useAdminList(config, page, search, filters);
+  const [reloadToken, setReloadToken] = useState(0);
+  const { rows, total, isLoading } = useAdminList(config, page, search, filters, reloadToken);
   const sortedRows = useMemo(() => [...rows].sort((a, b) => getValue(a, sortKey).localeCompare(getValue(b, sortKey), "ar")), [rows, sortKey]);
 
-  const isPayments = config.section === "payments";
+  const resource = ACTIONABLE_RESOURCES.has(config.resource) ? (config.resource as ResourceKind) : undefined;
+  const handleView = (row: Record<string, unknown>) => {
+    if (config.resource === "suppliers" || config.resource === "designation-bodies") {
+      window.open(`/admin/application-preview/${config.resource}/${encodeURIComponent(String(row.id))}`, "_blank", "noopener,noreferrer");
+      return;
+    }
+    setDrawerRow(row);
+  };
 
   return (
-    <div className="space-y-5">
-      {isPayments && <PaymentSummary />}
-      <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-[var(--shadow-ind-card)]">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+    <div className="space-y-3">
+      <div className="border-b border-stone-200 pb-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-black uppercase tracking-[.14em] text-[#007A55]">{config.eyebrow}</p>
-            <h1 className="mt-2 text-3xl font-black text-slate-950">{config.title}</h1>
+            <p className="text-[11px] font-black text-[#007A55]">{config.eyebrow}</p>
+            <div className="mt-0.5 flex items-baseline gap-3">
+              <h1 className="text-xl font-black text-slate-950 sm:text-2xl">{config.title}</h1>
+              <span className="text-xs font-bold text-stone-500">{total} سجل</span>
+            </div>
           </div>
-          <button type="button" onClick={() => notify("سيتم تنفيذ الإجراء بعد ربط API")} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#007A55] px-5 text-sm font-black text-white shadow-[var(--shadow-ind-sharp)] hover:bg-[#004D36]">
-            {config.primaryAction === "تصدير CSV" ? <Download size={18} /> : <Plus size={18} />}
+          <button type="button" onClick={() => notify("هذه الميزة غير متاحة بعد")} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-[#007A55] px-4 text-xs font-black text-white hover:bg-[#006747]">
+            {config.primaryAction?.startsWith("تصدير") ? <Download size={16} /> : <Plus size={16} />}
             {config.primaryAction}
           </button>
         </div>
-        <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(240px,1fr)_auto]">
+        {config.section === "suppliers" && (
+          <div className="mt-3 inline-flex max-w-full overflow-x-auto rounded-lg border border-stone-200 bg-white p-1" role="tablist" aria-label="نوع طلب الحلال">
+            {[
+              { value: "all", label: "كل الطلبات", icon: ListChecks },
+              { value: "ARAB_HALAL_CERTIFICATE", label: "شهادة الحلال", icon: FileCheck2 },
+              { value: "ARAB_HALAL_MARK", label: "علامة الحلال", icon: BadgeCheck },
+            ].map(({ value, label, icon: Icon }) => (
+              <button
+                key={value}
+                type="button"
+                role="tab"
+                aria-selected={(filters.purpose ?? "all") === value}
+                onClick={() => { setFilters((previous) => ({ ...previous, purpose: value })); setPage(1); }}
+                className={`inline-flex h-8 shrink-0 items-center gap-2 rounded-md px-3 text-xs font-black transition-colors ${(filters.purpose ?? "all") === value ? "bg-slate-950 text-white" : "text-stone-500 hover:bg-stone-50 hover:text-slate-950"}`}
+              >
+                <Icon size={14} /> {label}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="mt-3 grid gap-2 lg:grid-cols-[minmax(240px,1fr)_auto]">
           {config.searchPlaceholder && (
-            <label className="flex h-12 items-center gap-3 rounded-xl border border-stone-200 bg-[#FAF9F6] px-4">
-              <Search size={18} className="text-stone-400" />
+            <label className="flex h-10 items-center gap-2 rounded-lg border border-stone-200 bg-white px-3 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-100">
+              <Search size={16} className="text-stone-400" />
               <input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={config.searchPlaceholder} className="min-w-0 flex-1 bg-transparent text-sm font-bold outline-none placeholder:text-stone-400" />
             </label>
           )}
           <div className="flex flex-wrap gap-2">
-            {config.filters.map((filter) => (
-              <label key={filter.key} className="flex h-12 items-center gap-2 rounded-xl border border-stone-200 bg-white px-3">
-                <Filter size={16} className="text-stone-400" />
-                <span className="text-xs font-black text-stone-500">{filter.label}</span>
+            {config.filters.filter((filter) => filter.key !== "purpose").map((filter) => (
+              <label key={filter.key} className="flex h-10 items-center gap-2 rounded-lg border border-stone-200 bg-white px-3">
+                <Filter size={14} className="text-stone-400" />
+                <span className="text-[11px] font-black text-stone-500">{filter.label}</span>
                 <select value={filters[filter.key] ?? "all"} onChange={(event) => { setFilters((prev) => ({ ...prev, [filter.key]: event.target.value })); setPage(1); }} className="bg-transparent text-sm font-black text-slate-800 outline-none">
                   {filter.options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                 </select>
@@ -494,19 +632,30 @@ function ResourcePage({ config, notify, confirm }: { config: ResourceConfig; not
         </div>
       </div>
 
-      <section className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-[var(--shadow-ind-card)]">
+      <section className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
         {isLoading ? (
-          <div className="flex min-h-[360px] items-center justify-center text-sm font-black text-stone-500">جاري تحميل البيانات من واجهة الربط...</div>
+          <div className="flex min-h-[180px] items-center justify-center text-sm font-black text-stone-500">جاري تحميل البيانات...</div>
         ) : sortedRows.length === 0 ? (
-          <div className="p-5"><EmptyState title={config.emptyTitle} action={config.emptyAction} onAction={() => notify("لا توجد بيانات حالياً")} /></div>
+          <div className="p-3"><EmptyState title={config.emptyTitle} action={config.emptyAction} onAction={() => notify("لا توجد بيانات حالياً")} /></div>
         ) : (
-          <SimpleTable rows={sortedRows} columns={config.columns} sortKey={sortKey} onSort={setSortKey} onView={setDrawerRow} onConfirm={confirm} onNotify={notify} />
+          <SimpleTable
+            rows={sortedRows}
+            columns={config.columns}
+            sortKey={sortKey}
+            onSort={setSortKey}
+            onView={handleView}
+            onConfirm={confirm}
+            onNotify={notify}
+            resource={resource}
+            adminUserId={adminUserId}
+            onActed={() => setReloadToken((value) => value + 1)}
+          />
         )}
-        <div className="flex items-center justify-between border-t border-stone-200 bg-[#FAF9F6] px-5 py-4">
+        <div className="flex items-center justify-between border-t border-stone-200 bg-stone-50 px-3 py-2.5">
           <p className="text-xs font-black text-stone-500">20 سجل في الصفحة · الإجمالي {total}</p>
           <div className="flex gap-2">
-            <button type="button" disabled={page === 1} onClick={() => setPage((value) => Math.max(1, value - 1))} className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200 bg-white text-slate-700 disabled:opacity-40"><ChevronRight size={18} /></button>
-            <button type="button" onClick={() => setPage((value) => value + 1)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200 bg-white text-slate-700"><ChevronLeft size={18} /></button>
+            <button type="button" disabled={page === 1} onClick={() => setPage((value) => Math.max(1, value - 1))} className="flex h-8 w-8 items-center justify-center rounded-lg border border-stone-200 bg-white text-slate-700 disabled:opacity-40"><ChevronRight size={16} /></button>
+            <button type="button" disabled={page * 20 >= total} onClick={() => setPage((value) => value + 1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-stone-200 bg-white text-slate-700 disabled:opacity-40"><ChevronLeft size={16} /></button>
           </div>
         </div>
       </section>
@@ -514,6 +663,50 @@ function ResourcePage({ config, notify, confirm }: { config: ResourceConfig; not
       {drawerRow && <DetailDrawer row={drawerRow} title={config.title} onClose={() => setDrawerRow(null)} />}
     </div>
   );
+}
+
+type RowAction = {
+  action: string;
+  icon: LucideIcon;
+  label: string;
+  tone: string;
+  needsConfirm: boolean;
+  confirmTitle?: string;
+  confirmBody?: string;
+};
+
+function getRowActions(resource: ResourceKind | undefined, status: string): RowAction[] {
+  if (!resource) return [];
+  if (status === "pending") {
+    return [
+      { action: "approve", icon: Check, label: "اعتماد", tone: "border-emerald-200 bg-emerald-50 text-emerald-700", needsConfirm: false },
+      { action: "reject", icon: X, label: "رفض", tone: "border-red-200 bg-red-50 text-red-700", needsConfirm: true, confirmTitle: "رفض الطلب", confirmBody: "هل تريد رفض هذا الطلب؟ يمكن التراجع عن هذا الإجراء لاحقاً." },
+    ];
+  }
+  const actions: RowAction[] = [];
+  if (status === "active") {
+    actions.push({ action: "suspend", icon: Ban, label: "تعليق", tone: "border-amber-200 bg-amber-50 text-amber-700", needsConfirm: true, confirmTitle: "تعليق السجل", confirmBody: "هذا الإجراء يتطلب تأكيداً قبل التنفيذ." });
+  }
+  if (status !== "revoked") {
+    actions.push({ action: "revoke", icon: Trash2, label: "سحب", tone: "border-red-200 bg-red-50 text-red-700", needsConfirm: true, confirmTitle: "سحب السجل", confirmBody: "سيتم تسجيل العملية في سجل العمليات، ويمكن التراجع عنها لاحقاً." });
+  }
+  if (resource === "certificates") {
+    actions.push({ action: "renew", icon: RotateCcw, label: "تجديد", tone: "border-stone-200 bg-white text-slate-700", needsConfirm: false });
+  } else if (status === "suspended" || status === "revoked") {
+    actions.push({ action: "reactivate", icon: RotateCcw, label: "إعادة تفعيل", tone: "border-stone-200 bg-white text-slate-700", needsConfirm: false });
+  }
+  if (status === "revoked" || status === "expired") {
+    actions.push({
+      action: "delete",
+      icon: Trash,
+      label: "حذف نهائي",
+      tone: "border-red-300 bg-red-100 text-red-800",
+      needsConfirm: true,
+      confirmTitle: "حذف نهائي",
+      confirmBody: "هذا الإجراء نهائي ولا يمكن التراجع عنه إطلاقاً. سيتم حذف السجل وكل البيانات المرتبطة به (الشهادات والمدفوعات والمرفقات) نهائياً من قاعدة البيانات.",
+    });
+  }
+  return actions;
 }
 
 function SimpleTable({
@@ -524,57 +717,154 @@ function SimpleTable({
   onView,
   onConfirm,
   onNotify,
+  resource,
+  adminUserId,
+  onActed,
 }: {
   rows: Record<string, unknown>[];
   columns: TableColumn[];
   sortKey?: string;
   onSort?: (key: string) => void;
   onView?: (row: Record<string, unknown>) => void;
-  onConfirm: (action: ConfirmAction) => void;
-  onNotify: (text: string) => void;
+  onConfirm: ConfirmFn;
+  onNotify: NotifyFn;
+  resource?: ResourceKind;
+  adminUserId?: string;
+  onActed?: (id: string) => void;
 }) {
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const runAction = (id: string, action: RowAction) => {
+    const doIt = async () => {
+      setBusyId(id);
+      const ok = await runResourceAction(resource as ResourceKind, id, action.action, onNotify, adminUserId);
+      setBusyId(null);
+      if (ok) onActed?.(id);
+    };
+    if (action.needsConfirm) {
+      onConfirm({ title: action.confirmTitle ?? "", body: action.confirmBody ?? "", confirmLabel: action.label, onConfirm: doIt });
+    } else {
+      void doIt();
+    }
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full text-right">
         <thead className="bg-[#FAF9F6]">
           <tr>
             {columns.map((column) => (
-              <th key={column.key} className="whitespace-nowrap border-b border-stone-200 px-5 py-4 text-xs font-black text-stone-500">
+              <th key={column.key} className="whitespace-nowrap border-b border-stone-200 px-3 py-2.5 text-[11px] font-black text-stone-500 sm:px-4">
                 <button type="button" onClick={() => onSort?.(column.key)} className="inline-flex items-center gap-2">
                   {column.label}
                   {onSort && <ArrowUpDown size={14} className={sortKey === column.key ? "text-[#007A55]" : "text-stone-300"} />}
                 </button>
               </th>
             ))}
-            <th className="whitespace-nowrap border-b border-stone-200 px-5 py-4 text-xs font-black text-stone-500">الإجراءات</th>
+            <th className="whitespace-nowrap border-b border-stone-200 px-3 py-2.5 text-[11px] font-black text-stone-500 sm:px-4">الإجراءات</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, index) => (
-            <tr key={String(row.id ?? index)} className="border-b border-stone-100 last:border-b-0 hover:bg-[#FAF9F6]">
-              {columns.map((column) => (
-                <td key={column.key} className="whitespace-nowrap px-5 py-4 text-sm font-bold text-slate-700">
-                  {column.key === "status" ? <StatusBadge status={getValue(row, "status") as StatusKind} /> : getValue(row, column.key) || "—"}
+          {rows.map((row, index) => {
+            const id = String(row.id ?? index);
+            const status = getValue(row, "status");
+            const actions = getRowActions(resource, status);
+            const isBusy = busyId === id;
+            return (
+              <tr key={id} className="border-b border-stone-100 last:border-b-0 hover:bg-[#FAF9F6]">
+                {columns.map((column) => (
+                  <td key={column.key} className="whitespace-nowrap px-3 py-3 text-xs font-bold text-slate-700 sm:px-4 sm:text-sm">
+                    {column.key === "status" ? (
+                      <StatusBadge status={status as StatusKind} />
+                    ) : column.key === "country" ? (
+                      <CountryFlag country={getValue(row, column.key)} />
+                    ) : (
+                      getValue(row, column.key) || "—"
+                    )}
+                  </td>
+                ))}
+                <td className="whitespace-nowrap px-3 py-3 sm:px-4">
+                  <div className="flex gap-1.5">
+                    <button type="button" onClick={() => onView?.(row)} className="flex h-8 w-8 items-center justify-center rounded-md border border-stone-200 bg-white text-slate-700 hover:text-[#007A55]" aria-label="عرض التفاصيل"><Eye size={15} /></button>
+                    {resource ? (
+                      actions.map((action) => {
+                        const Icon = action.icon;
+                        return (
+                          <button
+                            key={action.action}
+                            type="button"
+                            disabled={isBusy}
+                            onClick={() => runAction(id, action)}
+                            className={`flex h-8 w-8 items-center justify-center rounded-md border disabled:opacity-40 ${action.tone}`}
+                            aria-label={action.label}
+                            title={action.label}
+                          >
+                            <Icon size={15} />
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <button type="button" onClick={() => onNotify("هذه الميزة غير متاحة بعد")} className="flex h-8 w-8 items-center justify-center rounded-md border border-stone-200 bg-white text-slate-700" aria-label="إجراء"><RotateCcw size={15} /></button>
+                    )}
+                  </div>
                 </td>
-              ))}
-              <td className="whitespace-nowrap px-5 py-4">
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => onView?.(row)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 bg-white text-slate-700 hover:text-[#007A55]" aria-label="عرض التفاصيل"><Eye size={16} /></button>
-                  <button type="button" onClick={() => onConfirm({ title: "تعليق السجل", body: "هذا الإجراء يتطلب تأكيداً قبل التنفيذ.", confirmLabel: "تأكيد التعليق" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 text-amber-700" aria-label="تعليق"><Ban size={16} /></button>
-                  <button type="button" onClick={() => onConfirm({ title: "سحب السجل", body: "سيتم تسجيل العملية في سجل التدقيق.", confirmLabel: "تأكيد السحب" })} className="flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-700" aria-label="سحب"><Trash2 size={16} /></button>
-                  <button type="button" onClick={() => onNotify("تم إرسال الإجراء إلى واجهة الربط")} className="flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 bg-white text-slate-700" aria-label="تجديد"><RotateCcw size={16} /></button>
-                </div>
-              </td>
-            </tr>
-          ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
   );
 }
 
+const detailFieldLabels: Record<string, string> = {
+  requestNumber: "رقم الطلب",
+  name: "اسم المنشأة",
+  purpose: "الغرض من الطلب",
+  country: "الدولة",
+  category: "طبيعة الشركة",
+  registeredAt: "تاريخ التسجيل",
+  status: "الحالة",
+  products: "المنتجات المطلوبة",
+  companyRegisteredNameAr: "اسم الشركة بالعربية",
+  companyRegisteredNameEn: "اسم الشركة بالإنجليزية",
+  companyRegisteredAddressAr: "العنوان بالعربية",
+  companyRegisteredAddressEn: "العنوان بالإنجليزية",
+  branchAddresses: "عناوين الفروع",
+  companyEmail: "البريد الإلكتروني للشركة",
+  phone: "رقم الهاتف",
+  fax: "رقم الفاكس",
+  website: "الموقع الإلكتروني",
+  responsiblePerson: "المسؤول في الشركة",
+  managerEmail: "البريد الإلكتروني للمدير",
+  responsiblePersonMobile: "هاتف المسؤول",
+  qualityManagerName: "مدير الجودة",
+  firstApplication: "طلب مقدم لأول مرة",
+  productDescription: "وصف المنتجات",
+  otherFactoryProducts: "منتجات المصنع الأخرى",
+  hasOtherHalalCertificate: "توجد شهادة حلال أخرى",
+  otherHalalCertificateScope: "مجال الشهادة الأخرى",
+  otherHalalReferenceStandard: "المواصفة المرجعية",
+  otherHalalCertifyingBody: "الجهة المانحة",
+  applicantName: "اسم مقدم الطلب",
+  applicantJobTitle: "المسمى الوظيفي",
+  applicationDate: "تاريخ الطلب",
+  additionalNotes: "ملاحظات إضافية",
+  declarationAccepted: "الموافقة على التعهدات",
+};
+
+type DashboardAttachment = {
+  id?: string;
+  category?: string;
+  fileName?: string;
+  fileUrl?: string;
+  mimeType?: string;
+  uploadedAt?: string;
+};
+
 function DetailDrawer({ row, title, onClose }: { row: Record<string, unknown>; title: string; onClose: () => void }) {
-  const fields = Object.entries(row).filter(([key]) => !["id", "createdAt", "updatedAt"].includes(key));
+  const fields = Object.entries(row).filter(([key]) => !["id", "createdAt", "updatedAt", "attachments"].includes(key));
+  const attachments = Array.isArray(row.attachments) ? row.attachments as DashboardAttachment[] : [];
   return (
     <div className="fixed inset-0 z-[90] bg-slate-950/40 backdrop-blur-sm" role="dialog" aria-modal="true">
       <aside className="fixed bottom-0 right-0 top-0 w-full max-w-xl overflow-y-auto border-l border-stone-200 bg-white p-6 shadow-[var(--shadow-ind-floating)]">
@@ -587,100 +877,501 @@ function DetailDrawer({ row, title, onClose }: { row: Record<string, unknown>; t
         </div>
         <div className="mt-6 grid gap-3">
           {fields.length === 0 ? (
-            <p className="rounded-xl border border-stone-200 bg-[#FAF9F6] p-4 text-sm font-bold text-stone-600">لا توجد تفاصيل إضافية في استجابة API.</p>
+            <p className="rounded-xl border border-stone-200 bg-[#FAF9F6] p-4 text-sm font-bold text-stone-600">لا توجد تفاصيل إضافية لهذا السجل.</p>
           ) : (
             fields.map(([key, value]) => (
               <div key={key} className="rounded-xl border border-stone-200 bg-[#FAF9F6] p-4">
-                <p className="text-xs font-black text-stone-500">{key}</p>
-                <p className="mt-1 text-sm font-bold text-slate-800">{typeof value === "object" ? JSON.stringify(value) : String(value || "—")}</p>
+                <p className="text-xs font-black text-stone-500">{detailFieldLabels[key] ?? key}</p>
+                <p className="mt-1 text-sm font-bold text-slate-800">
+                  {key === "country" ? <CountryFlag country={String(value ?? "")} /> : typeof value === "object" ? JSON.stringify(value) : String(value || "—")}
+                </p>
               </div>
             ))
           )}
         </div>
+        {attachments.length > 0 && (
+          <section className="mt-6 rounded-2xl border border-stone-200 bg-white p-5 shadow-[var(--shadow-ind-card)]">
+            <h3 className="text-lg font-black text-slate-950">الوثائق المرفقة</h3>
+            <div className="mt-4 grid gap-2">
+              {attachments.map((attachment, index) => (
+                <a
+                  key={attachment.id ?? `${attachment.fileName}-${index}`}
+                  href={attachment.fileUrl || "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-[#FAF9F6] px-4 py-3 text-sm font-black text-slate-800 hover:border-[#007A55] hover:text-[#007A55]"
+                >
+                  <span className="min-w-0 truncate" dir="ltr">{attachment.fileName || "ملف مرفق"}</span>
+                  <Download size={17} className="shrink-0" />
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
         <div className="mt-6 rounded-2xl border border-stone-200 bg-white p-5 shadow-[var(--shadow-ind-card)]">
-          <h3 className="text-lg font-black text-slate-950">سجل التدقيق الكامل</h3>
-          <p className="mt-3 text-sm font-bold leading-7 text-stone-500">سيعرض هذا القسم جميع عمليات التعليق والسحب والتجديد والإشعارات عند ربط نموذج LicenseAction وسجلات التدقيق.</p>
+          <h3 className="text-lg font-black text-slate-950">سجل العمليات</h3>
+          <p className="mt-3 text-sm font-bold leading-7 text-stone-500">يمكنك الاطلاع على جميع عمليات الاعتماد والتعليق والسحب والتجديد المتعلقة بهذا السجل، والتراجع عنها عند الحاجة، من تبويب «سجل العمليات» في القائمة الجانبية.</p>
         </div>
       </aside>
     </div>
   );
 }
 
-function PaymentSummary() {
+type PaymentRow = {
+  id: string;
+  payerName: string;
+  feeType: string;
+  amount: number;
+  currency: string;
+  status: string;
+  paidAt: string;
+  receipt: string;
+  receiptUrl: string;
+};
+
+function PaymentsPage({ notify, adminUserId }: { notify: NotifyFn; adminUserId?: string }) {
+  const [rows, setRows] = useState<PaymentRow[]>([]);
+  const [status, setStatus] = useState("all");
+  const [search, setSearch] = useState("");
+  const [reloadToken, setReloadToken] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const params = new URLSearchParams({ limit: "100", status });
+    if (search.trim()) params.set("search", search.trim());
+    setIsLoading(true);
+    fetch(`/api/admin/payments?${params.toString()}`, { signal: controller.signal })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("payments unavailable")))
+      .then((payload: ApiListResponse) => setRows((payload.data ?? []) as unknown as PaymentRow[]))
+      .catch(() => setRows([]))
+      .finally(() => setIsLoading(false));
+    return () => controller.abort();
+  }, [reloadToken, search, status]);
+
+  const paidRows = rows.filter((row) => row.status === "paid");
+  const pendingRows = rows.filter((row) => row.status === "pending");
+  const overdueRows = rows.filter((row) => row.status === "overdue");
+  const collected = paidRows.reduce((sum, row) => sum + Number(row.amount || 0), 0);
+
+  const updateStatus = async (row: PaymentRow, nextStatus: "paid" | "overdue") => {
+    setBusyId(row.id);
+    try {
+      const response = await fetch(`/api/admin/payments/${row.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus, actorId: adminUserId }),
+      });
+      const body = await response.json() as { message?: string };
+      if (!response.ok) throw new Error(body.message || "تعذر تحديث الدفعة");
+      notify(nextStatus === "paid" ? "تم تأكيد استلام الدفعة" : "تم تصنيف الدفعة كمتأخرة");
+      setReloadToken((value) => value + 1);
+    } catch (error) {
+      notify(error instanceof Error ? error.message : "تعذر تحديث الدفعة", "warning");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const exportCsv = () => {
+    const header = ["Payer", "Fee type", "Amount", "Currency", "Status", "Paid at"];
+    const lines = rows.map((row) => [row.payerName, row.feeType, row.amount, row.currency, row.status, row.paidAt]);
+    const csv = [header, ...lines].map((line) => line.map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+    const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `halal-payments-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const metrics = [
+    { label: "إجمالي المحصّل", value: `${collected.toLocaleString("ar-MA")} USD`, icon: CircleDollarSign, tone: "text-[#007A55] bg-emerald-50" },
+    { label: "دفعات مؤكدة", value: paidRows.length, icon: CheckCircle2, tone: "text-emerald-700 bg-emerald-50" },
+    { label: "بانتظار التأكيد", value: pendingRows.length, icon: FileClock, tone: "text-[#9A6700] bg-amber-50" },
+    { label: "دفعات متأخرة", value: overdueRows.length, icon: AlertTriangle, tone: "text-red-700 bg-red-50" },
+  ];
+
   return (
-    <div className="grid gap-4 md:grid-cols-3">
-      {[
-        ["إجمالي المدفوعات", "السنة الحالية", CreditCard],
-        ["مدفوعات معلّقة", "بانتظار التأكيد", Clock3],
-        ["مدفوعات متأخرة", "تحتاج تذكير", AlertTriangle],
-      ].map(([title, label, Icon]) => (
-        <article key={title as string} className="rounded-2xl border border-stone-200 bg-white p-5 shadow-[var(--shadow-ind-card)]">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-black text-slate-950">{title as string}</p>
-              <p className="mt-2 text-xs font-bold text-stone-500">{label as string}</p>
-            </div>
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#007A55]"><Icon size={22} /></div>
+    <div className="space-y-3">
+      <div className="flex flex-col gap-3 border-b border-stone-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div><p className="text-[11px] font-black text-[#007A55]">الخزينة والتحصيل</p><h1 className="mt-0.5 text-xl font-black text-slate-950 sm:text-2xl">إدارة المدفوعات</h1></div>
+        <div className="flex gap-2">
+          <button type="button" onClick={() => setReloadToken((value) => value + 1)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 bg-white text-slate-700" title="تحديث"><RefreshCw size={16} /></button>
+          <button type="button" onClick={exportCsv} disabled={rows.length === 0} className="inline-flex h-9 items-center gap-2 rounded-lg bg-slate-950 px-4 text-xs font-black text-white disabled:opacity-40"><Download size={15} /> تصدير CSV</button>
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm sm:grid sm:grid-cols-2 xl:grid-cols-4 sm:divide-x sm:divide-x-reverse sm:divide-stone-200">
+        {metrics.map(({ label, value, icon: Icon, tone }) => (
+          <div key={label} className="flex items-center gap-3 border-b border-stone-200 p-3.5 last:border-0 sm:border-b-0">
+            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${tone}`}><Icon size={18} /></div>
+            <div><p className="text-[10px] font-black text-stone-500">{label}</p><p className="mt-0.5 text-lg font-black text-slate-950">{value}</p></div>
           </div>
-          <p className="mt-5 text-3xl font-black text-slate-950">—</p>
-        </article>
-      ))}
+        ))}
+      </div>
+
+      <section className="flex min-h-[calc(100vh-244px)] flex-col overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
+        <div className="flex flex-col gap-2 border-b border-stone-200 p-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="inline-flex max-w-full overflow-x-auto rounded-lg bg-stone-100 p-1">
+            {[{ value: "all", label: "الكل" }, { value: "paid", label: "مدفوع" }, { value: "pending", label: "معلّق" }, { value: "overdue", label: "متأخر" }].map((item) => (
+              <button key={item.value} type="button" onClick={() => setStatus(item.value)} className={`h-8 rounded-md px-4 text-xs font-black ${status === item.value ? "bg-white text-slate-950 shadow-sm" : "text-stone-500"}`}>{item.label}</button>
+            ))}
+          </div>
+          <label className="flex h-9 w-full items-center gap-2 rounded-lg border border-stone-200 bg-white px-3 lg:max-w-sm">
+            <Search size={15} className="text-stone-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="بحث بالدافع أو رقم الشهادة" className="min-w-0 flex-1 bg-transparent text-xs font-bold outline-none" />
+          </label>
+        </div>
+        {isLoading ? (
+          <div className="flex flex-1 items-center justify-center text-xs font-black text-stone-400">جاري تحميل السجل المالي...</div>
+        ) : rows.length === 0 ? (
+          <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-[#007A55]"><ReceiptText size={24} /></div>
+            <h2 className="mt-4 text-base font-black text-slate-950">لا توجد دفعات مسجلة</h2>
+            <p className="mt-1 max-w-md text-xs font-bold leading-6 text-stone-500">ستظهر رسوم جهات التعيين ورسوم استخدام الشهادات هنا فور تسجيلها في النظام.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-right">
+              <thead className="bg-stone-50 text-[10px] font-black text-stone-500"><tr>{["الدافع", "نوع الرسوم", "المبلغ", "الحالة", "تاريخ الدفع", "الإيصال", "إجراء"].map((label) => <th key={label} className="border-b border-stone-200 px-4 py-3">{label}</th>)}</tr></thead>
+              <tbody className="divide-y divide-stone-100">
+                {rows.map((row) => (
+                  <tr key={row.id} className="text-xs font-bold text-slate-700 hover:bg-stone-50">
+                    <td className="whitespace-nowrap px-4 py-3 font-black text-slate-950">{row.payerName}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.feeType}</td>
+                    <td className="whitespace-nowrap px-4 py-3 font-black" dir="ltr">{Number(row.amount).toLocaleString("ar-MA")} {row.currency}</td>
+                    <td className="whitespace-nowrap px-4 py-3"><StatusBadge status={row.status} /></td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.paidAt || "—"}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{row.receiptUrl ? <a href={row.receiptUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-[#007A55]"><ReceiptText size={14} /> {row.receipt}</a> : "—"}</td>
+                    <td className="whitespace-nowrap px-4 py-3"><div className="flex gap-1.5">
+                      {row.status !== "paid" && <button type="button" disabled={busyId === row.id} onClick={() => void updateStatus(row, "paid")} className="flex h-8 w-8 items-center justify-center rounded-md bg-[#007A55] text-white disabled:opacity-40" title="تأكيد الدفع"><Check size={15} /></button>}
+                      {row.status === "pending" && <button type="button" disabled={busyId === row.id} onClick={() => void updateStatus(row, "overdue")} className="flex h-8 w-8 items-center justify-center rounded-md border border-red-200 bg-red-50 text-red-700 disabled:opacity-40" title="تصنيف كمتأخر"><Clock3 size={15} /></button>}
+                    </div></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
 
-function SettingsPage({ notify, confirm }: { notify: (text: string) => void; confirm: (action: ConfirmAction) => void }) {
+type DashboardSettings = {
+  programName: string;
+  contactEmail: string;
+  reviewDays: string;
+  certificateValidityMonths: string;
+  designationFee: string;
+  certificateFee: string;
+  currency: string;
+};
+
+const defaultDashboardSettings: DashboardSettings = {
+  programName: "البرنامج العربي للحلال",
+  contactEmail: "halal@aidsmo.org",
+  reviewDays: "10",
+  certificateValidityMonths: "36",
+  designationFee: "0",
+  certificateFee: "0",
+  currency: "USD",
+};
+
+function SettingsPage({ notify }: { notify: NotifyFn }) {
+  const [settings, setSettings] = useState<DashboardSettings>(() => {
+    try {
+      const saved = localStorage.getItem("halal-dashboard-settings");
+      return saved ? { ...defaultDashboardSettings, ...JSON.parse(saved) as Partial<DashboardSettings> } : defaultDashboardSettings;
+    } catch {
+      return defaultDashboardSettings;
+    }
+  });
+  const [system, setSystem] = useState({ database: "checking", fallback: false, pendingApplications: 0, checkedAt: "" });
+
+  const checkSystem = async () => {
+    setSystem((current) => ({ ...current, database: "checking" }));
+    try {
+      const [healthResponse, statsResponse] = await Promise.all([fetch("/api/health"), fetch("/api/admin/overview/stats")]);
+      const health = await healthResponse.json() as { database?: string; fallback?: boolean; time?: string };
+      const stats = statsResponse.ok ? await statsResponse.json() as { pendingApplications?: number } : {};
+      setSystem({ database: health.database ?? "offline", fallback: Boolean(health.fallback), pendingApplications: Number(stats.pendingApplications ?? 0), checkedAt: health.time ?? new Date().toISOString() });
+    } catch {
+      setSystem({ database: "offline", fallback: true, pendingApplications: 0, checkedAt: new Date().toISOString() });
+    }
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void checkSystem(); }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const updateSetting = (key: keyof DashboardSettings, value: string) => setSettings((current) => ({ ...current, [key]: value }));
+  const saveSettings = () => {
+    localStorage.setItem("halal-dashboard-settings", JSON.stringify(settings));
+    notify("تم حفظ إعدادات الإدارة");
+  };
+
   return (
-    <div className="space-y-5">
-      <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-[var(--shadow-ind-card)]">
-        <p className="text-xs font-black uppercase tracking-[.14em] text-[#007A55]">إعدادات النظام</p>
-        <h1 className="mt-2 text-3xl font-black text-slate-950">الإعدادات</h1>
+    <div className="space-y-3">
+      <div className="flex flex-col gap-3 border-b border-stone-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div><p className="text-[11px] font-black text-[#007A55]">ضبط التشغيل</p><h1 className="mt-0.5 text-xl font-black text-slate-950 sm:text-2xl">إعدادات الإدارة</h1></div>
+        <button type="button" onClick={saveSettings} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-[#007A55] px-4 text-xs font-black text-white"><Save size={15} /> حفظ التغييرات</button>
       </div>
-      <div className="grid gap-5 xl:grid-cols-2">
-        <SettingsCard title="معلومات البرنامج" icon={ShieldCheck}>
-          <AdminInput label="اسم البرنامج" value="البرنامج العربي للحلال" />
-          <AdminInput label="البريد الإلكتروني" value="halal@aidsmo.org" />
-          <button type="button" onClick={() => notify("تم حفظ معلومات البرنامج")} className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#007A55] px-5 text-sm font-black text-white"><Save size={18} /> حفظ</button>
+      <div className="grid min-h-[calc(100vh-132px)] gap-3 xl:grid-cols-12 xl:grid-rows-[auto_1fr]">
+        <SettingsCard title="هوية البرنامج" icon={ShieldCheck} className="xl:col-span-6">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <AdminInput label="اسم البرنامج" value={settings.programName} onChange={(value) => updateSetting("programName", value)} />
+            <AdminInput label="البريد الإداري" value={settings.contactEmail} type="email" onChange={(value) => updateSetting("contactEmail", value)} />
+          </div>
         </SettingsCard>
-        <SettingsCard title="مجالات البرنامج" icon={ListChecks}>
-          <div className="rounded-xl border border-stone-200 bg-[#FAF9F6] p-4 text-sm font-bold text-stone-600">ستتم قراءة المجالات من API عند الربط.</div>
-          <button type="button" onClick={() => notify("إضافة مجال جديد")} className="inline-flex h-11 items-center gap-2 rounded-xl bg-slate-950 px-5 text-sm font-black text-white"><Plus size={18} /> إضافة مجال</button>
+        <SettingsCard title="سياسة المعالجة" icon={SlidersHorizontal} className="xl:col-span-6">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <AdminInput label="مدة المراجعة المستهدفة بالأيام" value={settings.reviewDays} type="number" onChange={(value) => updateSetting("reviewDays", value)} />
+            <AdminInput label="صلاحية الشهادة بالأشهر" value={settings.certificateValidityMonths} type="number" onChange={(value) => updateSetting("certificateValidityMonths", value)} />
+          </div>
         </SettingsCard>
-        <SettingsCard title="المستخدمون والصلاحيات" icon={User}>
-          <EmptyState title="لا توجد قائمة مستخدمين من API حالياً" action="إضافة مستخدم" onAction={() => notify("إضافة مستخدم إداري")} />
+        <SettingsCard title="الرسوم الافتراضية" icon={Landmark} className="xl:col-span-7">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <AdminInput label="رسوم جهة التعيين / 3 سنوات" value={settings.designationFee} type="number" onChange={(value) => updateSetting("designationFee", value)} />
+            <AdminInput label="رسوم استخدام الشهادة" value={settings.certificateFee} type="number" onChange={(value) => updateSetting("certificateFee", value)} />
+            <label className="block"><span className="text-[11px] font-black text-stone-500">العملة</span><select value={settings.currency} onChange={(event) => updateSetting("currency", event.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm font-black outline-none focus:border-[#007A55]"><option value="USD">USD</option><option value="MAD">MAD</option><option value="EUR">EUR</option></select></label>
+          </div>
         </SettingsCard>
-        <SettingsCard title="إعدادات الإشعارات" icon={Bell}>
-          {["تنبيهات انتهاء الشهادات", "تنبيهات المخالفات الجديدة", "تنبيهات الطلبات المعلّقة"].map((item) => (
-            <label key={item} className="flex items-center justify-between rounded-xl border border-stone-200 bg-[#FAF9F6] p-4">
-              <span className="text-sm font-black text-slate-800">{item}</span>
-              <input type="checkbox" defaultChecked className="h-5 w-5 accent-[#007A55]" />
-            </label>
-          ))}
-          <button type="button" onClick={() => confirm({ title: "حذف إعداد", body: "هذا مثال على نافذة تأكيد للإجراءات الحساسة.", confirmLabel: "تأكيد" })} className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#007A55] px-5 text-sm font-black text-white"><Mail size={18} /> حفظ الإشعارات</button>
+        <SettingsCard title="حالة النظام" icon={Database} className="xl:col-span-5">
+          <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-1">
+            <SystemStatusLine label="واجهة الخادم" value="متصلة" tone="success" />
+            <SystemStatusLine label="قاعدة البيانات" value={system.database === "checking" ? "جارٍ الفحص" : system.database === "connected" ? "متصلة" : "غير متصلة"} tone={system.database === "connected" ? "success" : system.database === "checking" ? "neutral" : "warning"} />
+            <SystemStatusLine label="نمط التخزين" value={system.fallback ? `محلي احتياطي · ${system.pendingApplications} طلب` : "PostgreSQL مباشر"} tone={system.fallback ? "warning" : "success"} />
+          </div>
+          <button type="button" onClick={() => void checkSystem()} className="mt-3 inline-flex h-8 items-center gap-2 rounded-md border border-stone-200 bg-white px-3 text-[11px] font-black text-slate-700"><RefreshCw size={13} /> إعادة فحص الاتصال</button>
         </SettingsCard>
       </div>
     </div>
   );
 }
 
-function SettingsCard({ title, icon: Icon, children }: { title: string; icon: LucideIcon; children: ReactNode }) {
+function SettingsCard({ title, icon: Icon, children, className = "" }: { title: string; icon: LucideIcon; children: ReactNode; className?: string }) {
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-[var(--shadow-ind-card)]">
-      <div className="mb-5 flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#007A55]"><Icon size={22} /></div>
-        <h2 className="text-xl font-black text-slate-950">{title}</h2>
+    <section className={`rounded-lg border border-stone-200 bg-white p-4 shadow-sm ${className}`}>
+      <div className="mb-4 flex items-center gap-2.5 border-b border-stone-100 pb-3">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-[#007A55]"><Icon size={17} /></div>
+        <h2 className="text-sm font-black text-slate-950">{title}</h2>
       </div>
-      <div className="space-y-4">{children}</div>
+      <div>{children}</div>
     </section>
   );
 }
 
-function AdminInput({ label, value }: { label: string; value: string }) {
+function AdminInput({ label, value, type = "text", onChange }: { label: string; value: string; type?: string; onChange: (value: string) => void }) {
   return (
     <label className="block">
-      <span className="text-xs font-black text-stone-500">{label}</span>
-      <input defaultValue={value} className="mt-2 h-12 w-full rounded-xl border border-stone-200 bg-[#FAF9F6] px-4 text-sm font-bold outline-none focus:border-[#007A55]" />
+      <span className="text-[11px] font-black text-stone-500">{label}</span>
+      <input value={value} type={type} onChange={(event) => onChange(event.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm font-bold outline-none focus:border-[#007A55] focus:ring-2 focus:ring-emerald-100" />
     </label>
+  );
+}
+
+function SystemStatusLine({ label, value, tone }: { label: string; value: string; tone: "success" | "warning" | "neutral" }) {
+  const dot = tone === "success" ? "bg-emerald-500" : tone === "warning" ? "bg-amber-500" : "bg-stone-400";
+  return <div className="flex items-center justify-between gap-3 rounded-lg bg-stone-50 px-3 py-2.5"><span className="text-[11px] font-bold text-stone-500">{label}</span><span className="inline-flex items-center gap-2 text-[11px] font-black text-slate-800"><span className={`h-2 w-2 rounded-full ${dot}`} />{value}</span></div>;
+}
+
+function HistoryPage({ notify, adminUserId }: { notify: NotifyFn; adminUserId?: string }) {
+  const [entries, setEntries] = useState<ActionLogEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [reloadToken, setReloadToken] = useState(0);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchActionLog(100)
+      .then(setEntries)
+      .finally(() => setIsLoading(false));
+  }, [reloadToken]);
+
+  const handleUndo = async (entry: ActionLogEntry) => {
+    setBusyId(entry.id);
+    const result = await undoResourceAction(entry.id, adminUserId);
+    setBusyId(null);
+    if (!result.ok) {
+      notify(result.message, "warning");
+      return;
+    }
+    notify("تم التراجع عن الإجراء");
+    setReloadToken((value) => value + 1);
+  };
+
+  return (
+    <div className="space-y-5">
+      <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-[var(--shadow-ind-card)]">
+        <p className="text-xs font-black uppercase tracking-[.14em] text-[#007A55]">تدقيق العمليات</p>
+        <h1 className="mt-2 text-3xl font-black text-slate-950">سجل العمليات</h1>
+        <p className="mt-2 text-sm font-bold text-stone-500">جميع عمليات الاعتماد والرفض والتعليق والسحب وإعادة التفعيل والتجديد، مع إمكانية التراجع.</p>
+      </div>
+
+      <section className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-[var(--shadow-ind-card)]">
+        {isLoading ? (
+          <div className="flex min-h-[240px] items-center justify-center text-sm font-black text-stone-500">جاري تحميل السجل...</div>
+        ) : entries.length === 0 ? (
+          <div className="p-5"><EmptyState title="لا توجد عمليات مسجّلة بعد" action="تحديث" onAction={() => setReloadToken((value) => value + 1)} /></div>
+        ) : (
+          <div className="divide-y divide-stone-100">
+            {entries.map((entry) => (
+              <div key={entry.id} className="flex flex-wrap items-center justify-between gap-4 p-5">
+                <div className="flex items-start gap-3">
+                  <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#007A55]"><Clock3 size={18} /></div>
+                  <div>
+                    <p className="text-sm font-black text-slate-950">
+                      {entry.actionLabel} — {entry.resourceLabel} <span className="text-stone-500">"{entry.entityName}"</span>
+                    </p>
+                    <p className="mt-1 text-xs font-bold text-stone-500">
+                      {entry.actor} · {new Date(entry.createdAt).toLocaleString("ar")}
+                      {entry.reason ? ` · ${entry.reason}` : ""}
+                    </p>
+                    {entry.undone && (
+                      <span className="mt-2 inline-flex items-center rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-[10px] font-black text-stone-500">تم التراجع عنها</span>
+                    )}
+                  </div>
+                </div>
+                {entry.canUndo && (
+                  <button
+                    type="button"
+                    disabled={busyId === entry.id}
+                    onClick={() => handleUndo(entry)}
+                    className="inline-flex h-9 items-center gap-2 rounded-lg border border-stone-200 bg-white px-4 text-xs font-black text-slate-700 hover:border-[#007A55] hover:text-[#007A55] disabled:opacity-40"
+                  >
+                    <Undo2 size={14} /> تراجع
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function UsersPage({ notify }: { notify: NotifyFn }) {
+  const [users, setUsers] = useState<AdminUserRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [reloadToken, setReloadToken] = useState(0);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "VIEWER" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    fetchAdminUsers()
+      .then(setUsers)
+      .finally(() => setIsLoading(false));
+  }, [reloadToken]);
+
+  const handleCreate = async () => {
+    if (!form.name.trim() || !form.email.trim() || form.password.length < 6) {
+      notify("يرجى إدخال الاسم والبريد الإلكتروني وكلمة مرور من 6 أحرف على الأقل.", "warning");
+      return;
+    }
+    setIsSubmitting(true);
+    const result = await createAdminUserApi(form);
+    setIsSubmitting(false);
+    if (!result.ok) {
+      notify(result.message, "warning");
+      return;
+    }
+    notify("تمت إضافة المستخدم بنجاح");
+    setForm({ name: "", email: "", password: "", role: "VIEWER" });
+    setShowForm(false);
+    setReloadToken((value) => value + 1);
+  };
+
+  const toggleActive = async (user: AdminUserRecord) => {
+    const result = await updateAdminUserApi(user.id, { isActive: !user.isActive });
+    if (!result.ok) {
+      notify(result.message, "warning");
+      return;
+    }
+    notify(user.isActive ? "تم تعطيل المستخدم" : "تم تفعيل المستخدم");
+    setReloadToken((value) => value + 1);
+  };
+
+  const roleLabel: Record<string, string> = { SUPER_ADMIN: "مدير عام", REVIEWER: "مراجع", VIEWER: "مشاهدة فقط" };
+
+  return (
+    <div className="space-y-5">
+      <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-[var(--shadow-ind-card)]">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[.14em] text-[#007A55]">إدارة الفريق</p>
+            <h1 className="mt-2 text-3xl font-black text-slate-950">المستخدمون</h1>
+          </div>
+          <button type="button" onClick={() => setShowForm((value) => !value)} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#007A55] px-5 text-sm font-black text-white shadow-[var(--shadow-ind-sharp)] hover:bg-[#004D36]">
+            <Plus size={18} /> إضافة مستخدم
+          </button>
+        </div>
+
+        {showForm && (
+          <div className="mt-5 grid gap-3 rounded-xl border border-stone-200 bg-[#FAF9F6] p-4 md:grid-cols-2">
+            <label className="block">
+              <span className="text-xs font-black text-stone-500">الاسم</span>
+              <input value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} className="mt-2 h-11 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm font-bold outline-none focus:border-[#007A55]" />
+            </label>
+            <label className="block">
+              <span className="text-xs font-black text-stone-500">البريد الإلكتروني</span>
+              <input type="email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} className="mt-2 h-11 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm font-bold outline-none focus:border-[#007A55]" />
+            </label>
+            <label className="block">
+              <span className="text-xs font-black text-stone-500">كلمة المرور</span>
+              <input type="password" value={form.password} onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))} className="mt-2 h-11 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm font-bold outline-none focus:border-[#007A55]" />
+            </label>
+            <label className="block">
+              <span className="text-xs font-black text-stone-500">الصلاحية</span>
+              <select value={form.role} onChange={(event) => setForm((current) => ({ ...current, role: event.target.value }))} className="mt-2 h-11 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm font-black outline-none focus:border-[#007A55]">
+                <option value="VIEWER">مشاهدة فقط</option>
+                <option value="REVIEWER">مراجع</option>
+                <option value="SUPER_ADMIN">مدير عام</option>
+              </select>
+            </label>
+            <div className="md:col-span-2">
+              <button type="button" disabled={isSubmitting} onClick={handleCreate} className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#007A55] px-5 text-sm font-black text-white disabled:opacity-50">
+                <Save size={18} /> حفظ المستخدم
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <section className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-[var(--shadow-ind-card)]">
+        {isLoading ? (
+          <div className="flex min-h-[240px] items-center justify-center text-sm font-black text-stone-500">جاري تحميل المستخدمين...</div>
+        ) : users.length === 0 ? (
+          <div className="p-5"><EmptyState title="لا يوجد مستخدمون بعد" action="إضافة مستخدم" onAction={() => setShowForm(true)} /></div>
+        ) : (
+          <div className="divide-y divide-stone-100">
+            {users.map((user) => (
+              <div key={user.id} className="flex flex-wrap items-center justify-between gap-4 p-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FAF9F6] text-[#007A55]"><User size={20} /></div>
+                  <div>
+                    <p className="text-sm font-black text-slate-950">{user.name}</p>
+                    <p className="mt-1 text-xs font-bold text-stone-500">{user.email} · {roleLabel[user.role] ?? user.role}</p>
+                    <p className="mt-1 text-[11px] font-bold text-stone-400">{user.lastLoginAt ? `آخر دخول: ${new Date(user.lastLoginAt).toLocaleString("ar")}` : "لم يسجل الدخول بعد"}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-black ${user.isActive ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-stone-200 bg-stone-100 text-stone-500"}`}>
+                    {user.isActive ? "نشط" : "معطّل"}
+                  </span>
+                  <button type="button" onClick={() => toggleActive(user)} className="inline-flex h-9 items-center rounded-lg border border-stone-200 bg-white px-4 text-xs font-black text-slate-700 hover:border-[#007A55] hover:text-[#007A55]">
+                    {user.isActive ? "تعطيل" : "تفعيل"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
   );
 }
 
@@ -702,59 +1393,74 @@ function ConfirmModal({ action, onClose, onConfirm }: { action: ConfirmAction; o
 }
 
 export default function AdminDashboard() {
-  const [isAuthed, setIsAuthed] = useState(() => localStorage.getItem("admin-demo-session") === "true");
+  const [isAuthed, setIsAuthed] = useState(() => localStorage.getItem("admin-session") === "true");
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(() => {
+    try {
+      const raw = localStorage.getItem("admin-user");
+      return raw ? (JSON.parse(raw) as AdminUser) : null;
+    } catch {
+      return null;
+    }
+  });
   const [activeSection, setActiveSection] = useState<AdminSection>("overview");
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
 
-  const notify = (text: string, tone: Toast["tone"] = "success") => {
+  const notify: NotifyFn = (text, tone = "success", onUndo) => {
     const id = Date.now();
-    setToasts((current) => [...current, { id, text, tone }]);
-    window.setTimeout(() => setToasts((current) => current.filter((toast) => toast.id !== id)), 3200);
+    setToasts((current) => [...current, { id, text, tone, onUndo }]);
+    window.setTimeout(() => setToasts((current) => current.filter((toast) => toast.id !== id)), onUndo ? 6000 : 3200);
   };
 
-  const login = () => {
-    localStorage.setItem("admin-demo-session", "true");
+  const login = (user: AdminUser) => {
+    localStorage.setItem("admin-session", "true");
+    localStorage.setItem("admin-user", JSON.stringify(user));
+    setAdminUser(user);
     setIsAuthed(true);
   };
 
   const logout = () => {
-    localStorage.removeItem("admin-demo-session");
+    localStorage.removeItem("admin-session");
+    localStorage.removeItem("admin-user");
+    setAdminUser(null);
     setIsAuthed(false);
   };
 
   if (!isAuthed) return <AdminLogin onLogin={login} />;
 
   const pageTitle = navItems.find((item) => item.section === activeSection)?.label ?? "لوحة التحكم";
-  const resourceConfig = activeSection !== "overview" && activeSection !== "settings" ? resourceConfigs[activeSection] : undefined;
+  const resourceConfig =
+    activeSection !== "overview" && activeSection !== "settings" && activeSection !== "history" && activeSection !== "users" && activeSection !== "payments"
+      ? resourceConfigs[activeSection]
+      : undefined;
 
   return (
     <main dir="rtl" className="min-h-screen bg-[#FAF9F6] font-arabic text-slate-950">
       <header className="fixed inset-x-0 top-0 z-50 border-b border-stone-200 bg-white/95 backdrop-blur-xl">
-        <div className="flex h-20 items-center justify-between gap-4 px-5 lg:px-7">
+        <div className="flex h-16 items-center justify-between gap-3 px-3 sm:px-4 lg:px-5">
           <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="شعار البرنامج العربي للحلال" className="h-14 w-14 rounded-full bg-white p-1 shadow-[var(--shadow-ind-card)]" />
-            <img src="/aidsmo.png" alt="AIDSMO" className="hidden h-10 w-auto sm:block" />
+            <img src="/logo.svg" alt="شعار البرنامج العربي للحلال" className="h-10 w-10 rounded-full bg-white p-0.5" />
+            <img src="/aidsmo.png" alt="AIDSMO" className="hidden h-8 w-auto sm:block" />
           </div>
           <div className="text-center">
-            <p className="text-xs font-black uppercase tracking-[.16em] text-[#007A55]">لوحة إدارة داخلية</p>
-            <h1 className="mt-1 text-xl font-black text-slate-950 md:text-2xl">{pageTitle}</h1>
+            <p className="hidden text-[10px] font-black text-[#007A55] sm:block">لوحة إدارة داخلية</p>
+            <h1 className="text-base font-black text-slate-950 sm:mt-0.5 sm:text-lg">{pageTitle}</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden items-center gap-3 rounded-xl border border-stone-200 bg-[#FAF9F6] px-3 py-2 md:flex">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#007A55] text-white"><User size={18} /></div>
+          <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 border-l border-stone-200 pl-3 md:flex">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-[#007A55]"><User size={16} /></div>
               <div>
-                <p className="text-xs font-black text-slate-900">مدير النظام</p>
-                <p className="text-[10px] font-bold text-stone-500">ADMIN</p>
+                <p className="text-xs font-black text-slate-900">{adminUser?.name ?? "مدير النظام"}</p>
+                <p className="text-[10px] font-bold text-stone-500">{adminUser?.role ?? "ADMIN"}</p>
               </div>
             </div>
-            <button type="button" onClick={logout} className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-950 text-white" aria-label="تسجيل الخروج"><LogOut size={19} /></button>
+            <button type="button" onClick={logout} className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-950 text-white" aria-label="تسجيل الخروج" title="تسجيل الخروج"><LogOut size={17} /></button>
           </div>
         </div>
       </header>
 
-      <aside className="fixed bottom-0 right-0 top-20 z-40 hidden w-72 border-l border-stone-200 bg-white p-4 shadow-[var(--shadow-ind-card)] lg:block">
-        <nav className="space-y-2">
+      <aside className="fixed bottom-0 right-0 top-16 z-40 hidden w-56 border-l border-stone-200 bg-white p-2.5 lg:block">
+        <nav className="space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = activeSection === item.section;
@@ -763,9 +1469,9 @@ export default function AdminDashboard() {
                 key={item.section}
                 type="button"
                 onClick={() => setActiveSection(item.section)}
-                className={`flex h-12 w-full items-center gap-3 rounded-xl px-4 text-sm font-black transition-all ${active ? "bg-[#007A55] text-white shadow-[var(--shadow-ind-sharp)]" : "text-stone-600 hover:bg-[#FAF9F6] hover:text-slate-950"}`}
+                className={`flex h-10 w-full items-center gap-2.5 rounded-lg px-3 text-xs font-black transition-colors ${active ? "bg-[#007A55] text-white" : "text-stone-600 hover:bg-stone-50 hover:text-slate-950"}`}
               >
-                <Icon size={19} />
+                <Icon size={17} />
                 {item.label}
               </button>
             );
@@ -778,7 +1484,7 @@ export default function AdminDashboard() {
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
-              <button key={item.section} type="button" onClick={() => setActiveSection(item.section)} className={`flex min-w-14 flex-col items-center gap-1 rounded-xl px-3 py-2 text-[10px] font-black ${activeSection === item.section ? "bg-[#007A55] text-white" : "text-stone-500"}`}>
+              <button key={item.section} type="button" onClick={() => setActiveSection(item.section)} className={`flex min-w-[92px] flex-col items-center gap-1 rounded-lg px-2 py-2 text-[10px] font-black ${activeSection === item.section ? "bg-[#007A55] text-white" : "text-stone-500"}`}>
                 <Icon size={18} />
                 <span className="whitespace-nowrap">{item.label}</span>
               </button>
@@ -787,11 +1493,14 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <section className="min-h-screen pt-24 lg:pr-72">
-        <div className="mx-auto max-w-[1500px] px-4 pb-28 lg:px-7">
-          {activeSection === "overview" && <OverviewPage notify={notify} confirm={setConfirmAction} />}
-          {activeSection === "settings" && <SettingsPage notify={notify} confirm={setConfirmAction} />}
-          {resourceConfig && <ResourcePage config={resourceConfig} notify={notify} confirm={setConfirmAction} />}
+      <section className="min-h-screen pt-16 lg:pr-56">
+        <div className="w-full px-3 py-3 pb-28 sm:px-4 lg:px-5 lg:py-4">
+          {activeSection === "overview" && <OverviewPage notify={notify} confirm={setConfirmAction} adminUserId={adminUser?.id} />}
+          {activeSection === "settings" && <SettingsPage notify={notify} />}
+          {activeSection === "payments" && <PaymentsPage notify={notify} adminUserId={adminUser?.id} />}
+          {activeSection === "history" && <HistoryPage notify={notify} adminUserId={adminUser?.id} />}
+          {activeSection === "users" && <UsersPage notify={notify} />}
+          {resourceConfig && <ResourcePage config={resourceConfig} notify={notify} confirm={setConfirmAction} adminUserId={adminUser?.id} />}
         </div>
       </section>
 
@@ -800,6 +1509,18 @@ export default function AdminDashboard() {
           <div key={toast.id} className={`flex min-h-12 items-center gap-3 rounded-xl border bg-white px-4 py-3 text-sm font-black shadow-[var(--shadow-ind-floating)] ${toast.tone === "success" ? "border-emerald-200 text-emerald-700" : "border-amber-200 text-amber-700"}`}>
             {toast.tone === "success" ? <Check size={18} /> : <AlertTriangle size={18} />}
             {toast.text}
+            {toast.onUndo && (
+              <button
+                type="button"
+                onClick={() => {
+                  toast.onUndo?.();
+                  setToasts((current) => current.filter((item) => item.id !== toast.id));
+                }}
+                className="inline-flex items-center gap-1 rounded-lg border border-current px-2 py-1 text-xs"
+              >
+                <Undo2 size={13} /> تراجع
+              </button>
+            )}
           </div>
         ))}
       </div>
@@ -808,8 +1529,9 @@ export default function AdminDashboard() {
         action={confirmAction}
         onClose={() => setConfirmAction(null)}
         onConfirm={() => {
+          const action = confirmAction;
           setConfirmAction(null);
-          notify("تم تنفيذ الإجراء وتسجيله في سجل التدقيق");
+          action?.onConfirm();
         }}
       />
     </main>
