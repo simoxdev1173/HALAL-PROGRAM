@@ -4,7 +4,8 @@ import crypto from "node:crypto";
 import type { ApplicationStatus, ApplicationType } from "@prisma/client";
 import type { AttachmentInput } from "../http/forms";
 
-const OFFLINE_DIR = path.join(__dirname, "..", "..", "uploads", "offline-submissions");
+const uploadRoot = path.resolve(process.env.UPLOAD_DIR ?? path.join(__dirname, "..", "..", "uploads"));
+const OFFLINE_DIR = path.join(uploadRoot, "offline-submissions");
 
 type OfflineSubmissionInput = {
   type: ApplicationType;

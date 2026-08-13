@@ -55,8 +55,9 @@ import { listAdminUsers, createAdminUser, updateAdminUser } from "./lib/db/admin
 import { verifyCertificates, type VerificationSearchType } from "./lib/http/verification";
 import type { AdminRole, PaymentStatus } from "@prisma/client";
 
-const PORT = Number(process.env.API_PORT ?? 4000);
-const UPLOAD_DIR = path.join(__dirname, "uploads");
+const PORT = Number(process.env.PORT ?? process.env.API_PORT ?? 4000);
+const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR ?? path.join(__dirname, "uploads"));
+const FRONTEND_DIST_DIR = path.resolve(process.env.FRONTEND_DIST_DIR ?? path.join(__dirname, "..", "..", "dist"));
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 // ---------------------------------------------------------------------------
@@ -145,7 +146,8 @@ app.get("/api/health", asyncRoute(async (_req, res) => {
     return res.json({ ok: true, database: "connected", fallback: false, time: new Date().toISOString() });
   } catch (error) {
     if (!isDatabaseUnavailable(error)) throw error;
-    return res.json({ ok: true, database: "offline", fallback: true, time: new Date().toISOString() });
+    const status = process.env.NODE_ENV === "production" ? 503 : 200;
+    return res.status(status).json({ ok: false, database: "offline", fallback: true, time: new Date().toISOString() });
   }
 }));
 
@@ -497,6 +499,21 @@ app.patch("/api/admin/users/:id", asyncRoute(async (req, res) => {
   const user = await updateAdminUser(String(req.params.id), data);
   res.json({ ok: true, user });
 }));
+
+// ---------------------------------------------------------------------------
+// Production frontend
+// ---------------------------------------------------------------------------
+// Vite proxies /api during local development. In production this Express
+// process also serves the compiled SPA, keeping forms, uploads, and dashboard
+// requests on the same origin without requiring a second public hostname.
+const frontendIndex = path.join(FRONTEND_DIST_DIR, "index.html");
+if (fs.existsSync(frontendIndex)) {
+  app.use(express.static(FRONTEND_DIST_DIR, { index: false }));
+  app.use((req, res, next) => {
+    if (req.method !== "GET" || req.path.startsWith("/api/")) return next();
+    return res.sendFile(frontendIndex);
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Error handling
