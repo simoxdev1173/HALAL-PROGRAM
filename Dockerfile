@@ -8,6 +8,9 @@ COPY . .
 RUN npm run build
 
 FROM node:22-bookworm-slim AS backend-build
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends openssl \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app/backend
 COPY backend/package.json backend/package-lock.json ./
 RUN npm ci
@@ -16,7 +19,7 @@ RUN npm run prisma:generate && npx tsc
 
 FROM node:22-bookworm-slim AS production
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends openssl \
+    && apt-get install -y --no-install-recommends curl openssl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -35,6 +38,6 @@ RUN mkdir -p /app/data/uploads
 
 EXPOSE 47831
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||47831)+'/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+  CMD curl --fail --silent --show-error "http://127.0.0.1:47831/api/health" > /dev/null || exit 1
 
 CMD ["sh", "-c", "npm --prefix backend run prisma:deploy && node backend/dist/server.js"]
