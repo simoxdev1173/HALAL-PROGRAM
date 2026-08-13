@@ -30,6 +30,10 @@ function text(value: JoinProgramPrintValue | undefined, empty = "-") {
   return empty;
 }
 
+function printableImage(value: JoinProgramPrintValue | undefined) {
+  return typeof value === "string" && value.startsWith("data:image/") ? value : "";
+}
+
 function answer(value: JoinProgramPrintValue | undefined): "yes" | "no" | "empty" {
   if (value === true) return "yes";
   if (value === false || value === null || value === undefined || value === "") return "empty";
@@ -47,7 +51,7 @@ function date(value: string) {
 }
 
 function Check({ checked }: { checked: boolean }) {
-  return <span className="join-print-check" aria-hidden="true">{checked ? "X" : ""}</span>;
+  return <span className="join-print-check" aria-hidden="true">{checked ? "✓" : ""}</span>;
 }
 
 function Answer({ value }: { value: JoinProgramPrintValue | undefined }) {
@@ -206,12 +210,33 @@ export function JoinProgramPrintDocument({ session }: Props) {
             <ul>{legalConditions.map((condition) => <li key={condition}>{condition}</li>)}</ul>
           </section>
 
+          <section className="join-print-declaration">
+            <Check checked={data.applicantAcknowledgement === true} />
+            <span>أقر بصحة جميع المعلومات المقدمة في هذا الطلب، وأوافق على الشروط والتوضيحات القانونية المذكورة أعلاه.</span>
+          </section>
+
           <table className="join-print-table join-print-signature">
             <tbody>
               <tr><td className="join-print-signature__label">اسم رئيس الجهة المعنية بالحلال:</td><td><span className="join-print-value">{text(data.signatureHeadName)}</span></td></tr>
               <tr><td className="join-print-signature__label">التاريخ:</td><td><span className="join-print-value">{date(text(data.signatureDate, ""))}</span></td></tr>
-              <tr><td className="join-print-signature__label">التوقيع:</td><td /></tr>
-              <tr><td className="join-print-signature__label">الختم الرسمي:</td><td /></tr>
+              <tr className="join-print-signature__drawing-row">
+                <td className="join-print-signature__label">التوقيع:</td>
+                <td>
+                  {printableImage(data.signature) && (
+                    <img className="join-print-signature__drawing" src={printableImage(data.signature)} alt="التوقيع" />
+                  )}
+                </td>
+              </tr>
+              <tr className="join-print-signature__drawing-row">
+                <td className="join-print-signature__label">الختم الرسمي:</td>
+                <td>
+                  {printableImage(data.officialSeal) ? (
+                    <img className="join-print-signature__drawing join-print-signature__drawing--seal" src={printableImage(data.officialSeal)} alt="الختم الرسمي" />
+                  ) : text(data.officialSeal, "") ? (
+                    <span className="join-print-signature__attachment-status">مرفق إلكترونياً</span>
+                  ) : null}
+                </td>
+              </tr>
             </tbody>
           </table>
 

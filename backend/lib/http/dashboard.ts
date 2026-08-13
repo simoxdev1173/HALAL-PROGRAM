@@ -17,9 +17,30 @@ export type ListParams = {
   status?: string;
   purpose?: string;
   expiresWithin?: number;
+  view?: "requests" | "registered";
 };
 
 export type ListResult = { data: Record<string, unknown>[]; total: number; page: number };
+
+export type CreateDesignationBodyInput = {
+  nameAr: string;
+  nameEn?: string;
+  country: string;
+  email: string;
+  phone: string;
+  website?: string;
+  address?: string;
+  bodyType?: "GOVERNMENTAL" | "NON_GOVERNMENTAL";
+  headName?: string;
+  contactOfficerName?: string;
+};
+
+export type CreateAppointedBodyInput = {
+  designationBodyId: string;
+  name: string;
+  country: string;
+  accreditationScope: string;
+};
 
 const DEFAULT_LIMIT = 20;
 const clampLimit = (n?: number) => Math.min(Math.max(n ?? DEFAULT_LIMIT, 1), 100);
@@ -83,6 +104,69 @@ const jsonToList = (value: Prisma.JsonValue | null | undefined): string => {
   return "";
 };
 
+export async function createRegisteredDesignationBody(input: CreateDesignationBodyInput) {
+  const now = new Date();
+  const requestNumber = `AHP-ADMIN-${now.toISOString().replace(/\D/g, "").slice(0, 14)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+  const headName = input.headName?.trim() || input.nameAr;
+  const contactOfficerName = input.contactOfficerName?.trim() || headName;
+  const address = input.address?.trim() || "غير محدد";
+
+  const application = await prisma.application.create({
+    data: {
+      type: "DESIGNATION_BODY",
+      status: "ACCEPTED",
+      requestNumber,
+      submittedAt: now,
+      reviewedAt: now,
+      designationBodyApp: {
+        create: {
+          organizationNameAr: input.nameAr,
+          organizationNameEn: input.nameEn?.trim() || input.nameAr,
+          organizationAddressAr: address,
+          organizationAddressEn: address,
+          country: input.country,
+          phone: input.phone,
+          website: input.website?.trim() || null,
+          email: input.email,
+          headName,
+          headEmail: input.email,
+          headMobile: input.phone,
+          contactOfficerName,
+          contactOfficerEmail: input.email,
+          contactOfficerMobile: input.phone,
+          applicantAcknowledgement: true,
+          signatureHeadName: headName,
+          signatureDate: now,
+          bodyType: input.bodyType ?? "GOVERNMENTAL",
+          status: "ACTIVE",
+        },
+      },
+    },
+    include: { designationBodyApp: true },
+  });
+
+  return { id: application.designationBodyApp?.id ?? "", requestNumber };
+}
+
+export async function createRegisteredAppointedBody(input: CreateAppointedBodyInput) {
+  const parent = await prisma.designationBodyApplication.findFirst({
+    where: { id: input.designationBodyId, status: { in: ["ACTIVE", "SUSPENDED"] } },
+    select: { id: true },
+  });
+  if (!parent) throw new Error("جهة التعيين المحددة غير متاحة.");
+
+  const row = await prisma.appointedBody.create({
+    data: {
+      designationBodyId: parent.id,
+      name: input.name,
+      country: input.country,
+      accreditationScope: input.accreditationScope,
+      status: "ACTIVE",
+    },
+  });
+  return { id: row.id };
+}
+
 // ---------------------------------------------------------------------------
 // Designation bodies  (JoinProgram submissions land here)
 // ---------------------------------------------------------------------------
@@ -92,20 +176,21 @@ export async function listDesignationBodies(params: ListParams): Promise<ListRes
   const search = (params.search ?? "").trim();
   const statusToken = (params.status ?? "").trim();
 
-  const where: Prisma.DesignationBodyApplicationWhereInput = {
-    ...(statusToken && statusToken !== "all" && tokenToEntityStatus[statusToken]
-      ? { status: tokenToEntityStatus[statusToken] }
-      : {}),
-    ...(search
-      ? {
-          OR: [
-            { organizationNameAr: { contains: search, mode: "insensitive" } },
-            { organizationNameEn: { contains: search, mode: "insensitive" } },
-            { country: { contains: search, mode: "insensitive" } },
-          ],
-        }
-      : {}),
-  };
+  const where: Prisma.DesignationBodyApplicationWhereInput = {};
+  if (statusToken && statusToken !== "all" && tokenToEntityStatus[statusToken]) {
+    where.status = tokenToEntityStatus[statusToken];
+  } else if (params.view === "requests") {
+    where.status = "PENDING";
+  } else if (params.view === "registered") {
+    where.status = { in: ["ACTIVE", "SUSPENDED"] };
+  }
+  if (search) {
+    where.OR = [
+      { organizationNameAr: { contains: search, mode: "insensitive" } },
+      { organizationNameEn: { contains: search, mode: "insensitive" } },
+      { country: { contains: search, mode: "insensitive" } },
+    ];
+  }
 
   const [rows, total] = await prisma.$transaction([
     prisma.designationBodyApplication.findMany({
@@ -131,6 +216,7 @@ export async function listDesignationBodies(params: ListParams): Promise<ListRes
     headName: row.headName,
     contactOfficer: row.contactOfficerName,
     website: row.website ?? "—",
+    logoUrl: row.logoUrl ?? "",
   }));
 
   return { data, total, page };
@@ -296,10 +382,19 @@ export async function listAppointedBodies(params: ListParams): Promise<ListResul
   const page = Math.max(params.page ?? 1, 1);
   const limit = clampLimit(params.limit);
   const search = (params.search ?? "").trim();
+  const statusToken = (params.status ?? "").trim();
 
-  const where: Prisma.AppointedBodyWhereInput = search
-    ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { country: { contains: search, mode: "insensitive" } }] }
-    : {};
+  const where: Prisma.AppointedBodyWhereInput = {};
+  if (statusToken && statusToken !== "all" && tokenToEntityStatus[statusToken]) {
+    where.status = tokenToEntityStatus[statusToken];
+  } else if (params.view === "requests") {
+    where.status = "PENDING";
+  } else if (params.view === "registered") {
+    where.status = { in: ["ACTIVE", "SUSPENDED"] };
+  }
+  if (search) {
+    where.OR = [{ name: { contains: search, mode: "insensitive" } }, { country: { contains: search, mode: "insensitive" } }];
+  }
 
   const [rows, total] = await prisma.$transaction([
     prisma.appointedBody.findMany({
@@ -320,6 +415,7 @@ export async function listAppointedBodies(params: ListParams): Promise<ListResul
     country: row.country,
     appointedAt: fmtDate(row.appointedAt),
     status: entityStatusToken[row.status],
+    logoUrl: row.logoUrl ?? "",
   }));
 
   return { data, total, page };

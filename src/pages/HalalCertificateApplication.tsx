@@ -5,6 +5,7 @@ import { Check, FileUp, House, Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FormLanguageSwitcher } from "../components/FormLanguageSwitcher";
+import { SignaturePad, signatureDataUrlToFile } from "../components/SignaturePad";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { submitCertificateApplication } from "../lib/api";
 import { CERTIFICATE_APPLICATION_PRINT_SESSION_KEY } from "../lib/certificateApplicationPrint";
@@ -167,7 +168,7 @@ const generalFields: FieldConfig[] = [
   { key: "country", label: "الدولة", required: true },
   { key: "phone", label: "رقم الهاتف", type: "tel", required: true },
   { key: "fax", label: "رقم الفاكس", type: "tel" },
-  { key: "website", label: "الموقع الإلكتروني", type: "url", placeholder: "https://example.org" },
+  { key: "website", label: "الموقع الإلكتروني", type: "url", placeholder: "example.org" },
   { key: "companyEmail", label: "البريد الإلكتروني للشركة", type: "email", required: true },
   { key: "responsiblePersonName", label: "اسم المسؤول في الشركة", required: true },
   { key: "managerEmail", label: "البريد الإلكتروني للمدير", type: "email", required: true },
@@ -263,7 +264,7 @@ const certificateEnglish = {
     choosePurpose: "Please select the purpose of submitting the application.",
     invalidEmail: "Please enter a valid email address.",
     invalidPhone: "Please enter a valid phone number.",
-    invalidUrl: "Please enter a valid website URL.",
+    invalidUrl: "Please enter a valid website, such as example.org.",
     addProduct: "Please add at least one product.",
     otherHalalDetails: "Please enter the other Halal certificate details.",
     attachSelectedFile: "Please attach the selected file.",
@@ -363,11 +364,16 @@ const trim = (value: string) => value.trim();
 const isBlank = (value: string) => trim(value).length === 0;
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(trim(value));
 const isPhone = (value: string) => /^[+\d\s().-]{6,24}$/.test(trim(value));
+const normalizeWebsite = (value: string) => {
+  const website = trim(value);
+  if (!website) return "";
+  return /^https?:\/\//i.test(website) ? website : `https://${website}`;
+};
 const isUrl = (value: string) => {
   if (isBlank(value)) return true;
   try {
-    const parsed = new URL(value);
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
+    const parsed = new URL(normalizeWebsite(value));
+    return (parsed.protocol === "http:" || parsed.protocol === "https:") && parsed.hostname.includes(".");
   } catch {
     return false;
   }
@@ -405,7 +411,7 @@ function createPayload(data: CertificateFormData) {
       branchAddresses: visibleTextArray(data.branchAddresses),
       phone: trim(data.phone),
       fax: trim(data.fax),
-      website: trim(data.website),
+      website: normalizeWebsite(data.website),
       companyEmail: trim(data.companyEmail),
       responsiblePersonName: trim(data.responsiblePersonName),
       managerEmail: trim(data.managerEmail),
@@ -468,7 +474,7 @@ function validate(data: CertificateFormData, step?: number, lang: "ar" | "en" = 
     choosePurpose: lang === "ar" ? "يرجى تحديد الغرض من تقديم الطلب." : certificateEnglish.validation.choosePurpose,
     invalidEmail: lang === "ar" ? "يرجى إدخال بريد إلكتروني صحيح." : certificateEnglish.validation.invalidEmail,
     invalidPhone: lang === "ar" ? "يرجى إدخال رقم هاتف صحيح." : certificateEnglish.validation.invalidPhone,
-    invalidUrl: lang === "ar" ? "يرجى إدخال رابط إلكتروني صحيح." : certificateEnglish.validation.invalidUrl,
+    invalidUrl: lang === "ar" ? "يرجى إدخال موقع إلكتروني صحيح، مثل example.org." : certificateEnglish.validation.invalidUrl,
     addProduct: lang === "ar" ? "يرجى إضافة منتج واحد على الأقل." : certificateEnglish.validation.addProduct,
     otherHalalDetails: lang === "ar" ? "يرجى إدخال تفاصيل شهادة الحلال الأخرى." : certificateEnglish.validation.otherHalalDetails,
     attachSelectedFile: lang === "ar" ? "يرجى إرفاق الملف المحدد." : certificateEnglish.validation.attachSelectedFile,
@@ -518,7 +524,7 @@ function validate(data: CertificateFormData, step?: number, lang: "ar" | "en" = 
 
   if (step === undefined || step === 4) {
     applicantFields.filter((field) => field.required).forEach((field) => checkText(field.key));
-    if (!data.applicantSignature) errors.applicantSignature = messages.attachSelectedFile;
+    if (!data.applicantSignature) errors.applicantSignature = lang === "ar" ? "يرجى رسم التوقيع الإلكتروني." : "Please draw the electronic signature.";
   }
 
   return errors;
@@ -788,6 +794,7 @@ export default function HalalCertificateApplication() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "error">("idle");
   const [submitError, setSubmitError] = useState("");
+  const [signatureDataUrl, setSignatureDataUrl] = useState("");
 
   const payload = useMemo(() => createPayload(data), [data]);
   const localizedSteps = isRtl ? steps : certificateEnglish.steps;
@@ -812,6 +819,19 @@ export default function HalalCertificateApplication() {
       delete next[String(key)];
       return next;
     });
+  };
+
+  const updateSignature = (value: string | null) => {
+    setSignatureDataUrl(value ?? "");
+    updateField(
+      "applicantSignature",
+      value
+        ? signatureDataUrlToFile(
+            value,
+            isRtl ? "توقيع-مقدم-طلب-شهادة-الحلال.png" : "halal-certificate-applicant-signature.png",
+          )
+        : null,
+    );
   };
 
   const updateAttachment = (key: AttachmentKey, value: Partial<AttachmentValue>) => {
@@ -908,7 +928,13 @@ export default function HalalCertificateApplication() {
         JSON.stringify({
           requestNumber: result.data.requestNumber ?? "",
           submittedAt: new Date().toISOString(),
-          data: submission.payload,
+          data: {
+            ...submission.payload,
+            applicantInformation: {
+              ...submission.payload.applicantInformation,
+              applicantSignature: signatureDataUrl || submission.payload.applicantInformation.applicantSignature,
+            },
+          },
         }),
       );
       navigate(`/application-submitted?type=certificate&ref=${encodeURIComponent(result.data.requestNumber ?? "")}`);
@@ -953,7 +979,7 @@ export default function HalalCertificateApplication() {
   );
 
   return (
-    <main dir={isRtl ? "rtl" : "ltr"} className={`relative min-h-screen overflow-hidden bg-[#F7F1E3] pb-32 ${isRtl ? "font-arabic" : "font-english"}`}>
+    <main id="application-form" dir={isRtl ? "rtl" : "ltr"} className={`relative min-h-screen scroll-mt-4 overflow-hidden bg-[#F7F1E3] pb-32 ${isRtl ? "font-arabic" : "font-english"}`}>
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#F7F1E3]">
         <div className="absolute inset-0 bg-cover bg-center opacity-28" style={{ backgroundImage: "url('/header-bg.png')" }} />
         <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,250,238,0.97)_0%,rgba(250,242,220,0.88)_45%,rgba(232,238,235,0.76)_100%)]" />
@@ -1156,7 +1182,7 @@ export default function HalalCertificateApplication() {
                     </div>
                   ))}
                   <div className="lg:col-span-2">
-                    <FileUploadBox label={isRtl ? "التوقيع" : uiLabels.signature} files={data.applicantSignature ? [data.applicantSignature] : []} error={errors.applicantSignature} multiple={false} onChange={(files) => updateField("applicantSignature", files[0] ?? null)} />
+                    <SignaturePad value={signatureDataUrl} isRtl={isRtl} onChange={updateSignature} error={errors.applicantSignature} />
                   </div>
                 </div>
               </SectionGroup>
@@ -1199,7 +1225,7 @@ export default function HalalCertificateApplication() {
                   { label: fieldLabel(applicantFields[0]), value: payload.applicantInformation.applicantName },
                   { label: fieldLabel(applicantFields[1]), value: payload.applicantInformation.applicantJobTitle },
                   { label: fieldLabel(applicantFields[2]), value: payload.applicantInformation.applicationDate },
-                  { label: uiLabels.signature, value: payload.applicantInformation.applicantSignature },
+                  { label: uiLabels.signature, value: signatureDataUrl ? (isRtl ? "تم تسجيل التوقيع الإلكتروني" : "Electronic signature captured") : payload.applicantInformation.applicantSignature },
                   { label: fieldLabel(applicantFields[3]), value: payload.applicantInformation.additionalNotes },
                   { label: isRtl ? "الموافقة على التعهدات" : "Declaration acceptance", value: payload.declarationAccepted ? (isRtl ? "تمت الموافقة" : reviewText.accepted) : (isRtl ? "لم تتم الموافقة" : reviewText.notAccepted) },
                 ]} />

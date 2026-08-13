@@ -28,6 +28,7 @@ import HalalCertificate from "./pages/HalalCertificate";
 import HalalCertificateApplication from "./pages/HalalCertificateApplication";
 import HalalMark from "./pages/HalalMark";
 import FeesAndPaymentPolicy from "./pages/FeesAndPaymentPolicy";
+import ProgramBenefits from "./pages/ProgramBenefits";
 import ApplicationSuccess from "./pages/ApplicationSuccess";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminApplicationPreview from "./pages/AdminApplicationPreview";
@@ -169,6 +170,7 @@ function AppContent() {
             <Route path="/halal-certificate-application" element={<HalalCertificateApplication />} />
             <Route path="/halal-mark" element={<HalalMark />} />
             <Route path="/fees-and-payment-policy" element={<FeesAndPaymentPolicy />} />
+            <Route path="/program-benefits" element={<ProgramBenefits />} />
             <Route path="/halal-certificate-mark" element={<HalalCertificate />} />
             <Route path="/application-submitted" element={<ApplicationSuccess />} />
             <Route path="/admin" element={<AdminDashboard />} />

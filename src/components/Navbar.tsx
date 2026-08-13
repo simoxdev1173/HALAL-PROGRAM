@@ -1,8 +1,8 @@
 ﻿"use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValueEvent, useScroll } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { FormLanguageSwitcher } from "./FormLanguageSwitcher";
 
@@ -26,13 +26,16 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
+  const scrolledRef = useRef(false);
+  const { scrollY } = useScroll();
 
-  // Solid, pronounced shadow on scroll
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const nextScrolled = latest > 10;
+    if (nextScrolled !== scrolledRef.current) {
+      scrolledRef.current = nextScrolled;
+      setScrolled(nextScrolled);
+    }
+  });
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -287,26 +290,26 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
           </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center gap-2 xl:gap-3 z-20 shrink-0">
+          <div className="ms-auto flex shrink-0 items-center gap-2 xl:gap-3 z-20">
           
             <Link
               to="/join-program"
-              className={`${isRtl ? "hidden xl:inline-flex px-4" : "hidden 2xl:inline-flex px-3"} group relative h-[44px] items-center justify-center overflow-hidden whitespace-nowrap rounded-xl border border-[#006747]/70 bg-[linear-gradient(145deg,#009164,#006747)] text-[11px] font-black uppercase tracking-wider text-white shadow-[4px_5px_10px_rgba(0,0,0,0.16),inset_1px_1px_2px_rgba(255,255,255,0.35),inset_-2px_-2px_4px_rgba(0,0,0,0.24),var(--shadow-ind-card)] transition-all hover:-translate-y-0.5 hover:shadow-[5px_7px_14px_rgba(0,0,0,0.18),inset_1px_1px_2px_rgba(255,255,255,0.4),inset_-2px_-2px_4px_rgba(0,0,0,0.24),var(--shadow-ind-floating)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/30 active:translate-y-[1px] active:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.22)]`}
+              className={`${isRtl ? "hidden xl:inline-flex px-4" : "hidden 2xl:inline-flex px-3"} h-[44px] items-center justify-center whitespace-nowrap rounded-xl border border-[#007A55] bg-[#007A55] text-[11px] font-black uppercase tracking-wider text-white transition-colors duration-200 hover:border-[#006747] hover:bg-[#006747] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#CA8A04]/30 active:bg-[#005B3F]`}
             >
-              <span className="absolute inset-x-2 top-1 h-2 rounded-full bg-white/20" />
-              <span className="relative z-10">{d.joinProgramCta}</span>
+              <span>{d.joinProgramCta}</span>
             </Link>
             
             {/* Search Placeholder Button (Recessed Well) */}
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className={`hidden sm:flex items-center gap-3 px-3 py-2.5 ind-recessed group cursor-text ${isRtl ? "max-w-[240px] xl:min-w-[210px] xl:px-4" : "w-12 justify-center 2xl:w-auto 2xl:min-w-[210px] 2xl:max-w-[240px] 2xl:justify-start 2xl:px-4"}`}
+              aria-label={d.searchModalTitle}
+              className={`hidden h-[44px] min-w-0 items-center gap-3 ind-recessed group cursor-text sm:flex ${isRtl ? "w-44 justify-start px-4 md:w-64 lg:w-44 xl:w-60" : "w-44 justify-start px-4 md:w-64 lg:w-80 xl:w-12 xl:justify-center xl:px-3 2xl:w-60 2xl:justify-start 2xl:px-4"}`}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-400 group-hover:text-[#007A55] transition-colors">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
-              <span className={`${isRtl ? "hidden xl:block" : "hidden 2xl:block"} min-w-0 flex-1 truncate text-sm font-medium text-start text-stone-500`}>
+              <span className={`${isRtl ? "block" : "block xl:hidden 2xl:block"} min-w-0 flex-1 truncate text-sm font-medium text-start text-stone-500`}>
                 {d.searchPlaceholder}
               </span>
             </button>
@@ -314,6 +317,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             {/* Mobile Search Button */}
             <button 
               onClick={() => setIsSearchOpen(true)}
+              aria-label={d.searchModalTitle}
               className="sm:hidden p-3 bg-white shadow-[var(--shadow-ind-card)] text-stone-600 rounded-md active:shadow-[var(--shadow-ind-pressed)] active:translate-y-[2px] transition-all"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -324,6 +328,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
 
             {/* Language Switcher (3D Physical Toggle) */}
             <FormLanguageSwitcher className="hidden sm:inline-flex" />
+            <FormLanguageSwitcher compact className="inline-flex sm:hidden" />
             <img
               src="/aidsmo.png"
               alt="AIDSMO"
@@ -437,7 +442,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
             animate={{ opacity: 1, x: "0%" }}
             exit={{ opacity: 0, x: isRtl ? "-100%" : "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-[100] bg-[#FAF9F6] lg:hidden flex flex-col"
+            className={`fixed inset-0 z-[100] bg-[#FAF9F6] flex flex-col ${isRtl ? "lg:hidden" : "xl:hidden"}`}
             dir={isRtl ? "rtl" : "ltr"}
           >
             {/* Mobile Header */}
@@ -525,18 +530,18 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, setLang }) => {
                 ))}
               </ul>
 
-              {/* Mobile Language Switcher (Physical Switch) */}
+              {/* Mobile Language Switcher */}
               <motion.div 
                 initial={{ opacity: 0 }} 
                 animate={{ opacity: 1 }} 
                 transition={{ delay: 0.4 }}
-                className="mt-8 bg-stone-100 p-2 rounded-lg border border-stone-300 ind-recessed flex"
+                className="mt-8 flex rounded-lg border border-stone-300 bg-stone-100 p-1"
               >
                 {languages.map((l) => (
                   <button
                     key={l.code}
                     onClick={() => { setLang(l.code); setIsMobileMenuOpen(false); }}
-                    className={`flex-1 py-3.5 rounded-md text-sm font-black transition-all ${lang === l.code ? 'bg-white text-[#007A55] shadow-[var(--shadow-ind-card)]' : 'text-stone-500 hover:text-stone-700'}`}
+                    className={`flex-1 rounded-md py-3.5 text-sm font-black transition-colors ${lang === l.code ? 'bg-[#007A55] text-white' : 'text-stone-500 hover:bg-white/70 hover:text-stone-700'}`}
                   >
                     {l.name}
                   </button>

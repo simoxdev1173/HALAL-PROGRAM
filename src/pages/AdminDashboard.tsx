@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
+import type { FormEvent, ReactNode } from "react";
 import {
   AlertTriangle,
   ArrowUpDown,
@@ -49,6 +49,9 @@ import {
   fetchAdminUsers,
   createAdminUserApi,
   updateAdminUserApi,
+  uploadResourceLogo,
+  createDesignationBodyApi,
+  createAppointedBodyApi,
 } from "../lib/api";
 import type { AdminUser, ResourceKind, ActionLogEntry, AdminUserRecord } from "../lib/api";
 import { CountryFlag } from "../lib/countryFlags";
@@ -84,6 +87,11 @@ type ResourceConfig = {
   emptyTitle: string;
   emptyAction: string;
   filters: { key: string; label: string; options: { value: string; label: string }[] }[];
+  registryTabs?: {
+    requestsLabel: string;
+    registeredLabel: string;
+    registeredColumns: TableColumn[];
+  };
 };
 
 type ApiListResponse = {
@@ -163,6 +171,20 @@ const resourceConfigs: Record<ResourceSection, ResourceConfig> = {
     emptyTitle: "لا توجد جهات تعيين مطابقة للبحث الحالي",
     emptyAction: "إضافة جهة تعيين",
     filters: [{ key: "status", label: "الحالة", options: allStatuses }],
+    registryTabs: {
+      requestsLabel: "طلبات الانضمام",
+      registeredLabel: "الجهات المسجّلة",
+      registeredColumns: [
+        { key: "logo", label: "الشعار" },
+        { key: "name", label: "اسم الجهة" },
+        { key: "country", label: "الدولة" },
+        { key: "email", label: "البريد الإلكتروني" },
+        { key: "phone", label: "الهاتف" },
+        { key: "website", label: "الموقع الإلكتروني" },
+        { key: "joinedAt", label: "تاريخ التسجيل" },
+        { key: "status", label: "الحالة" },
+      ],
+    },
   },
   "appointed-bodies": {
     section: "appointed-bodies",
@@ -184,6 +206,19 @@ const resourceConfigs: Record<ResourceSection, ResourceConfig> = {
       { key: "designationBody", label: "جهة التعيين", options: [{ value: "all", label: "كل جهات التعيين" }] },
       { key: "status", label: "الحالة", options: allStatuses },
     ],
+    registryTabs: {
+      requestsLabel: "طلبات التسجيل",
+      registeredLabel: "الجهات المسجّلة",
+      registeredColumns: [
+        { key: "logo", label: "الشعار" },
+        { key: "name", label: "اسم الجهة" },
+        { key: "country", label: "الدولة" },
+        { key: "designationBodyName", label: "جهة التعيين الأم" },
+        { key: "scope", label: "نطاق الاعتماد" },
+        { key: "appointedAt", label: "تاريخ التسجيل" },
+        { key: "status", label: "الحالة" },
+      ],
+    },
   },
   suppliers: {
     section: "suppliers",
@@ -340,7 +375,14 @@ function AdminLogin({ onLogin }: { onLogin: (user: AdminUser) => void }) {
   );
 }
 
-function useAdminList(config?: ResourceConfig, page = 1, search = "", filters: Record<string, string> = {}, reloadToken = 0) {
+function useAdminList(
+  config?: ResourceConfig,
+  page = 1,
+  search = "",
+  filters: Record<string, string> = {},
+  reloadToken = 0,
+  view?: "requests" | "registered"
+) {
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -350,6 +392,7 @@ function useAdminList(config?: ResourceConfig, page = 1, search = "", filters: R
     const controller = new AbortController();
     const params = new URLSearchParams({ page: String(page), limit: "20" });
     if (search) params.set("search", search);
+    if (view) params.set("view", view);
     Object.entries(filters).forEach(([key, value]) => {
       if (value && value !== "all") params.set(key, value);
     });
@@ -366,7 +409,7 @@ function useAdminList(config?: ResourceConfig, page = 1, search = "", filters: R
       })
       .finally(() => setIsLoading(false));
     return () => controller.abort();
-  }, [config, filters, page, search, reloadToken]);
+  }, [config, filters, page, search, reloadToken, view]);
 
   return { rows, total, isLoading };
 }
@@ -583,23 +626,246 @@ function AuditLine({ item }: { item: Record<string, unknown> }) {
 
 const ACTIONABLE_RESOURCES = new Set<string>(["designation-bodies", "appointed-bodies", "suppliers", "certificates"]);
 
+type EntityCreationResource = "designation-bodies" | "appointed-bodies";
+type DesignationOption = { id: string; name: string; country: string; offline?: boolean };
+
+function AddEntityPanel({
+  resource,
+  onClose,
+  onCreated,
+  notify,
+}: {
+  resource: EntityCreationResource;
+  onClose: () => void;
+  onCreated: () => void;
+  notify: NotifyFn;
+}) {
+  const isDesignationBody = resource === "designation-bodies";
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [logo, setLogo] = useState<File | null>(null);
+  const [designationOptions, setDesignationOptions] = useState<DesignationOption[]>([]);
+  const [form, setForm] = useState({
+    nameAr: "",
+    nameEn: "",
+    name: "",
+    country: "",
+    email: "",
+    phone: "",
+    website: "",
+    address: "",
+    bodyType: "GOVERNMENTAL" as "GOVERNMENTAL" | "NON_GOVERNMENTAL",
+    headName: "",
+    contactOfficerName: "",
+    designationBodyId: "",
+    accreditationScope: "",
+  });
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isSubmitting) onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isSubmitting, onClose]);
+
+  useEffect(() => {
+    if (isDesignationBody) return;
+    const controller = new AbortController();
+    fetch("/api/admin/designation-bodies?view=registered&limit=100", { signal: controller.signal })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("تعذر تحميل جهات التعيين")))
+      .then((payload: ApiListResponse) => {
+        const options = (payload.data ?? []).filter((row) => !row.offline).map((row) => ({
+          id: String(row.id),
+          name: getValue(row, "name"),
+          country: getValue(row, "country"),
+        }));
+        setDesignationOptions(options);
+      })
+      .catch((requestError) => {
+        if ((requestError as Error).name !== "AbortError") setDesignationOptions([]);
+      });
+    return () => controller.abort();
+  }, [isDesignationBody]);
+
+  const update = (key: keyof typeof form, value: string) => setForm((current) => ({ ...current, [key]: value }));
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+    try {
+      const result = isDesignationBody
+        ? await createDesignationBodyApi({
+            nameAr: form.nameAr.trim(),
+            nameEn: form.nameEn.trim(),
+            country: form.country.trim(),
+            email: form.email.trim(),
+            phone: form.phone.trim(),
+            website: form.website.trim(),
+            address: form.address.trim(),
+            bodyType: form.bodyType,
+            headName: form.headName.trim(),
+            contactOfficerName: form.contactOfficerName.trim(),
+          })
+        : await createAppointedBodyApi({
+            designationBodyId: form.designationBodyId,
+            name: form.name.trim(),
+            country: form.country.trim(),
+            accreditationScope: form.accreditationScope.trim(),
+          });
+
+      if (!result.ok) {
+        setError(result.message);
+        return;
+      }
+
+      if (logo) {
+        const logoResult = await uploadResourceLogo(resource, result.data.id, logo);
+        if (!logoResult.ok) notify(`تم حفظ الجهة، لكن تعذر رفع الشعار: ${logoResult.message}`, "warning");
+      }
+      notify(isDesignationBody ? "تمت إضافة جهة التعيين إلى السجل" : "تمت إضافة الجهة المعيّنة إلى السجل");
+      onCreated();
+    } catch {
+      setError("تعذر حفظ الجهة. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const inputClass = "mt-1.5 h-11 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm font-bold text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100";
+  const labelClass = "text-xs font-black text-stone-600";
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 p-3 backdrop-blur-sm sm:p-6" role="dialog" aria-modal="true" aria-labelledby="add-entity-title">
+      <button type="button" className="absolute inset-0 cursor-default" onClick={() => !isSubmitting && onClose()} aria-label="إغلاق" />
+      <aside className="relative flex max-h-[calc(100dvh-1.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-white/60 bg-[#FAF9F6] shadow-[0_32px_100px_rgba(15,23,42,.28)] sm:max-h-[calc(100dvh-3rem)]" dir="rtl">
+        <header className="flex items-start justify-between gap-4 border-b border-stone-200 bg-white px-5 py-4 sm:px-7">
+          <div>
+            <p className="text-[11px] font-black text-[#007A55]">إضافة مباشرة إلى السجل</p>
+            <h2 id="add-entity-title" className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">
+              {isDesignationBody ? "إضافة جهة تعيين" : "إضافة جهة معيّنة"}
+            </h2>
+            <p className="mt-1 text-xs font-bold leading-6 text-stone-500">
+              {isDesignationBody ? "ستُحفظ الجهة كجهة معتمدة ومسجّلة." : "اربط الجهة بجهة تعيين مسجّلة وحدد نطاق اعتمادها."}
+            </p>
+          </div>
+          <button type="button" onClick={onClose} disabled={isSubmitting} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:text-slate-950" aria-label="إغلاق"><X size={18} /></button>
+        </header>
+
+        <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col">
+          <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-7">
+            <div className="grid gap-4 sm:grid-cols-2">
+              {isDesignationBody ? (
+                <>
+                  <label className={labelClass}>اسم الجهة بالعربية *<input required value={form.nameAr} onChange={(event) => update("nameAr", event.target.value)} className={inputClass} /></label>
+                  <label className={labelClass}>اسم الجهة بالإنجليزية<input dir="ltr" value={form.nameEn} onChange={(event) => update("nameEn", event.target.value)} className={inputClass} /></label>
+                  <label className={labelClass}>الدولة *<input required value={form.country} onChange={(event) => update("country", event.target.value)} className={inputClass} /></label>
+                  <label className={labelClass}>نوع الجهة *
+                    <select value={form.bodyType} onChange={(event) => update("bodyType", event.target.value)} className={inputClass}>
+                      <option value="GOVERNMENTAL">حكومية</option>
+                      <option value="NON_GOVERNMENTAL">غير حكومية</option>
+                    </select>
+                  </label>
+                  <label className={labelClass}>البريد الإلكتروني *<input required type="email" dir="ltr" value={form.email} onChange={(event) => update("email", event.target.value)} className={inputClass} /></label>
+                  <label className={labelClass}>رقم الهاتف *<input required dir="ltr" value={form.phone} onChange={(event) => update("phone", event.target.value)} className={inputClass} /></label>
+                  <label className={labelClass}>الموقع الإلكتروني<input type="url" dir="ltr" placeholder="https://" value={form.website} onChange={(event) => update("website", event.target.value)} className={inputClass} /></label>
+                  <label className={labelClass}>العنوان<input value={form.address} onChange={(event) => update("address", event.target.value)} className={inputClass} /></label>
+                  <label className={labelClass}>اسم رئيس الجهة<input value={form.headName} onChange={(event) => update("headName", event.target.value)} className={inputClass} /></label>
+                  <label className={labelClass}>مسؤول التواصل<input value={form.contactOfficerName} onChange={(event) => update("contactOfficerName", event.target.value)} className={inputClass} /></label>
+                </>
+              ) : (
+                <>
+                  <label className={`${labelClass} sm:col-span-2`}>جهة التعيين الأم *
+                    <select
+                      required
+                      value={form.designationBodyId}
+                      onChange={(event) => {
+                        const option = designationOptions.find((item) => item.id === event.target.value);
+                        update("designationBodyId", event.target.value);
+                        if (option && !form.country) update("country", option.country);
+                      }}
+                      className={inputClass}
+                    >
+                      <option value="">اختر جهة التعيين</option>
+                      {designationOptions.map((option) => <option key={option.id} value={option.id}>{option.name} — {option.country}</option>)}
+                    </select>
+                    {designationOptions.length === 0 && <span className="mt-2 block text-[11px] font-bold text-amber-700">أضف جهة تعيين مسجّلة أولًا قبل إضافة جهة معيّنة.</span>}
+                  </label>
+                  <label className={labelClass}>اسم الجهة *<input required value={form.name} onChange={(event) => update("name", event.target.value)} className={inputClass} /></label>
+                  <label className={labelClass}>الدولة *<input required value={form.country} onChange={(event) => update("country", event.target.value)} className={inputClass} /></label>
+                  <label className={`${labelClass} sm:col-span-2`}>نطاق الاعتماد *<textarea required rows={4} value={form.accreditationScope} onChange={(event) => update("accreditationScope", event.target.value)} className="mt-1.5 w-full resize-y rounded-lg border border-stone-200 bg-white px-3 py-2.5 text-sm font-bold leading-6 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" /></label>
+                </>
+              )}
+
+              <label className={`${labelClass} sm:col-span-2`}>
+                شعار الجهة (اختياري)
+                <span className="mt-1.5 flex min-h-20 cursor-pointer items-center justify-center rounded-lg border border-dashed border-stone-300 bg-white px-4 text-center text-xs font-bold text-stone-500 hover:border-emerald-400 hover:text-[#007A55]">
+                  {logo ? logo.name : "اختر صورة PNG أو JPG أو WEBP أو SVG — بحد أقصى 3MB"}
+                  <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" onChange={(event) => setLogo(event.target.files?.[0] ?? null)} />
+                </span>
+              </label>
+            </div>
+
+            {error && <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{error}</p>}
+          </div>
+
+          <footer className="flex flex-col-reverse gap-2 border-t border-stone-200 bg-white px-5 py-4 sm:flex-row sm:gap-3 sm:px-7">
+            <button type="submit" disabled={isSubmitting || (!isDesignationBody && designationOptions.length === 0)} className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-[#007A55] px-5 text-sm font-black text-white transition hover:bg-[#006747] active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-45">
+              <Save size={17} /> {isSubmitting ? "جاري الحفظ..." : "حفظ الجهة"}
+            </button>
+            <button type="button" onClick={onClose} disabled={isSubmitting} className="h-11 rounded-lg border border-stone-200 bg-white px-5 text-sm font-black text-slate-700 hover:bg-stone-50">إلغاء</button>
+          </footer>
+        </form>
+      </aside>
+    </div>
+  );
+}
+
 function ResourcePage({ config, notify, confirm, adminUserId }: { config: ResourceConfig; notify: NotifyFn; confirm: ConfirmFn; adminUserId?: string }) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [listView, setListView] = useState<"requests" | "registered">("requests");
   const [sortKey, setSortKey] = useState(config.columns[0]?.key ?? "name");
   const [filters, setFilters] = useState<Record<string, string>>(() => Object.fromEntries(config.filters.map((filter) => [filter.key, "all"])));
   const [drawerRow, setDrawerRow] = useState<Record<string, unknown> | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
-  const { rows, total, isLoading } = useAdminList(config, page, search, filters, reloadToken);
+  const activeColumns = config.registryTabs && listView === "registered" ? config.registryTabs.registeredColumns : config.columns;
+  const { rows, total, isLoading } = useAdminList(config, page, search, filters, reloadToken, config.registryTabs ? listView : undefined);
   const sortedRows = useMemo(() => [...rows].sort((a, b) => getValue(a, sortKey).localeCompare(getValue(b, sortKey), "ar")), [rows, sortKey]);
 
+  useEffect(() => {
+    setSearch("");
+    setPage(1);
+    setListView("requests");
+    setCreateOpen(false);
+    setSortKey(config.columns[0]?.key ?? "name");
+    setFilters(Object.fromEntries(config.filters.map((filter) => [filter.key, "all"])));
+  }, [config]);
+
   const resource = ACTIONABLE_RESOURCES.has(config.resource) ? (config.resource as ResourceKind) : undefined;
+  const canCreateEntity = config.resource === "designation-bodies" || config.resource === "appointed-bodies";
   const handleView = (row: Record<string, unknown>) => {
     if (config.resource === "suppliers" || config.resource === "designation-bodies") {
       window.open(`/admin/application-preview/${config.resource}/${encodeURIComponent(String(row.id))}`, "_blank", "noopener,noreferrer");
       return;
     }
     setDrawerRow(row);
+  };
+  const handleLogoUpload = async (row: Record<string, unknown>, file: File) => {
+    if (config.resource !== "designation-bodies" && config.resource !== "appointed-bodies") return;
+    if (row.offline) {
+      notify("يجب مزامنة السجل مع قاعدة البيانات قبل رفع الشعار", "warning");
+      return;
+    }
+    const result = await uploadResourceLogo(config.resource, String(row.id), file);
+    if (!result.ok) {
+      notify(result.message, "warning");
+      return;
+    }
+    notify("تم تحديث شعار الجهة");
+    setReloadToken((value) => value + 1);
   };
 
   return (
@@ -613,11 +879,36 @@ function ResourcePage({ config, notify, confirm, adminUserId }: { config: Resour
               <span className="text-xs font-bold text-stone-500">{total} سجل</span>
             </div>
           </div>
-          <button type="button" onClick={() => notify("هذه الميزة غير متاحة بعد")} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-[#007A55] px-4 text-xs font-black text-white hover:bg-[#006747]">
+          <button type="button" onClick={() => canCreateEntity ? setCreateOpen(true) : notify("هذه الميزة غير متاحة بعد")} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-[#007A55] px-4 text-xs font-black text-white hover:bg-[#006747]">
             {config.primaryAction?.startsWith("تصدير") ? <Download size={16} /> : <Plus size={16} />}
             {config.primaryAction}
           </button>
         </div>
+        {config.registryTabs && (
+          <div className="mt-3 inline-flex max-w-full overflow-x-auto rounded-lg border border-stone-200 bg-white p-1" role="tablist" aria-label={`تصنيف ${config.title}`}>
+            {[
+              { value: "requests" as const, label: config.registryTabs.requestsLabel, icon: FileClock },
+              { value: "registered" as const, label: config.registryTabs.registeredLabel, icon: BadgeCheck },
+            ].map(({ value, label, icon: Icon }) => (
+              <button
+                key={value}
+                type="button"
+                role="tab"
+                aria-selected={listView === value}
+                onClick={() => {
+                  setListView(value);
+                  setPage(1);
+                  setFilters(Object.fromEntries(config.filters.map((filter) => [filter.key, "all"])));
+                  const columns = value === "registered" ? config.registryTabs?.registeredColumns : config.columns;
+                  setSortKey(columns?.find((column) => column.key !== "logo")?.key ?? "name");
+                }}
+                className={`inline-flex h-9 shrink-0 items-center gap-2 rounded-md px-4 text-xs font-black transition-colors ${listView === value ? "bg-slate-950 text-white" : "text-stone-500 hover:bg-stone-50 hover:text-slate-950"}`}
+              >
+                <Icon size={15} /> {label}
+              </button>
+            ))}
+          </div>
+        )}
         {config.section === "suppliers" && (
           <div className="mt-3 inline-flex max-w-full overflow-x-auto rounded-lg border border-stone-200 bg-white p-1" role="tablist" aria-label="نوع طلب الحلال">
             {[
@@ -663,11 +954,11 @@ function ResourcePage({ config, notify, confirm, adminUserId }: { config: Resour
         {isLoading ? (
           <div className="flex min-h-[180px] items-center justify-center text-sm font-black text-stone-500">جاري تحميل البيانات...</div>
         ) : sortedRows.length === 0 ? (
-          <div className="p-3"><EmptyState title={config.emptyTitle} action={config.emptyAction} onAction={() => notify("لا توجد بيانات حالياً")} /></div>
+          <div className="p-3"><EmptyState title={config.emptyTitle} action={config.emptyAction} onAction={() => canCreateEntity ? setCreateOpen(true) : notify("لا توجد بيانات حالياً")} /></div>
         ) : (
           <SimpleTable
             rows={sortedRows}
-            columns={config.columns}
+            columns={activeColumns}
             sortKey={sortKey}
             onSort={setSortKey}
             onView={handleView}
@@ -676,10 +967,10 @@ function ResourcePage({ config, notify, confirm, adminUserId }: { config: Resour
             resource={resource}
             adminUserId={adminUserId}
             onActed={() => setReloadToken((value) => value + 1)}
+            onLogoUpload={config.registryTabs && listView === "registered" ? handleLogoUpload : undefined}
           />
         )}
-        <div className="flex items-center justify-between border-t border-stone-200 bg-stone-50 px-3 py-2.5">
-          <p className="text-xs font-black text-stone-500">20 سجل في الصفحة · الإجمالي {total}</p>
+        <div className="flex items-center justify-end border-t border-stone-200 bg-stone-50 px-3 py-2.5">
           <div className="flex gap-2">
             <button type="button" disabled={page === 1} onClick={() => setPage((value) => Math.max(1, value - 1))} className="flex h-8 w-8 items-center justify-center rounded-lg border border-stone-200 bg-white text-slate-700 disabled:opacity-40"><ChevronRight size={16} /></button>
             <button type="button" disabled={page * 20 >= total} onClick={() => setPage((value) => value + 1)} className="flex h-8 w-8 items-center justify-center rounded-lg border border-stone-200 bg-white text-slate-700 disabled:opacity-40"><ChevronLeft size={16} /></button>
@@ -688,6 +979,20 @@ function ResourcePage({ config, notify, confirm, adminUserId }: { config: Resour
       </section>
 
       {drawerRow && <DetailDrawer row={drawerRow} title={config.title} onClose={() => setDrawerRow(null)} />}
+      {createOpen && canCreateEntity && (
+        <AddEntityPanel
+          resource={config.resource as EntityCreationResource}
+          notify={notify}
+          onClose={() => setCreateOpen(false)}
+          onCreated={() => {
+            setCreateOpen(false);
+            setListView("registered");
+            setPage(1);
+            setFilters(Object.fromEntries(config.filters.map((filter) => [filter.key, "all"])));
+            setReloadToken((value) => value + 1);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -747,6 +1052,7 @@ function SimpleTable({
   resource,
   adminUserId,
   onActed,
+  onLogoUpload,
 }: {
   rows: Record<string, unknown>[];
   columns: TableColumn[];
@@ -758,8 +1064,10 @@ function SimpleTable({
   resource?: ResourceKind;
   adminUserId?: string;
   onActed?: (id: string) => void;
+  onLogoUpload?: (row: Record<string, unknown>, file: File) => Promise<void>;
 }) {
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [logoBusyId, setLogoBusyId] = useState<string | null>(null);
 
   const runAction = (id: string, action: RowAction) => {
     const doIt = async () => {
@@ -797,12 +1105,40 @@ function SimpleTable({
             const status = getValue(row, "status");
             const actions = getRowActions(resource, status);
             const isBusy = busyId === id;
+            const logoUrl = getValue(row, "logoUrl");
+            const entityName = getValue(row, "name");
             return (
               <tr key={id} className="border-b border-stone-100 last:border-b-0 hover:bg-[#FAF9F6]">
                 {columns.map((column) => (
                   <td key={column.key} className="whitespace-nowrap px-3 py-3 text-xs font-bold text-slate-700 sm:px-4 sm:text-sm">
                     {column.key === "status" ? (
                       <StatusBadge status={status as StatusKind} />
+                    ) : column.key === "logo" ? (
+                      <label className={`group relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-stone-200 bg-stone-50 ${onLogoUpload ? "cursor-pointer hover:border-emerald-400" : ""}`} title={onLogoUpload ? "رفع أو تغيير شعار الجهة" : "شعار الجهة"}>
+                        {logoUrl ? (
+                          <img src={logoUrl} alt={`شعار ${entityName}`} className="h-full w-full object-contain p-1" />
+                        ) : (
+                          <Building2 size={18} className="text-stone-400 transition-colors group-hover:text-[#007A55]" />
+                        )}
+                        {onLogoUpload && (
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                            disabled={logoBusyId === id}
+                            className="sr-only"
+                            onChange={(event) => {
+                              const input = event.currentTarget;
+                              const file = input.files?.[0];
+                              if (!file) return;
+                              setLogoBusyId(id);
+                              void onLogoUpload(row, file).finally(() => {
+                                setLogoBusyId(null);
+                                input.value = "";
+                              });
+                            }}
+                          />
+                        )}
+                      </label>
                     ) : column.key === "country" ? (
                       <CountryFlag country={getValue(row, column.key)} />
                     ) : (
@@ -845,6 +1181,7 @@ function SimpleTable({
 }
 
 const detailFieldLabels: Record<string, string> = {
+  logoUrl: "شعار الجهة",
   requestNumber: "رقم الطلب",
   name: "اسم المنشأة",
   purpose: "الغرض من الطلب",
@@ -893,8 +1230,9 @@ function DetailDrawer({ row, title, onClose }: { row: Record<string, unknown>; t
   const fields = Object.entries(row).filter(([key]) => !["id", "createdAt", "updatedAt", "attachments"].includes(key));
   const attachments = Array.isArray(row.attachments) ? row.attachments as DashboardAttachment[] : [];
   return (
-    <div className="fixed inset-0 z-[90] bg-slate-950/40 backdrop-blur-sm" role="dialog" aria-modal="true">
-      <aside className="fixed bottom-0 right-0 top-0 w-full max-w-xl overflow-y-auto border-l border-stone-200 bg-white p-6 shadow-[var(--shadow-ind-floating)]">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/40 p-3 backdrop-blur-sm sm:p-6" role="dialog" aria-modal="true">
+      <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="إغلاق التفاصيل" />
+      <aside className="relative max-h-[calc(100dvh-1.5rem)] w-full max-w-3xl overflow-y-auto rounded-2xl border border-white/60 bg-white p-4 shadow-[0_32px_100px_rgba(15,23,42,.28)] sm:max-h-[calc(100dvh-3rem)] sm:p-6">
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[.14em] text-[#007A55]">تفاصيل السجل</p>
@@ -1410,7 +1748,7 @@ function ConfirmModal({ action, onClose, onConfirm }: { action: ConfirmAction; o
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600"><AlertTriangle size={24} /></div>
         <h2 className="mt-5 text-2xl font-black text-slate-950">{action.title}</h2>
         <p className="mt-3 text-sm font-bold leading-7 text-stone-600">{action.body}</p>
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
           <button type="button" onClick={onConfirm} className="h-11 flex-1 rounded-xl bg-red-600 text-sm font-black text-white">{action.confirmLabel}</button>
           <button type="button" onClick={onClose} className="h-11 flex-1 rounded-xl border border-stone-200 bg-white text-sm font-black text-slate-700">إلغاء</button>
         </div>
@@ -1522,9 +1860,9 @@ export default function AdminDashboard() {
         </div>
       </section>
 
-      <div className="fixed bottom-5 left-5 z-[110] space-y-2">
+      <div className="fixed bottom-24 left-3 right-3 z-[110] space-y-2 sm:left-5 sm:right-auto sm:max-w-md lg:bottom-5">
         {toasts.map((toast) => (
-          <div key={toast.id} className={`flex min-h-12 items-center gap-3 rounded-xl border bg-white px-4 py-3 text-sm font-black shadow-[var(--shadow-ind-floating)] ${toast.tone === "success" ? "border-emerald-200 text-emerald-700" : "border-amber-200 text-amber-700"}`}>
+          <div key={toast.id} className={`flex min-h-12 w-full items-center gap-3 rounded-xl border bg-white px-4 py-3 text-sm font-black shadow-[var(--shadow-ind-floating)] ${toast.tone === "success" ? "border-emerald-200 text-emerald-700" : "border-amber-200 text-amber-700"}`}>
             {toast.tone === "success" ? <Check size={18} /> : <AlertTriangle size={18} />}
             {toast.text}
             {toast.onUndo && (

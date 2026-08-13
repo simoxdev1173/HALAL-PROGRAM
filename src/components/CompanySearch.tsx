@@ -4,24 +4,35 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FileText, Building, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 const CompanySearch = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const isRtl = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("ar");
   const [searchType, setSearchType] = useState<"license" | "company">("license");
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [validationError, setValidationError] = useState("");
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query || (searchType === "company" && query.trim().length < 4)) return;
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      setValidationError(isRtl ? "أدخل رقم الترخيص أو اسم الشركة." : "Enter a license number or company name.");
+      return;
+    }
+    if (searchType === "company" && trimmedQuery.length < 4) {
+      setValidationError(isRtl ? "أدخل أربعة أحرف على الأقل من اسم الشركة." : "Enter at least four characters from the company name.");
+      return;
+    }
     
     setIsSearching(true);
     const searchParams = new URLSearchParams({
       type: searchType,
-      q: query.trim()
+      q: trimmedQuery
     });
-    window.location.href = `/certificate-verification?${searchParams.toString()}`;
+    navigate(`/certificate-verification?${searchParams.toString()}`);
   };
 
   const isSearchDisabled = !query || (searchType === "company" && query.trim().length < 4) || isSearching;
@@ -84,7 +95,7 @@ const CompanySearch = () => {
                     <button
                       key={tab.id}
                       type="button"
-                      onClick={() => { setSearchType(tab.id); setQuery(""); }}
+                      onClick={() => { setSearchType(tab.id); setQuery(""); setValidationError(""); }}
                       className={`flex-1 flex items-center justify-center gap-2 py-2.5 lg:py-3 rounded-lg lg:rounded-xl text-[11px] lg:text-sm font-bold transition-all duration-300 relative z-10 cursor-pointer ${
                         isActive ? "text-[#007A55]" : "text-slate-400 hover:text-slate-600"
                       }`}
@@ -111,7 +122,7 @@ const CompanySearch = () => {
                 <input
                   type="text"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => { setQuery(e.target.value); setValidationError(""); }}
                   placeholder={searchType === "license" ? t("search.placeholders.license") : t("search.placeholders.company")}
                   className={`w-full h-12 lg:h-14 bg-transparent outline-none text-slate-900 font-bold placeholder:text-slate-400 text-sm lg:text-base xl:text-lg transition-all ${isRtl ? "pr-4 pl-14 lg:pl-16" : "pl-4 pr-14 lg:pr-16"}`}
                 />
@@ -129,6 +140,7 @@ const CompanySearch = () => {
                   )}
                 </button>
               </form>
+              {validationError && <p className="mt-2 px-1 text-xs font-bold text-rose-600" role="alert">{validationError}</p>}
             </div>
             
           </motion.div>

@@ -40,6 +40,10 @@ function value(input: unknown, empty = "-") {
   return empty;
 }
 
+function printableImage(input: unknown) {
+  return typeof input === "string" && input.startsWith("data:image/") ? input : "";
+}
+
 function isYes(input: unknown) {
   const normalized = String(input ?? "").trim().toLocaleLowerCase();
   return normalized === "yes" || normalized === "نعم" || normalized === "ù†ø¹ù…";
@@ -177,12 +181,26 @@ export function CertificateApplicationPrintDocument({ session }: Props) {
             <ul>{commitments.map((commitment) => <li key={commitment}>{commitment}</li>)}</ul>
           </section>
 
+          <section className="certificate-print-declaration">
+            <Check checked={session.data.declarationAccepted} />
+            <span>أقر بأنني قرأت جميع المعلومات والتعهدات الواردة أعلاه، وأوافق على الالتزام بها، وأؤكد صحة البيانات والوثائق المقدمة في هذا الطلب.</span>
+          </section>
+
           <table className="join-print-table certificate-print-signature">
             <tbody>
               <tr><td>اسم مقدم الطلب:</td><td><span className="join-print-value">{value(applicant.applicantName)}</span></td></tr>
               <tr><td>المسمى الوظيفي:</td><td><span className="join-print-value">{value(applicant.applicantJobTitle)}</span></td></tr>
               <tr><td>التاريخ:</td><td><span className="join-print-value">{value(applicant.applicationDate)}</span></td></tr>
-              <tr><td>التوقيع:</td><td><span className="join-print-value">{value(applicant.applicantSignature, "غير مرفق")}</span></td></tr>
+              <tr className="certificate-print-signature__drawing-row">
+                <td>التوقيع الإلكتروني:</td>
+                <td>
+                  {printableImage(applicant.applicantSignature) ? (
+                    <img className="certificate-print-signature__drawing" src={printableImage(applicant.applicantSignature)} alt="التوقيع الإلكتروني" />
+                  ) : (
+                    <span className="join-print-value">{value(applicant.applicantSignature, "غير مرفق")}</span>
+                  )}
+                </td>
+              </tr>
             </tbody>
           </table>
 

@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ChatbotWidget } from "../components/ChatbotWidget";
 import { FormLanguageSwitcher } from "../components/FormLanguageSwitcher";
+import { SignaturePad, signatureDataUrlToFile } from "../components/SignaturePad";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { submitDesignationBodyApplication } from "../lib/api";
 import { JOIN_PROGRAM_PRINT_SESSION_KEY } from "../lib/joinProgramPrint";
@@ -32,6 +33,7 @@ type ReviewGroup = {
 };
 
 const STORAGE_KEY = "arab-halal-join-application-draft-v1";
+const SIGNATURE_STORAGE_KEY = "arab-halal-join-program-signature-v1";
 const YES = "نعم";
 const NO = "لا";
 
@@ -218,7 +220,7 @@ const joinEnglish = {
     botHelp: "I can help you fill out this form step by step.",
     required: "This field is required.",
     invalidEmail: "Please enter a valid email address.",
-    invalidUrl: "Please enter a URL that starts with http or https.",
+    invalidUrl: "Please enter a valid website, such as example.org.",
     invalidPhone: "Please enter a valid phone number.",
     successTitle: "Your application has been submitted successfully",
     successText: "The Arab Halal Program team will contact you by email soon.",
@@ -289,7 +291,7 @@ const organizationFields: FieldConfig[] = [
   { key: "country", label: "الدولة", required: true },
   { key: "phone", label: "رقم الهاتف", type: "tel", required: true },
   { key: "fax", label: "رقم الفاكس", type: "tel" },
-  { key: "website", label: "الموقع الإلكتروني", type: "url", placeholder: "https://example.org" },
+  { key: "website", label: "الموقع الإلكتروني", type: "url", placeholder: "example.org" },
   { key: "email", label: "البريد الإلكتروني", type: "email", required: true },
 ];
 
@@ -345,12 +347,17 @@ const isFilled = (value: FormValue) => {
 };
 
 const normalize = (value: FormValue) => (typeof value === "string" ? value.trim() : value);
+const normalizeWebsite = (value: FormValue) => {
+  const website = typeof value === "string" ? value.trim() : "";
+  if (!website) return "";
+  return /^https?:\/\//i.test(website) ? website : `https://${website}`;
+};
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(value.trim());
 const isUrl = (value: string) => {
   if (!value.trim()) return true;
   try {
-    const parsed = new URL(value);
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
+    const parsed = new URL(normalizeWebsite(value));
+    return (parsed.protocol === "http:" || parsed.protocol === "https:") && parsed.hostname.includes(".");
   } catch {
     return false;
   }
@@ -424,7 +431,7 @@ function validateFields(keys: string[], data: FormData, lang: "ar" | "en" = "ar"
   const messages = {
     required: lang === "ar" ? "هذا الحقل مطلوب." : joinEnglish.ui.required,
     invalidEmail: lang === "ar" ? "يرجى إدخال بريد إلكتروني صحيح." : joinEnglish.ui.invalidEmail,
-    invalidUrl: lang === "ar" ? "يرجى إدخال رابط يبدأ بـ http أو https." : joinEnglish.ui.invalidUrl,
+    invalidUrl: lang === "ar" ? "يرجى إدخال موقع إلكتروني صحيح، مثل example.org." : joinEnglish.ui.invalidUrl,
     invalidPhone: lang === "ar" ? "يرجى إدخال رقم هاتف صحيح." : joinEnglish.ui.invalidPhone,
   };
 
@@ -455,7 +462,7 @@ function createPayload(data: FormData) {
       country: normalize(data.country),
       phone: normalize(data.phone),
       fax: normalize(data.fax),
-      website: normalize(data.website),
+      website: normalizeWebsite(data.website),
       email: normalize(data.email),
     },
     seniorManagement: {
@@ -947,6 +954,38 @@ function ReviewCard({ group, onEdit, lang }: { group: ReviewGroup; onEdit: (step
   );
 }
 
+function preparePrintImage(file?: File) {
+  if (!file?.type.startsWith("image/")) return Promise.resolve("");
+
+  return new Promise<string>((resolve) => {
+    const source = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      const maximumDimension = 900;
+      const scale = Math.min(1, maximumDimension / Math.max(image.naturalWidth, image.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const context = canvas.getContext("2d");
+      if (!context) {
+        URL.revokeObjectURL(source);
+        resolve("");
+        return;
+      }
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(source);
+      resolve(canvas.toDataURL("image/jpeg", 0.86));
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(source);
+      resolve("");
+    };
+    image.src = source;
+  });
+}
+
 export default function JoinProgram() {
   const { i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage || i18n.language || "ar").startsWith("en") ? "en" : "ar";
@@ -960,6 +999,10 @@ export default function JoinProgram() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [uploadFiles, setUploadFiles] = useState<Record<string, File[]>>({});
+  const [signatureDataUrl, setSignatureDataUrl] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return window.localStorage.getItem(SIGNATURE_STORAGE_KEY) ?? "";
+  });
   const [, setLastSavedAt] = useState("");
   const [isChatOpen, setIsChatOpen] = useState(false);
   const localizedSteps = isRtl ? steps : joinEnglish.steps;
@@ -1007,6 +1050,21 @@ export default function JoinProgram() {
     });
   };
 
+  const updateSignature = (value: string | null) => {
+    const signatureFileName = isRtl ? "توقيع-رئيس-جهة-التعيين.png" : "designation-authority-head-signature.png";
+    setSignatureDataUrl(value ?? "");
+    if (!value) {
+      window.localStorage.removeItem(SIGNATURE_STORAGE_KEY);
+      updateField("signature", null);
+      setFilesForField("signature", []);
+      return;
+    }
+
+    window.localStorage.setItem(SIGNATURE_STORAGE_KEY, value);
+    updateField("signature", signatureFileName);
+    setFilesForField("signature", [signatureDataUrlToFile(value, signatureFileName)]);
+  };
+
   const goNext = () => {
     const requiredKeys = getRequiredFields(activeStep, data);
     const visibleKeys = getStepFieldKeys(activeStep, data);
@@ -1030,11 +1088,6 @@ export default function JoinProgram() {
       return;
     }
     setActiveStep((step) => Math.max(step - 1, 0));
-  };
-
-  const saveDraft = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    setLastSavedAt(new Intl.DateTimeFormat("ar", { hour: "2-digit", minute: "2-digit" }).format(new Date()));
   };
 
   const jumpToFirstError = (fieldErrors: Errors) => {
@@ -1063,6 +1116,7 @@ export default function JoinProgram() {
     const formData = new globalThis.FormData();
     formData.append("payload", JSON.stringify(payload));
     Object.entries(uploadFiles).forEach(([field, files]) => files.forEach((file) => formData.append(field, file, file.name)));
+    const officialSealForPrint = await preparePrintImage(uploadFiles.officialSeal?.[0]).catch(() => "");
     const result = await submitDesignationBodyApplication(formData);
     setIsSubmitting(false);
 
@@ -1072,10 +1126,15 @@ export default function JoinProgram() {
         JSON.stringify({
           requestNumber: result.data.requestNumber ?? "",
           submittedAt: new Date().toISOString(),
-          data,
+          data: {
+            ...data,
+            signature: signatureDataUrl || data.signature,
+            officialSeal: officialSealForPrint || (data.officialSeal ? "attached" : null),
+          },
         })
       );
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(SIGNATURE_STORAGE_KEY);
       navigate(`/application-submitted?type=join&ref=${encodeURIComponent(result.data.requestNumber ?? "")}`);
       return;
     }
@@ -1159,13 +1218,13 @@ export default function JoinProgram() {
           { label: labelFor("applicantAcknowledgement", "الإقرار بالشروط"), value: data.applicantAcknowledgement },
           { label: labelFor("signatureHeadName", "اسم رئيس الجهة المعنية بالحلال"), value: data.signatureHeadName },
           { label: labelFor("signatureDate", "التاريخ"), value: data.signatureDate },
-          { label: labelFor("signature", "التوقيع"), value: data.signature },
+          { label: labelFor("signature", "التوقيع"), value: signatureDataUrl ? (isRtl ? "تم رسم التوقيع" : "Signature captured") : data.signature },
           { label: labelFor("officialSeal", "الختم الرسمي"), value: data.officialSeal },
           { label: labelFor("additionalNotes", "ملاحظات أخرى"), value: data.additionalNotes },
         ],
       },
     ],
-    [attachmentLabel, data, isRtl, labelFor, localizeField, questionLabel]
+    [attachmentLabel, data, isRtl, labelFor, localizeField, questionLabel, signatureDataUrl]
   );
 
   return (
@@ -1585,8 +1644,21 @@ export default function JoinProgram() {
                     <div className="grid gap-x-10 gap-y-10 lg:grid-cols-2">
                       <InputField field={localizeField({ key: "signatureHeadName", label: "اسم رئيس الجهة المعنية بالحلال", required: true })} value={fieldValue(data, "signatureHeadName")} error={errors.signatureHeadName} onChange={updateField} />
                       <InputField field={localizeField({ key: "signatureDate", label: "تاريخ الطلب", type: "date", required: true })} value={fieldValue(data, "signatureDate")} error={errors.signatureDate} onChange={updateField} />
-                      <FileUploadBox label={isRtl ? "صورة التوقيع" : joinEnglish.ui.signatureImage} helper={isRtl ? "يرجى إرفاق صورة واضحة للتوقيع (PNG, JPG, PDF)" : joinEnglish.ui.signatureHelper} value={data.signature ? [String(data.signature)] : []} onChange={(files) => updateField("signature", files[0] ?? null)} selectedFiles={uploadFiles.signature ?? []} onFilesChange={(files) => setFilesForField("signature", files)} />
-                      <FileUploadBox label={isRtl ? "الختم الرسمي للجهة" : joinEnglish.ui.officialSeal} helper={isRtl ? "يرجى إرفاق صورة واضحة للختم الرسمي (PNG, JPG, PDF)" : joinEnglish.ui.sealHelper} value={data.officialSeal ? [String(data.officialSeal)] : []} onChange={(files) => updateField("officialSeal", files[0] ?? null)} selectedFiles={uploadFiles.officialSeal ?? []} onFilesChange={(files) => setFilesForField("officialSeal", files)} />
+                      <div className="lg:col-span-2">
+                        <SignaturePad value={signatureDataUrl} isRtl={isRtl} onChange={updateSignature} />
+                      </div>
+                      <div className="lg:col-span-2">
+                        <FileUploadBox
+                          multiple={false}
+                          accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                          label={isRtl ? "الختم الرسمي للجهة" : joinEnglish.ui.officialSeal}
+                          helper={isRtl ? "يرجى إرفاق صورة واضحة للختم الرسمي بصيغة PNG أو JPG؛ ستظهر في النسخة المطبوعة." : "Attach a clear PNG or JPG image of the official seal; it will appear in the printable copy."}
+                          value={data.officialSeal ? [String(data.officialSeal)] : []}
+                          onChange={(files) => updateField("officialSeal", files[0] ?? null)}
+                          selectedFiles={uploadFiles.officialSeal ?? []}
+                          onFilesChange={(files) => setFilesForField("officialSeal", files.slice(0, 1))}
+                        />
+                      </div>
                       <div className="lg:col-span-2">
                         <InputField field={localizeField({ key: "additionalNotes", label: "ملاحظات أو تعليقات إضافية", type: "textarea" })} value={fieldValue(data, "additionalNotes")} onChange={updateField} />
                       </div>
@@ -1601,20 +1673,7 @@ export default function JoinProgram() {
 
       <footer className="fixed inset-x-0 bottom-0 z-50 border-t border-[#D6B66A]/30 bg-[#FFFDF6]/90 px-5 py-3.5 backdrop-blur-xl">
         <div className="mx-auto max-w-5xl">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={saveDraft}
-                className="group flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-2.5 text-[13px] font-black text-stone-600 shadow-sm transition-all hover:border-[#007A55] hover:text-[#007A55] active:scale-95"
-              >
-                <svg className="h-4 w-4 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                </svg>
-                <span>{isRtl ? "حفظ المسودة" : joinEnglish.ui.saveDraft}</span>
-              </button>
-            </div>
-            
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-end">
             <div className="flex items-center gap-3">
               <button
                 type="button"

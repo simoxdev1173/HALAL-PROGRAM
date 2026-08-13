@@ -191,6 +191,7 @@ model DesignationBodyApplication {
   feeExempt        Boolean              @default(false)
   contractSignedAt DateTime?
   contractFileUrl  String?
+  logoUrl          String?
 
   application     Application      @relation(fields: [applicationId], references: [id])
   appointedBodies AppointedBody[]
@@ -280,6 +281,7 @@ model AppointedBody {
   status             EntityStatus @default(ACTIVE)
   appointedAt        DateTime     @default(now())
   createdAt          DateTime     @default(now())
+  logoUrl            String?
 
   designationBody  DesignationBodyApplication @relation(fields: [designationBodyId], references: [id])
   certificateApps  CertificateApplication[]

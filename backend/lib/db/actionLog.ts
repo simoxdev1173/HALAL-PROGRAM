@@ -14,7 +14,7 @@ export type ResourceKind = "designation-bodies" | "appointed-bodies" | "supplier
 
 const RESOURCE_ACTIONS: Record<ResourceKind, string[]> = {
   "designation-bodies": ["approve", "reject", "suspend", "revoke", "reactivate"],
-  "appointed-bodies": ["suspend", "revoke", "reactivate"],
+  "appointed-bodies": ["approve", "reject", "suspend", "revoke", "reactivate"],
   suppliers: ["approve", "reject", "suspend", "revoke", "reactivate"],
   certificates: ["suspend", "revoke", "reactivate", "renew"],
 };

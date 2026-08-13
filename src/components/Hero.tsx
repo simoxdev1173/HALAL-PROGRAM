@@ -634,8 +634,12 @@ export const Hero = () => {
                 </Link>
               </div>
 
-              <div className="flex flex-col gap-2 w-full md:w-auto md:mt-[22px] xl:mt-[26px]">
-                <Link to="/certificate-verification" className="btn-gold w-full md:w-auto h-[54px] xl:h-[60px] text-sm xl:text-base group !bg-slate-900/40  !border-2 !border-[#CA8A04] !text-white ">
+              <div className="flex flex-col gap-2 w-full md:w-auto">
+                <span className="text-[#CA8A04] text-xs xl:text-sm font-semibold tracking-wide px-1 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#CA8A04]"></span>
+                  {t("hero.supplierNote")}
+                </span>
+                <Link to="/halal-certificate-application#application-form" className="btn-gold w-full md:w-auto h-[54px] xl:h-[60px] text-sm xl:text-base group !bg-slate-900/40  !border-2 !border-[#CA8A04] !text-white ">
                   {t("hero.licenseCta")}
                   <div className="w-6 h-6 rounded-sm bg-black/30 flex items-center justify-center shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]">
                     <ArrowLeft size={16} className={`text-[#CA8A04] transition-transform ${isRtl ? "group-hover:-translate-x-1" : "rotate-180 group-hover:translate-x-1"}`} />

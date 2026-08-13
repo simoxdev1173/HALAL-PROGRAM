@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Mic, X } from "lucide-react";
+import { ArrowRight, Loader2, Mic, Square, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 type Sender = "user" | "bot";
@@ -33,15 +33,20 @@ interface SpeechRecognitionEventLike {
   results: ArrayLike<SpeechRecognitionResultLike>;
 }
 
+interface SpeechRecognitionErrorEventLike {
+  error: string;
+}
+
 interface SpeechRecognitionLike {
   lang: string;
   continuous: boolean;
   interimResults: boolean;
   onresult: ((event: SpeechRecognitionEventLike) => void) | null;
   onend: (() => void) | null;
-  onerror: (() => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null;
   start: () => void;
   stop: () => void;
+  abort: () => void;
 }
 
 interface SpeechRecognitionConstructor {
@@ -58,7 +63,48 @@ declare global {
 const LIGHTRAG_ENDPOINT = "http://188.165.162.105:9999/query/stream";
 const STREAM_SLICE_SIZE = 10;
 const STREAM_SLICE_DELAY_MS = 14;
+const STREAM_PROBE_SIZE = 120;
 const REFERENCES_SECTION_RE = /\n{1,3}\s*(?:References|Sources|المراجع|المصادر)\s*[:\n]/i;
+const NO_CONTEXT_RE = /\[no-context\]|(?:sorry,?\s*)?i(?:'m| am) not able to provide an answer to that question\.?/i;
+type VoiceState = "idle" | "requesting" | "listening" | "processing" | "ready" | "error";
+type ChatLanguage = "ar" | "en";
+
+const detectAnswerLanguage = (query: string, fallback: ChatLanguage): ChatLanguage => {
+  if (/(?:بالإنجليزية|بالانجليزية|باللغة الإنجليزية|باللغة الانجليزية)/i.test(query)) return "en";
+  if (/(?:بالعربية|باللغة العربية)/i.test(query)) return "ar";
+  if (/\b(?:answer|reply|respond|write|explain)\b[^.?!\n]{0,40}\b(?:in\s+)?english\b|\bin english\b/i.test(query)) return "en";
+  if (/(?:أجب|اجب|الرد|اشرح|اكتب).{0,35}(?:بالإنجليزية|بالانجليزية|باللغة الإنجليزية|باللغة الانجليزية)/i.test(query)) return "en";
+  if (/\b(?:answer|reply|respond|write|explain)\b[^.?!\n]{0,40}\b(?:in\s+)?arabic\b|\bin arabic\b/i.test(query)) return "ar";
+  if (/(?:أجب|اجب|الرد|اشرح|اكتب).{0,35}(?:بالعربية|باللغة العربية)/i.test(query)) return "ar";
+
+  const arabicCharacters = query.match(/[\u0600-\u06FF]/g)?.length ?? 0;
+  const latinCharacters = query.match(/[A-Za-z]/g)?.length ?? 0;
+  if (latinCharacters > arabicCharacters) return "en";
+  if (arabicCharacters > latinCharacters) return "ar";
+  return fallback;
+};
+
+const buildEnglishRetrievalHints = (query: string) => {
+  const hints = new Set<string>();
+  const add = (pattern: RegExp, value: string) => {
+    if (pattern.test(query)) hints.add(value);
+  };
+
+  add(/join|joining|membership|eligible|eligibility|apply|application/i, "الانضمام إلى البرنامج شروط الانضمام تقديم الطلب الجهات المؤهلة");
+  add(/certificate|certification|certified/i, "شهادة الحلال العربية متطلبات الحصول على الشهادة وتجديدها");
+  add(/mark|logo|licen[cs]e|permit/i, "علامة الحلال العربية ترخيص استخدام العلامة");
+  add(/verify|verification|valid|company|product|search/i, "التحقق من الشركات والمنتجات رقم الترخيص اسم الشركة حالة الشهادة");
+  add(/fee|fees|cost|price|payment|refund/i, "الرسوم والتكاليف وسياسة الاسترجاع تكلفة التفويض وحق استخدام العلامة");
+  add(/accredit|designation|authority|body|organization/i, "جهات التعيين الحلال جهات تقييم المطابقة الاعتماد والتفويض");
+  add(/document|requirement|procedure|process|step/i, "الوثائق المطلوبة والمتطلبات والإجراءات والمراحل");
+  add(/standard|iso|scope|sector|service/i, "المواصفات القياسية ومجال تطبيق البرنامج والمنتجات والخدمات الحلال");
+
+  if (hints.size === 0) {
+    hints.add("البرنامج العربي الموحد للحلال شهادة وعلامة الحلال العربية الاعتماد والتحقق");
+  }
+
+  return Array.from(hints).join("، ");
+};
 
 const fallbackFollowups = {
   ar: ["من يحق له الانضمام؟", "ما هي الوثائق المطلوبة؟", "كم تستغرق دراسة الطلب؟"],
@@ -91,11 +137,19 @@ export const ChatbotWidget = ({
   const [input, setInput] = useState("");
   const [isGreetingDismissed, setIsGreetingDismissed] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [isListening, setIsListening] = useState(false);
+  const [voiceState, setVoiceState] = useState<VoiceState>("idle");
+  const [voiceError, setVoiceError] = useState("");
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const previousMessageCountRef = useRef(messages.length);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const voiceRequestRef = useRef(0);
+  const voiceInputSnapshotRef = useRef("");
+  const voiceHasSpeechRef = useRef(false);
+  const voiceCancelledRef = useRef(false);
+  const voiceFailedRef = useRef(false);
+  const previousVoiceLangRef = useRef(lang);
 
   const showGreeting = !isOpen && !isGreetingDismissed;
   const greetingMotion = bubblePlacement === "top" ? { hidden: { y: 14 }, shown: { y: 0 }, exit: { y: 8 } } : { hidden: { x: isRtl ? -20 : 20 }, shown: { x: 0 }, exit: { x: isRtl ? -10 : 10 } };
@@ -114,6 +168,8 @@ export const ChatbotWidget = ({
   const userAlign = isRtl ? "justify-start" : "justify-end";
   const botAlign = isRtl ? "justify-end" : "justify-start";
   const speechSupported = typeof window !== "undefined" && Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
+  const isListening = voiceState === "listening";
+  const isVoiceBusy = voiceState === "requesting" || voiceState === "listening" || voiceState === "processing";
 
   const ui = useMemo(
     () => ({
@@ -126,7 +182,33 @@ export const ChatbotWidget = ({
       streaming: lang === "ar" ? " يكتب الإجابة" : "Writing answer...",
       stop: lang === "ar" ? "إيقاف" : "Stop",
       mic: lang === "ar" ? "استخدم الميكروفون" : "Use microphone",
-      listening: lang === "ar" ? "أستمع الآن..." : "Listening...",
+      micUnsupported:
+        lang === "ar"
+          ? "الإملاء الصوتي غير مدعوم في هذا المتصفح. يمكنكم كتابة السؤال بدلاً من ذلك."
+          : "Voice dictation is not supported in this browser. You can type your question instead.",
+      permission: lang === "ar" ? "جارٍ طلب إذن الميكروفون..." : "Requesting microphone access...",
+      listening: lang === "ar" ? "جارٍ الاستماع... تكلّم الآن" : "Listening... Speak now",
+      processingVoice: lang === "ar" ? "جارٍ تجهيز النص..." : "Preparing transcript...",
+      stopRecording: lang === "ar" ? "إيقاف التسجيل" : "Stop recording",
+      cancelRecording: lang === "ar" ? "إلغاء" : "Cancel",
+      reviewTranscript:
+        lang === "ar" ? "راجع النص، ثم اضغط إرسال." : "Review the transcript, then press send.",
+      microphoneDenied:
+        lang === "ar"
+          ? "تعذر الوصول إلى الميكروفون. فعّل إذن الميكروفون لهذا الموقع من إعدادات المتصفح ثم حاول مجدداً."
+          : "Microphone access was denied. Allow microphone access for this site in your browser settings, then try again.",
+      microphoneMissing:
+        lang === "ar"
+          ? "لم يتم العثور على ميكروفون متاح. تحقق من توصيله ومن إعدادات الجهاز."
+          : "No available microphone was found. Check the device connection and system settings.",
+      microphoneBusy:
+        lang === "ar"
+          ? "الميكروفون مستخدم حالياً من تطبيق آخر. أغلق التطبيق ثم حاول مجدداً."
+          : "The microphone is currently in use by another app. Close it and try again.",
+      noSpeech:
+        lang === "ar" ? "لم نلتقط كلاماً واضحاً. حاول مجدداً وتحدث بالقرب من الميكروفون." : "We did not detect clear speech. Try again closer to the microphone.",
+      voiceNetwork:
+        lang === "ar" ? "خدمة التعرف الصوتي غير متاحة الآن. تحقق من الاتصال وحاول مجدداً." : "Speech recognition is unavailable right now. Check your connection and try again.",
       error:
         lang === "ar"
           ? "تعذر الاتصال بالمساعد الآن. يرجى المحاولة مرة أخرى."
@@ -136,8 +218,19 @@ export const ChatbotWidget = ({
     }),
     [bubbleTextOverride, lang, t]
   );
-  const isUserTyping = input.trim().length > 0 && !isStreaming && !isListening;
-  const assistantStatus = isStreaming ? ui.streaming : isListening ? ui.listening : isUserTyping ? ui.send : ui.title;
+  const isUserTyping = input.trim().length > 0 && !isStreaming && !isVoiceBusy;
+  const assistantStatus = isStreaming
+    ? ui.streaming
+    : voiceState === "requesting"
+      ? ui.permission
+      : isListening
+        ? ui.listening
+        : voiceState === "processing"
+          ? ui.processingVoice
+          : isUserTyping
+            ? ui.send
+            : ui.title;
+  const recordingTime = `${String(Math.floor(recordingSeconds / 60)).padStart(2, "0")}:${String(recordingSeconds % 60).padStart(2, "0")}`;
 
   const renderedMessages = messages.map((msg) =>
     msg.id === 1 && msg.sender === "bot" ? { ...msg, text: ui.initial, followups: quickStarts[lang] } : msg
@@ -252,11 +345,11 @@ export const ChatbotWidget = ({
   }, []);
 
   const makeFollowups = useCallback(
-    (query: string, answer: string) => {
+    (query: string, answer: string, answerLanguage: ChatLanguage) => {
       const isJoin = /join|انضم|الانضمام|طلب/.test(`${query} ${answer}`);
       const isVerify = /verify|certificate|شهادة|تحقق|ترخيص/.test(`${query} ${answer}`);
 
-      if (lang === "ar") {
+      if (answerLanguage === "ar") {
         if (isJoin) return ["ما هي الوثائق المطلوبة؟", "من يحق له تقديم الطلب؟", "كم مدة الرد الرسمي؟"];
         if (isVerify) return ["أين أجد رقم الترخيص؟", "كيف أعرف أن الشهادة معتمدة؟", "ماذا أفعل إذا لم تظهر نتيجة؟"];
         return fallbackFollowups.ar;
@@ -266,19 +359,26 @@ export const ChatbotWidget = ({
       if (isVerify) return ["Where is the license number?", "How do I know a certificate is valid?", "What if no result appears?"];
       return fallbackFollowups.en;
     },
-    [lang]
+    []
   );
 
   const askLightRag = useCallback(
     async (query: string) => {
       const trimmed = query.trim();
-      if (!trimmed || isStreaming) return;
+      if (!trimmed || isStreaming || isVoiceBusy) return;
+      const answerLanguage = detectAnswerLanguage(trimmed, lang);
+      const retrievalQuery =
+        answerLanguage === "en"
+          ? `${trimmed}\n\nArabic retrieval concepts: ${buildEnglishRetrievalHints(trimmed)}`
+          : trimmed;
 
       const userMessage: Message = { id: Date.now(), text: trimmed, sender: "user" };
       const botId = Date.now() + 1;
       const controller = new AbortController();
       abortRef.current = controller;
       setInput("");
+      setVoiceState("idle");
+      setVoiceError("");
       setIsStreaming(true);
       setMessages((prev) => [
         ...prev,
@@ -306,6 +406,10 @@ export const ChatbotWidget = ({
       let revealedRawLength = 0;
       const feedChunk = async (chunk: string) => {
         rawSoFar += chunk;
+        // Hold a small initial probe so LightRAG's internal no-context response is
+        // never flashed to the user before we replace it with useful guidance.
+        if (rawSoFar.length < STREAM_PROBE_SIZE) return;
+        if (NO_CONTEXT_RE.test(rawSoFar)) return;
         const match = REFERENCES_SECTION_RE.exec(rawSoFar);
         const safeEnd = match ? match.index : rawSoFar.length;
         if (safeEnd > revealedRawLength) {
@@ -324,22 +428,22 @@ export const ChatbotWidget = ({
             Accept: "application/x-ndjson",
           },
           body: JSON.stringify({
-            query: trimmed,
+            query: retrievalQuery,
             mode: "hybrid",
             stream: true,
             include_references: false,
             include_chunk_content: false,
-            response_type: lang === "ar" ? "Markdown مختصر" : "Brief markdown",
+            response_type: answerLanguage === "ar" ? "Markdown عربي مختصر" : "Brief English markdown",
             conversation_history: history,
             user_prompt:
-              lang === "ar"
+              answerLanguage === "ar"
                 ? `أنت "حلال بوت"، المساعد الرسمي الذكي للبرنامج العربي الموحد للحلال التابع للمنظمة العربية للتنمية الصناعية والتقييس والتعدين (أيدسمو).
 
 ## هويتك ودورك
 أنت نقطة الاتصال الأولى للزوار والمستفيدين من البرنامج. مهمتك توجيههم بدقة واحترافية حول آليات البرنامج، شروط الانضمام، التحقق من الشهادات، والإجراءات المتعلقة بالاعتماد وترخيص علامة الحلال العربية.
 
 ## قواعد الهوية
-- تحدث دائماً بلغة عربية فصيحة ورسمية.
+- أجب عن هذا السؤال باللغة العربية الفصيحة والرسمية. إذا طلب المستخدم الإنجليزية صراحةً، التزم بطلبه.
 - لا تنسب نفسك لأي جهة أخرى غير المنظمة العربية للتنمية الصناعية والتقييس والتعدين.
 - لا تُسمَّى بـ ChatGPT أو Claude أو أي نموذج لغوي آخر — أنت "حلال بوت" فقط.
 
@@ -349,6 +453,8 @@ export const ChatbotWidget = ({
 - اجعل إجابتك عملية ومباشرة ولا تتجاوز 4 أسطر أو نقاط كحد أقصى.
 - لا تضف مقدمات طويلة أو تكرار للسؤال.
 - إذا كان الطلب غامضاً، اسأل سؤالاً توضيحياً واحداً فقط قبل الإجابة.
+- قد تكون الوثائق المرجعية بالعربية أو الإنجليزية؛ استخدمها أياً كانت لغتها ولا ترفض الإجابة بسبب اختلاف لغة المصدر.
+- أجب مباشرةً عن التحيات والأسئلة المتعلقة بقدرتك على التحدث بالعربية أو الإنجليزية، حتى إن لم تتطلب معلومات مرجعية.
 - اختم بعرض المساعدة أو بتوجيه واضح للخطوة التالية.
 - لا تُضِف أبداً قسم "مراجع" أو "مصادر" أو أي قائمة استشهادات مرقّمة في نهاية إجابتك — الإجابة النهائية فقط، بدون ذكر مصادرها.`
                 : `You are "Halal Bot", the official AI assistant of the Arab Unified Halal Program under the Arab Organization for Industrial Development, Standardization and Mining (AIDSMO).
@@ -359,6 +465,7 @@ You are the first point of contact for visitors and program beneficiaries. Your 
 ## Identity Rules
 - Never identify yourself as ChatGPT, Claude, or any other language model — you are "Halal Bot" only.
 - Do not attribute yourself to any organization other than AIDSMO.
+- Answer this question in clear, professional English. If the user explicitly requests Arabic, follow that request.
 
 ## Your Style
 - Professional and formal, but not cold.
@@ -366,6 +473,9 @@ You are the first point of contact for visitors and program beneficiaries. Your 
 - Use simple Markdown when helpful (lists, bold key terms).
 - Do not add long preambles or repeat the user's question back to them.
 - If a request is ambiguous, ask only one clarifying question before answering.
+- Reference material may be written in Arabic or English. Use relevant Arabic material and translate its meaning faithfully; never refuse merely because the source language differs from the question language.
+- Any line labelled "Arabic retrieval concepts" is internal search metadata. Do not mention it; answer only the user's original question.
+- Answer greetings and questions about your ability to communicate in Arabic or English directly, even when they require no retrieved context.
 - Always end with a clear next step or offer further assistance.
 - Never add a "References" or "Sources" section, or a numbered citation list, at the end of your answer — the final answer only, with no source listing.`,
             max_total_tokens: 420,
@@ -417,14 +527,30 @@ You are the first point of contact for visitors and program beneficiaries. Your 
           }
         }
 
+        if (!NO_CONTEXT_RE.test(rawSoFar)) {
+          const referencesMatch = REFERENCES_SECTION_RE.exec(rawSoFar);
+          const safeEnd = referencesMatch ? referencesMatch.index : rawSoFar.length;
+          if (safeEnd > revealedRawLength) {
+            await revealText(rawSoFar.slice(revealedRawLength, safeEnd));
+            revealedRawLength = safeEnd;
+          }
+        }
+
+        const cleanedAnswer = completeAnswer.replace(NO_CONTEXT_RE, "").trim();
+        const hasAnswer = cleanedAnswer.length > 0;
+        const noContextMessage =
+          answerLanguage === "ar"
+            ? "لم أجد معلومات كافية مرتبطة بهذا السؤال ضمن محتوى البرنامج. يرجى إعادة صياغته أو تحديد ما إذا كان متعلقاً بالانضمام أو الشهادة أو العلامة أو التحقق."
+            : "I could not find enough program information for that question. Please rephrase it or specify whether it concerns joining, certification, the Halal Mark, or verification.";
+
         setMessages((prev) =>
           prev.map((item) =>
             item.id === botId
               ? {
                   ...item,
-                  text: completeAnswer || ui.error,
-                  status: completeAnswer ? "idle" : "error",
-                  followups: completeAnswer ? makeFollowups(trimmed, completeAnswer) : undefined,
+                  text: hasAnswer ? cleanedAnswer : noContextMessage,
+                  status: hasAnswer ? "idle" : "error",
+                  followups: makeFollowups(trimmed, cleanedAnswer, answerLanguage),
                 }
               : item
           )
@@ -433,7 +559,7 @@ You are the first point of contact for visitors and program beneficiaries. Your 
         if ((error as Error).name !== "AbortError") {
           setMessages((prev) =>
             prev.map((item) =>
-              item.id === botId ? { ...item, text: ui.error, status: "error", followups: fallbackFollowups[lang] } : item
+              item.id === botId ? { ...item, text: ui.error, status: "error", followups: fallbackFollowups[answerLanguage] } : item
             )
           );
         }
@@ -442,7 +568,7 @@ You are the first point of contact for visitors and program beneficiaries. Your 
         abortRef.current = null;
       }
     },
-    [buildConversationHistory, isStreaming, lang, makeFollowups, messages, ui.error]
+    [buildConversationHistory, isStreaming, isVoiceBusy, lang, makeFollowups, messages, ui.error]
   );
 
   useEffect(() => {
@@ -465,6 +591,42 @@ You are the first point of contact for visitors and program beneficiaries. Your 
     }
   }, [messages.length]);
 
+  useEffect(() => {
+    if (!isListening) {
+      setRecordingSeconds(0);
+      return;
+    }
+
+    const startedAt = Date.now();
+    const timer = window.setInterval(() => {
+      setRecordingSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [isListening]);
+
+  useEffect(() => {
+    if (previousVoiceLangRef.current !== lang && recognitionRef.current) {
+      voiceCancelledRef.current = true;
+      recognitionRef.current.abort();
+      recognitionRef.current = null;
+      setInput(voiceInputSnapshotRef.current);
+      setVoiceState("idle");
+      setVoiceError("");
+    }
+    previousVoiceLangRef.current = lang;
+  }, [lang]);
+
+  useEffect(
+    () => () => {
+      voiceRequestRef.current += 1;
+      voiceCancelledRef.current = true;
+      recognitionRef.current?.abort();
+      recognitionRef.current = null;
+    },
+    []
+  );
+
   const handleOpenChat = () => {
     setIsOpen(true);
     setIsGreetingDismissed(true);
@@ -478,32 +640,121 @@ You are the first point of contact for visitors and program beneficiaries. Your 
     );
   };
 
-  const handleMic = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition || isStreaming) return;
+  const cancelVoiceRecording = () => {
+    voiceRequestRef.current += 1;
+    voiceCancelledRef.current = true;
+    recognitionRef.current?.abort();
+    recognitionRef.current = null;
+    setInput(voiceInputSnapshotRef.current);
+    setVoiceState("idle");
+    setVoiceError("");
+  };
 
-    if (isListening) {
-      recognitionRef.current?.stop();
-      setIsListening(false);
+  const handleCloseChat = () => {
+    if (isVoiceBusy) cancelVoiceRecording();
+    setIsOpen(false);
+  };
+
+  const stopVoiceRecording = () => {
+    if (!recognitionRef.current || voiceState !== "listening") return;
+    setVoiceState("processing");
+    recognitionRef.current.stop();
+  };
+
+  const microphoneAccessError = (error: unknown) => {
+    const name = error instanceof DOMException ? error.name : "";
+    if (name === "NotAllowedError" || name === "SecurityError") return ui.microphoneDenied;
+    if (name === "NotFoundError" || name === "DevicesNotFoundError") return ui.microphoneMissing;
+    if (name === "NotReadableError" || name === "TrackStartError" || name === "AbortError") return ui.microphoneBusy;
+    return ui.micUnsupported;
+  };
+
+  const recognitionError = (error: string) => {
+    if (error === "not-allowed" || error === "service-not-allowed") return ui.microphoneDenied;
+    if (error === "audio-capture") return ui.microphoneMissing;
+    if (error === "network") return ui.voiceNetwork;
+    return ui.noSpeech;
+  };
+
+  const handleMic = async () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (isStreaming) return;
+    if (!SpeechRecognition) {
+      setVoiceError(ui.micUnsupported);
+      setVoiceState("error");
       return;
     }
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = lang === "ar" ? "ar-MA" : "en-US";
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.onresult = (event) => {
-      let transcript = "";
-      for (let index = 0; index < event.results.length; index += 1) {
-        transcript += event.results[index][0].transcript;
-      }
-      setInput(transcript.trim());
-    };
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = () => setIsListening(false);
-    recognitionRef.current = recognition;
-    setIsListening(true);
-    recognition.start();
+    if (isListening) {
+      stopVoiceRecording();
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setVoiceError(ui.micUnsupported);
+      setVoiceState("error");
+      return;
+    }
+
+    const requestId = voiceRequestRef.current + 1;
+    voiceRequestRef.current = requestId;
+    voiceCancelledRef.current = false;
+    voiceFailedRef.current = false;
+    voiceHasSpeechRef.current = false;
+    voiceInputSnapshotRef.current = input;
+    setVoiceError("");
+    setVoiceState("requesting");
+
+    try {
+      // Permission is requested from a direct user gesture before speech
+      // recognition starts. Release this check stream immediately; the browser's
+      // recognition service acquires the microphone for the actual dictation.
+      const permissionStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      permissionStream.getTracks().forEach((track) => track.stop());
+
+      if (voiceRequestRef.current !== requestId || voiceCancelledRef.current) return;
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = lang === "ar" ? "ar-MA" : "en-US";
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.onresult = (event) => {
+        let transcript = "";
+        for (let index = 0; index < event.results.length; index += 1) {
+          transcript += event.results[index][0].transcript;
+        }
+
+        const cleanTranscript = transcript.trim();
+        if (!cleanTranscript) return;
+        voiceHasSpeechRef.current = true;
+        const initialText = voiceInputSnapshotRef.current.trim();
+        setInput(initialText ? `${initialText} ${cleanTranscript}` : cleanTranscript);
+      };
+      recognition.onerror = (event) => {
+        if (event.error === "aborted" && voiceCancelledRef.current) return;
+        voiceFailedRef.current = true;
+        setVoiceError(recognitionError(event.error));
+        setVoiceState("error");
+      };
+      recognition.onend = () => {
+        recognitionRef.current = null;
+        if (voiceCancelledRef.current || voiceFailedRef.current) return;
+        if (!voiceHasSpeechRef.current) {
+          setVoiceError(ui.noSpeech);
+          setVoiceState("error");
+          return;
+        }
+        setVoiceState("ready");
+      };
+      recognitionRef.current = recognition;
+      setVoiceState("listening");
+      recognition.start();
+    } catch (error) {
+      if (voiceRequestRef.current !== requestId || voiceCancelledRef.current) return;
+      recognitionRef.current = null;
+      setVoiceError(microphoneAccessError(error));
+      setVoiceState("error");
+    }
   };
 
   return (
@@ -579,7 +830,7 @@ You are the first point of contact for visitors and program beneficiaries. Your 
             >
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={handleCloseChat}
                 aria-label={t("common.close")}
                 className="absolute right-5 top-5 z-30 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-500 shadow-sm transition-all hover:border-slate-300 hover:bg-white hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200"
               >
@@ -702,26 +953,135 @@ You are the first point of contact for visitors and program beneficiaries. Your 
               </div>
                 </div>
 
-                <div className="flex-shrink-0 border-t border-slate-200 bg-white p-4 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] sm:p-6">
-              <div className="flex items-end gap-3">
+                <div className="flex-shrink-0 border-t border-slate-200 bg-white p-3 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] sm:p-5">
+              <AnimatePresence initial={false}>
+                {voiceState !== "idle" && (
+                  <motion.div
+                    id="chatbot-voice-status"
+                    initial={{ opacity: 0, y: 8, height: 0 }}
+                    animate={{ opacity: 1, y: 0, height: "auto" }}
+                    exit={{ opacity: 0, y: 6, height: 0 }}
+                    role={voiceState === "error" ? "alert" : "status"}
+                    aria-live="polite"
+                    className={`mb-3 overflow-hidden rounded-2xl border px-3.5 py-3 sm:px-4 ${
+                      voiceState === "error"
+                        ? "border-red-200 bg-red-50 text-red-800"
+                        : voiceState === "ready"
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                          : "border-[#007A55]/20 bg-[#F0FAF6] text-slate-800"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex min-w-0 flex-1 items-center gap-3">
+                        {voiceState === "requesting" || voiceState === "processing" ? (
+                          <Loader2 className="h-5 w-5 shrink-0 animate-spin text-[#006B4B]" aria-hidden="true" />
+                        ) : voiceState === "listening" ? (
+                          <div className="flex h-6 shrink-0 items-center gap-0.5" aria-hidden="true">
+                            {[0, 1, 2, 3].map((bar) => (
+                              <motion.span
+                                key={bar}
+                                animate={{ height: [6, 19 - bar * 2, 8] }}
+                                transition={{ duration: 0.7, repeat: Infinity, delay: bar * 0.12, ease: "easeInOut" }}
+                                className="w-1 rounded-full bg-red-500"
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${voiceState === "error" ? "bg-red-500" : "bg-[#007A55]"}`} aria-hidden="true" />
+                        )}
+
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold leading-5 sm:text-sm">
+                            {voiceState === "requesting"
+                              ? ui.permission
+                              : voiceState === "listening"
+                                ? ui.listening
+                                : voiceState === "processing"
+                                  ? ui.processingVoice
+                                  : voiceState === "ready"
+                                    ? ui.reviewTranscript
+                                    : voiceError}
+                          </p>
+                          {voiceState === "listening" && (
+                            <p className="mt-0.5 font-mono text-[11px] font-bold tabular-nums text-red-600" dir="ltr">
+                              {recordingTime}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {voiceState === "listening" && (
+                        <button
+                          type="button"
+                          onClick={stopVoiceRecording}
+                          className="shrink-0 rounded-lg bg-red-600 px-3 py-2 text-[11px] font-bold text-white transition-colors hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
+                        >
+                          {ui.stopRecording}
+                        </button>
+                      )}
+                      {(voiceState === "requesting" || voiceState === "listening" || voiceState === "processing") && (
+                        <button
+                          type="button"
+                          onClick={cancelVoiceRecording}
+                          className="shrink-0 rounded-lg px-2 py-2 text-[11px] font-bold text-slate-500 transition-colors hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
+                        >
+                          {ui.cancelRecording}
+                        </button>
+                      )}
+                      {(voiceState === "ready" || voiceState === "error") && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setVoiceState("idle");
+                            setVoiceError("");
+                          }}
+                          aria-label={t("common.close")}
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-current/60 transition-colors hover:bg-white hover:text-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="flex items-end gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={handleMic}
-                  disabled={!speechSupported || isStreaming}
-                  aria-label={ui.mic}
-                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all ${
+                  disabled={isStreaming || voiceState === "requesting" || voiceState === "processing"}
+                  aria-label={isListening ? ui.stopRecording : ui.mic}
+                  aria-pressed={isListening}
+                  aria-describedby={voiceState !== "idle" ? "chatbot-voice-status" : undefined}
+                  title={!speechSupported ? ui.micUnsupported : isListening ? ui.stopRecording : ui.mic}
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border transition-all focus-visible:outline-none focus-visible:ring-4 ${
                     isListening
-                      ? "bg-red-50 text-red-500 border border-red-100"
-                      : "bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 border border-slate-200"
+                      ? "border-red-200 bg-red-50 text-red-600 ring-4 ring-red-100 hover:bg-red-100 focus-visible:ring-red-200"
+                      : voiceState === "ready"
+                        ? "border-emerald-200 bg-emerald-50 text-[#006B4B] hover:bg-emerald-100 focus-visible:ring-emerald-100"
+                        : "border-slate-200 bg-slate-50 text-slate-500 hover:border-[#007A55]/30 hover:bg-[#F0FAF6] hover:text-[#006B4B] focus-visible:ring-[#007A55]/10"
                   } disabled:cursor-not-allowed disabled:opacity-40`}
                 >
-                  <Mic size={20} strokeWidth={2} />
+                  {voiceState === "requesting" || voiceState === "processing" ? (
+                    <Loader2 size={20} className="animate-spin" aria-hidden="true" />
+                  ) : isListening ? (
+                    <Square size={17} fill="currentColor" aria-hidden="true" />
+                  ) : (
+                    <Mic size={20} strokeWidth={2.25} aria-hidden="true" />
+                  )}
                 </button>
                 
                 <div className="relative flex-grow">
                   <textarea
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={(e) => {
+                      setInput(e.target.value);
+                      if (voiceState === "ready" || voiceState === "error") {
+                        setVoiceState("idle");
+                        setVoiceError("");
+                      }
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
@@ -729,15 +1089,18 @@ You are the first point of contact for visitors and program beneficiaries. Your 
                       }
                     }}
                     placeholder={isListening ? ui.listening : ui.input}
+                    readOnly={isVoiceBusy}
+                    aria-label={ui.input}
                     rows={1}
-                    className={`max-h-32 min-h-[48px] w-full resize-none rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-[15px] transition-all placeholder:text-slate-400 focus:border-[#007A55] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#007A55]/5 ${isRtl ? "text-right" : "text-left"}`}
+                    className={`max-h-32 min-h-[48px] w-full resize-none rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-3 text-[14px] transition-all placeholder:text-slate-400 focus:border-[#007A55] focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#007A55]/5 read-only:cursor-default read-only:bg-slate-100/80 sm:px-4 sm:text-[15px] ${isRtl ? "text-right" : "text-left"}`}
                   />
                 </div>
 
                 <button
                   type="button"
                   onClick={() => (isStreaming ? handleStop() : askLightRag(input))}
-                  disabled={!isStreaming && !input.trim()}
+                  disabled={!isStreaming && (!input.trim() || isVoiceBusy)}
+                  aria-label={isStreaming ? ui.stop : ui.send}
                   className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all shadow-premium-sm ${
                     isStreaming 
                       ? "bg-slate-900 text-white" 

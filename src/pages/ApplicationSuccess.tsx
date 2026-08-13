@@ -118,7 +118,15 @@ function printDocument(elementId: string, title: string) {
     printWindow.print();
   };
 
-  void printWindow.document.fonts.ready.then(() => window.setTimeout(runPrint, 150));
+  const imageReadiness = Array.from(printWindow.document.images).map((image) => {
+    if (image.complete) return image.decode?.().catch(() => undefined) ?? Promise.resolve();
+    return new Promise<void>((resolve) => {
+      image.addEventListener("load", () => resolve(), { once: true });
+      image.addEventListener("error", () => resolve(), { once: true });
+    });
+  });
+
+  void Promise.all([printWindow.document.fonts.ready, ...imageReadiness]).then(() => window.setTimeout(runPrint, 150));
 }
 
 export default function ApplicationSuccess() {

@@ -337,6 +337,47 @@
   height: 9mm;
 }
 
+.join-print-declaration {
+  display: flex;
+  align-items: flex-start;
+  gap: 2mm;
+  margin: 3.5mm 0;
+  border: 0.3mm solid #193f34;
+  background: #f5faf7;
+  padding: 2.3mm 3mm;
+  color: #173c32;
+  font-size: 7pt;
+  font-weight: 800;
+  line-height: 1.65;
+}
+
+.join-print-declaration .join-print-check {
+  margin-top: 0.4mm;
+}
+
+.join-print-signature__drawing-row td {
+  height: 17mm;
+}
+
+.join-print-signature__drawing {
+  display: block;
+  width: auto;
+  max-width: 52mm;
+  height: 14mm;
+  object-fit: contain;
+  object-position: right center;
+}
+
+.join-print-signature__drawing--seal {
+  max-width: 36mm;
+}
+
+.join-print-signature__attachment-status {
+  color: #315f50;
+  font-size: 7pt;
+  font-weight: 800;
+}
+
 .join-print-signature__label {
   width: 30%;
   font-size: 7.4pt;

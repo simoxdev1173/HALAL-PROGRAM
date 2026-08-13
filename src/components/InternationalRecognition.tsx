@@ -2,6 +2,7 @@ import { WorldMap } from "../ui/WorldMap";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 const InternationalRecognition = () => {
   const { t, i18n } = useTranslation();
@@ -51,12 +52,15 @@ const InternationalRecognition = () => {
           </div>
 
           <div className="mt-8 lg:mt-14">
-            <button className="flex items-center justify-center gap-3 px-8 lg:px-10 py-4 lg:py-5 rounded-full border border-white/20 bg-[#CA8A04] shadow-[0_10px_40px_rgba(202,138,4,0.3)] text-white hover:bg-white hover:text-[#1C4C2A] font-bold text-base lg:text-lg transition-all duration-300 whitespace-nowrap group/btn backdrop-blur-md cursor-pointer">
+            <Link
+              to="/program-benefits"
+              className="group/btn flex items-center justify-center gap-3 whitespace-nowrap rounded-full border border-white/20 bg-[#CA8A04] px-8 py-4 text-base font-bold text-white shadow-[0_10px_40px_rgba(202,138,4,0.3)] backdrop-blur-md transition-all duration-300 hover:bg-white hover:text-[#1C4C2A] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/30 active:translate-y-px lg:px-10 lg:py-5 lg:text-lg"
+            >
               {t("recognition.cta")}
               <div className="w-7 lg:w-8 h-7 lg:h-8 rounded-full bg-black/10 flex items-center justify-center shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] mr-2 group-hover:bg-[#1C4C2A]/10 transition-colors">
                  <ArrowLeft size={16} className={`transition-transform ${isRtl ? "group-hover/btn:-translate-x-1" : "rotate-180 group-hover/btn:translate-x-1"}`} />
               </div>
-            </button>
+            </Link>
           </div>
         </motion.div>
       </div>

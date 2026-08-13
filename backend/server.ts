@@ -45,11 +45,14 @@ import {
   listPayments,
   overviewStats,
   auditLog,
+  createRegisteredDesignationBody,
+  createRegisteredAppointedBody,
   type ListParams,
   type ListResult,
 } from "./lib/http/dashboard";
 import { performAction, performDelete, undoAction, listActionLog, ActionError, type ResourceKind } from "./lib/db/actionLog";
 import { listAdminUsers, createAdminUser, updateAdminUser } from "./lib/db/adminUsers";
+import { verifyCertificates, type VerificationSearchType } from "./lib/http/verification";
 import type { AdminRole, PaymentStatus } from "@prisma/client";
 
 const PORT = Number(process.env.API_PORT ?? 4000);
@@ -75,6 +78,12 @@ const upload = multer({
   },
 });
 
+const logoUpload = multer({
+  storage,
+  limits: { fileSize: 3 * 1024 * 1024, files: 1 },
+  fileFilter: (_req, file, cb) => cb(null, /image\/(png|jpe?g|webp|svg\+xml)/i.test(file.mimetype)),
+});
+
 const decodeName = (name: string) => Buffer.from(name, "latin1").toString("utf8");
 
 // ---------------------------------------------------------------------------
@@ -97,6 +106,7 @@ const listParams = (req: Request): ListParams => ({
   status: typeof req.query.status === "string" ? req.query.status : undefined,
   purpose: typeof req.query.purpose === "string" ? req.query.purpose : undefined,
   expiresWithin: req.query.expiresWithin ? Number(req.query.expiresWithin) : undefined,
+  view: req.query.view === "requests" || req.query.view === "registered" ? req.query.view : undefined,
 });
 
 async function combinedApplicationList(
@@ -137,6 +147,16 @@ app.get("/api/health", asyncRoute(async (_req, res) => {
     if (!isDatabaseUnavailable(error)) throw error;
     return res.json({ ok: true, database: "offline", fallback: true, time: new Date().toISOString() });
   }
+}));
+
+app.get("/api/certificates/verify", asyncRoute(async (req, res) => {
+  const query = typeof req.query.q === "string" ? req.query.q.trim() : "";
+  const requestedType = String(req.query.type ?? "all");
+  const type: VerificationSearchType = requestedType === "license" || requestedType === "company" ? requestedType : "all";
+  if (type === "company" && query && query.length < 4) {
+    return res.status(400).json({ ok: false, message: "أدخل أربعة أحرف على الأقل من اسم الشركة." });
+  }
+  return res.json({ ok: true, ...(await verifyCertificates(query, type)) });
 }));
 
 // ===========================================================================
@@ -296,6 +316,42 @@ app.get("/api/admin/designation-bodies", asyncRoute(async (req, res) => {
   return res.json(await combinedApplicationList("DESIGNATION_BODY", params, listDesignationBodies));
 }));
 app.get("/api/admin/appointed-bodies", asyncRoute(async (req, res) => res.json(await listAppointedBodies(listParams(req)))));
+app.post("/api/admin/designation-bodies", asyncRoute(async (req, res) => {
+  const nameAr = String(req.body?.nameAr ?? "").trim();
+  const country = String(req.body?.country ?? "").trim();
+  const email = String(req.body?.email ?? "").trim().toLowerCase();
+  const phone = String(req.body?.phone ?? "").trim();
+  if (!nameAr || !country || !email || !phone) {
+    return res.status(400).json({ ok: false, message: "اسم الجهة والدولة والبريد الإلكتروني والهاتف حقول مطلوبة." });
+  }
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    return res.status(400).json({ ok: false, message: "يرجى إدخال بريد إلكتروني صحيح." });
+  }
+  const result = await createRegisteredDesignationBody({
+    nameAr,
+    nameEn: String(req.body?.nameEn ?? "").trim(),
+    country,
+    email,
+    phone,
+    website: String(req.body?.website ?? "").trim(),
+    address: String(req.body?.address ?? "").trim(),
+    bodyType: req.body?.bodyType === "NON_GOVERNMENTAL" ? "NON_GOVERNMENTAL" : "GOVERNMENTAL",
+    headName: String(req.body?.headName ?? "").trim(),
+    contactOfficerName: String(req.body?.contactOfficerName ?? "").trim(),
+  });
+  return res.status(201).json({ ok: true, ...result });
+}));
+app.post("/api/admin/appointed-bodies", asyncRoute(async (req, res) => {
+  const designationBodyId = String(req.body?.designationBodyId ?? "").trim();
+  const name = String(req.body?.name ?? "").trim();
+  const country = String(req.body?.country ?? "").trim();
+  const accreditationScope = String(req.body?.accreditationScope ?? "").trim();
+  if (!designationBodyId || !name || !country || !accreditationScope) {
+    return res.status(400).json({ ok: false, message: "جهة التعيين والاسم والدولة ونطاق الاعتماد حقول مطلوبة." });
+  }
+  const result = await createRegisteredAppointedBody({ designationBodyId, name, country, accreditationScope });
+  return res.status(201).json({ ok: true, ...result });
+}));
 app.get("/api/admin/suppliers", asyncRoute(async (req, res) => {
   const params = listParams(req);
   return res.json(await combinedApplicationList("HALAL_CERTIFICATE", params, listSuppliers));
@@ -369,6 +425,25 @@ app.post("/api/admin/action-log/:id/undo", asyncRoute(async (req, res) => {
   }
   const result = await undoAction(String(req.params.id), actorId);
   res.json({ ok: true, ...result });
+}));
+
+app.post("/api/admin/:resource/:id/logo", logoUpload.single("logo"), asyncRoute(async (req, res) => {
+  const resource = String(req.params.resource);
+  const id = String(req.params.id);
+  if (resource !== "designation-bodies" && resource !== "appointed-bodies") {
+    return res.status(404).json({ ok: false, message: "هذا السجل لا يدعم شعار الجهة." });
+  }
+  if (!req.file) {
+    return res.status(400).json({ ok: false, message: "يرجى اختيار صورة شعار بصيغة PNG أو JPG أو WEBP أو SVG." });
+  }
+
+  const logoUrl = `/api/uploads/${encodeURIComponent(req.file.filename)}`;
+  if (resource === "designation-bodies") {
+    await prisma.designationBodyApplication.update({ where: { id }, data: { logoUrl } });
+  } else {
+    await prisma.appointedBody.update({ where: { id }, data: { logoUrl } });
+  }
+  return res.json({ ok: true, logoUrl });
 }));
 
 app.post("/api/admin/:resource/:id/:action", asyncRoute(async (req, res) => {

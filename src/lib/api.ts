@@ -103,6 +103,52 @@ export function undoResourceAction(logId: string, actorId?: string): Promise<Api
   );
 }
 
+export function uploadResourceLogo(
+  resource: "designation-bodies" | "appointed-bodies",
+  id: string,
+  file: File
+): Promise<ApiResult<{ logoUrl: string }>> {
+  const formData = new FormData();
+  formData.append("logo", file);
+  return handle(fetch(`/api/admin/${resource}/${id}/logo`, { method: "POST", body: formData }));
+}
+
+export type CreateDesignationBodyPayload = {
+  nameAr: string;
+  nameEn?: string;
+  country: string;
+  email: string;
+  phone: string;
+  website?: string;
+  address?: string;
+  bodyType: "GOVERNMENTAL" | "NON_GOVERNMENTAL";
+  headName?: string;
+  contactOfficerName?: string;
+};
+
+export function createDesignationBodyApi(payload: CreateDesignationBodyPayload): Promise<ApiResult<{ id: string; requestNumber: string }>> {
+  return handle(fetch("/api/admin/designation-bodies", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }));
+}
+
+export type CreateAppointedBodyPayload = {
+  designationBodyId: string;
+  name: string;
+  country: string;
+  accreditationScope: string;
+};
+
+export function createAppointedBodyApi(payload: CreateAppointedBodyPayload): Promise<ApiResult<{ id: string }>> {
+  return handle(fetch("/api/admin/appointed-bodies", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }));
+}
+
 export type ActionLogEntry = {
   id: string;
   entityType: string;

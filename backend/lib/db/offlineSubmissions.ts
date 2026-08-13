@@ -177,12 +177,13 @@ function designationDashboardRow(record: StoredOfflineSubmission) {
     headName: data.headName ?? "—",
     contactOfficer: data.contactOfficerName ?? "—",
     website: data.website ?? "—",
+    logoUrl: "",
   };
 }
 
 export async function listOfflineDashboardSubmissions(
   type: ApplicationType,
-  params: { page?: number; limit?: number; search?: string; status?: string; purpose?: string } = {}
+  params: { page?: number; limit?: number; search?: string; status?: string; purpose?: string; view?: "requests" | "registered" } = {}
 ) {
   const page = Math.max(params.page ?? 1, 1);
   const limit = Math.min(Math.max(params.limit ?? 20, 1), 100);
@@ -192,6 +193,11 @@ export async function listOfflineDashboardSubmissions(
   const all = (await readStoredSubmissions())
     .map(({ record }) => record)
     .filter((record) => record.type === type)
+    .filter((record) => {
+      if (params.view === "requests") return (record.entityStatus ?? "PENDING") === "PENDING";
+      if (params.view === "registered") return record.entityStatus === "ACTIVE" || record.entityStatus === "SUSPENDED";
+      return true;
+    })
     .filter((record) => {
       if (!purpose || purpose === "all") return true;
       const data = record.data as OfflineFormData;

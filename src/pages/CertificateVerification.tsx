@@ -12,151 +12,81 @@ interface Certificate {
   id: string;
   companyName: string;
   licenseNumber: string;
-  status: "Active" | "Expired" | "Pending";
-  nextFollowUp: string;
+  status: "Active" | "Suspended" | "Revoked" | "Expired";
+  issuedAt: string;
   expiryDate: string;
   standards: string[];
   certificateUrl: string;
   location: string;
   category: string;
   image: string;
+  products: string[];
+  purpose: string;
+  appointedBodyName: string;
 }
-
-const MOCK_DATA: Certificate[] = [
-  {
-    id: "1",
-    companyName: "شركة الغذاء النقي للتجارة",
-    licenseNumber: "HALAL-2024-001",
-    status: "Active",
-    nextFollowUp: "2024-12-15",
-    expiryDate: "2026-05-20",
-    standards: ["GSO 2055-1:2015"],
-    certificateUrl: "/intro.pdf",
-    location: "الرياض، السعودية",
-    category: "لحوم ومنتجاتها",
-    image: "/domains/meat.jpg"
-  },
-  {
-    id: "2",
-    companyName: "مصنع الشرق للحلويات",
-    licenseNumber: "HALAL-2024-002",
-    status: "Expired",
-    nextFollowUp: "---",
-    expiryDate: "2023-11-10",
-    standards: ["GSO 2055-1:2015"],
-    certificateUrl: "#",
-    location: "دبي، الإمارات",
-    category: "حلويات وسكاكر",
-    image: "/domains/added.jpg"
-  },
-  {
-    id: "3",
-    companyName: "مجموعة الألبان العربية",
-    licenseNumber: "HALAL-2024-003",
-    status: "Active",
-    nextFollowUp: "2025-01-20",
-    expiryDate: "2027-02-15",
-    standards: ["GSO 2055-1:2015", "ISO 9001"],
-    certificateUrl: "#",
-    location: "عمان، الأردن",
-    category: "ألبان وأجبان",
-    image: "/domains/prod.webp"
-  },
-  {
-    id: "4",
-    companyName: "شركة زيوت النخيل العالمية",
-    licenseNumber: "HALAL-2024-004",
-    status: "Pending",
-    nextFollowUp: "2024-06-10",
-    expiryDate: "---",
-    standards: ["GSO 2055-1:2015"],
-    certificateUrl: "#",
-    location: "القاهرة، مصر",
-    category: "زيوت ودهون",
-    image: "/domains/added.jpg"
-  },
-  {
-    id: "5",
-    companyName: "المطاحن الوطنية الكبرى",
-    licenseNumber: "HALAL-2024-005",
-    status: "Active",
-    nextFollowUp: "2025-03-05",
-    expiryDate: "2026-08-12",
-    standards: ["GSO 2055-1:2015"],
-    certificateUrl: "#",
-    location: "الدوحة، قطر",
-    category: "حبوب وبقوليات",
-    image: "/domains/prod.webp"
-  },
-  {
-    id: "6",
-    companyName: "عصائر الطبيعة المحدودة",
-    licenseNumber: "HALAL-2024-006",
-    status: "Active",
-    nextFollowUp: "2025-05-10",
-    expiryDate: "2026-11-20",
-    standards: ["GSO 2055-1:2015"],
-    certificateUrl: "#",
-    location: "جدة، السعودية",
-    category: "مشروبات",
-    image: "/domains/drinks.jpg"
-  },
-  {
-    id: "7",
-    companyName: "مزارع الوادي الأخضر",
-    licenseNumber: "HALAL-2024-007",
-    status: "Active",
-    nextFollowUp: "2024-09-15",
-    expiryDate: "2025-10-30",
-    standards: ["GSO 2055-1:2015"],
-    certificateUrl: "#",
-    location: "المنامة، البحرين",
-    category: "لحوم ومنتجاتها",
-    image: "/domains/meat.jpg"
-  },
-  {
-    id: "8",
-    companyName: "شركة المخبوزات الذهبية",
-    licenseNumber: "HALAL-2024-008",
-    status: "Expired",
-    nextFollowUp: "---",
-    expiryDate: "2024-01-05",
-    standards: ["GSO 2055-1:2015"],
-    certificateUrl: "#",
-    location: "الكويت، قطر",
-    category: "مخبوزات",
-    image: "/domains/added.jpg"
-  }
-];
 
 const statusConfig = {
   Active: { label: "نشط", color: "text-[#007A55]", bg: "bg-[#007A55]/10", led: "bg-[#007A55]", icon: CheckCircle2 },
   Expired: { label: "منتهي", color: "text-rose-600", bg: "bg-rose-500/10", led: "bg-rose-600", icon: ShieldAlert },
-  Pending: { label: "قيد المراجعة", color: "text-[#CA8A04]", bg: "bg-[#CA8A04]/10", led: "bg-[#CA8A04]", icon: Info },
+  Suspended: { label: "معلّق", color: "text-amber-700", bg: "bg-amber-500/10", led: "bg-amber-500", icon: Info },
+  Revoked: { label: "مسحوب", color: "text-rose-700", bg: "bg-rose-500/10", led: "bg-rose-700", icon: ShieldAlert },
 };
 
 const CertificateVerification: React.FC = () => {
   const location = useLocation();
   const [query, setQuery] = useState(() => new URLSearchParams(location.search).get("q") ?? "");
+  const [searchType, setSearchType] = useState<"license" | "company" | "all">(() => {
+    const type = new URLSearchParams(location.search).get("type");
+    return type === "license" || type === "company" ? type : "all";
+  });
   const [activeCategory, setActiveCategory] = useState<string>(() => new URLSearchParams(location.search).get("category") ?? "الكل");
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
-  const categories = ["الكل", ...Array.from(new Set(MOCK_DATA.map(item => item.category)))];
+  const categories = useMemo(() => ["الكل", ...Array.from(new Set(certificates.map((item) => item.category)))], [certificates]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    const params = new URLSearchParams(location.search);
+    const nextType = params.get("type");
+    setQuery(params.get("q") ?? "");
+    setSearchType(nextType === "license" || nextType === "company" ? nextType : "all");
+    setActiveCategory(params.get("category") ?? "الكل");
   }, [location.search]);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      setIsLoading(true);
+      setLoadError("");
+      const params = new URLSearchParams({ q: query.trim(), type: searchType });
+      fetch(`/api/certificates/verify?${params.toString()}`, { signal: controller.signal })
+        .then(async (response) => {
+          const payload = await response.json() as { data?: Certificate[]; message?: string };
+          if (!response.ok) throw new Error(payload.message || "تعذر تنفيذ عملية التحقق.");
+          setCertificates(payload.data ?? []);
+        })
+        .catch((error) => {
+          if ((error as Error).name === "AbortError") return;
+          setCertificates([]);
+          setLoadError(error instanceof Error ? error.message : "تعذر تنفيذ عملية التحقق.");
+        })
+        .finally(() => setIsLoading(false));
+    }, 250);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query, searchType]);
+
   const filteredData = useMemo(() => {
-    return MOCK_DATA.filter(cert => {
-      const matchesQuery = 
-        cert.companyName.includes(query) || 
-        cert.licenseNumber.toLowerCase().includes(query.toLowerCase()) ||
-        cert.location.includes(query);
+    return certificates.filter(cert => {
       const matchesCategory = activeCategory === "الكل" || cert.category === activeCategory;
-      return matchesQuery && matchesCategory;
+      return matchesCategory;
     });
-  }, [query, activeCategory]);
+  }, [certificates, activeCategory]);
 
   useEffect(() => {
     if (selectedCert) {
@@ -198,7 +128,7 @@ const CertificateVerification: React.FC = () => {
                     <input 
                       type="text" 
                       value={query}
-                      onChange={(e) => setQuery(e.target.value)}
+                      onChange={(e) => { setQuery(e.target.value); setSearchType("all"); }}
                       placeholder="اسم المنشأة، رقم الترخيص، أو الموقع..."
                       className="w-full bg-transparent text-sm lg:text-base text-stone-800 outline-none placeholder:text-stone-300 font-bold"
                     />
@@ -249,13 +179,23 @@ const CertificateVerification: React.FC = () => {
         <div className="absolute inset-0 opacity-[0.015] pointer-events-none" 
              style={{ backgroundImage: 'linear-gradient(#636e72 1px, transparent 1px), linear-gradient(90deg, #636e72 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-        {filteredData.length === 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-label="جاري البحث">
+            {Array.from({ length: 4 }).map((_, index) => <div key={index} className="h-80 animate-pulse rounded-3xl border border-stone-200 bg-white" />)}
+          </div>
+        ) : loadError ? (
+          <div className="mx-auto max-w-xl rounded-2xl border border-rose-200 bg-rose-50 px-6 py-8 text-center">
+            <ShieldAlert size={30} className="mx-auto text-rose-600" />
+            <h3 className="mt-4 text-xl font-black text-slate-900">تعذر الاتصال ببوابة التحقق</h3>
+            <p className="mt-2 text-sm font-bold leading-7 text-rose-700">{loadError}</p>
+          </div>
+        ) : filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center">
             <div className="w-20 h-20 bg-[#e0e5ec] text-stone-400 rounded-3xl flex items-center justify-center mb-6 shadow-[var(--shadow-ind-recessed)]">
               <Search size={32} />
             </div>
-            <h3 className="text-xl lg:text-2xl font-black text-stone-800 mb-2">قاعدة البيانات لا تستجيب للطلب</h3>
-            <p className="text-stone-500 font-medium">لم نتمكن من العثور على أي سجلات مطابقة للمعايير المدخلة.</p>
+            <h3 className="text-xl lg:text-2xl font-black text-stone-800 mb-2">لا توجد شهادة مطابقة</h3>
+            <p className="text-stone-500 font-medium">لم نعثر على شركة أو رقم ترخيص يطابق بيانات البحث.</p>
             <button 
               onClick={() => { setQuery(""); setActiveCategory("الكل"); }}
               className="mt-8 px-8 py-3 bg-[#1C4C2A] text-white rounded-xl text-sm font-black shadow-[var(--shadow-ind-floating)] hover:-translate-y-0.5 transition-all cursor-pointer"
@@ -401,7 +341,7 @@ const CertificateVerification: React.FC = () => {
                      { label: "الموقع", value: selectedCert.location, mono: false },
                      { label: "تاريخ انتهاء الصلاحية", value: selectedCert.expiryDate, mono: true, color: "text-rose-600" },
                      { label: "حالة الشهادة", value: statusConfig[selectedCert.status].label, mono: false, status: true },
-                     { label: "تاريخ المتابعة القادمة", value: selectedCert.nextFollowUp, mono: true }
+                     { label: "تاريخ إصدار الشهادة", value: selectedCert.issuedAt, mono: true }
                    ].map((item, idx) => (
                      <div key={idx} className="space-y-1.5">
                         <span className="text-[10px] font-mono font-black text-stone-400 uppercase tracking-widest block">{item.label}</span>
@@ -419,7 +359,7 @@ const CertificateVerification: React.FC = () => {
                       <span className="text-[10px] font-mono font-black text-stone-500 uppercase tracking-widest">المواصفات المعتمدة</span>
                    </div>
                    <div className="flex flex-wrap gap-3">
-                      {selectedCert.standards.map((std, i) => (
+                      {(selectedCert.standards.length ? selectedCert.standards : ["متطلبات البرنامج العربي للحلال"]).map((std, i) => (
                         <div key={i} className="px-4 py-2 bg-white border border-stone-300 rounded shadow-[var(--shadow-ind-sharp)] text-xs font-black text-stone-700 flex items-center gap-2">
                            <CheckCircle2 size={12} className="text-[#007A55]" />
                            {std}
@@ -446,13 +386,13 @@ const CertificateVerification: React.FC = () => {
 
               {/* Action Area */}
               <div className="p-6 lg:p-8 bg-white border-t border-stone-200 sticky bottom-0 z-20 flex gap-4">
-                {selectedCert.status === "Active" && (
-                  <button className="flex-1 btn-primary h-[60px] group shadow-[0_10px_30px_rgba(0,122,85,0.2)]">
+                {selectedCert.status === "Active" && selectedCert.certificateUrl && (
+                  <a href={selectedCert.certificateUrl} target="_blank" rel="noreferrer" className="flex h-[60px] flex-1 items-center justify-center gap-2 rounded-xl bg-[#007A55] px-5 font-black text-white">
                     <Download size={20} />
                     تحميل الوثيقة المعتمدة
-                  </button>
+                  </a>
                 )}
-                <button className="flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-xl border-2 border-stone-200 text-stone-700 font-black text-sm lg:text-base hover:bg-stone-50 active:translate-y-0.5 transition-all">
+                <button type="button" onClick={() => window.print()} className="flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-xl border-2 border-stone-200 text-stone-700 font-black text-sm lg:text-base hover:bg-stone-50 active:translate-y-0.5 transition-all">
                    طباعة التقرير
                 </button>
               </div>

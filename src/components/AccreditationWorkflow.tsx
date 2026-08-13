@@ -6,8 +6,7 @@ import {
   FileText, 
   Search, 
   Handshake, 
-  Download, 
-  ArrowLeft
+  Download
 } from "lucide-react";
 
 const AccreditationWorkflow = () => {
@@ -50,7 +49,9 @@ const AccreditationWorkflow = () => {
             {t("workflow.desc")}
           </p>
 
-          <motion.button 
+          <motion.a
+            href="/join-program-template/template.pdf"
+            download={isRtl ? "نموذج-طلب-الانضمام-إلى-البرنامج-العربي-للحلال.pdf" : "Arab-Halal-Program-Joining-Application-Form.pdf"}
             whileHover={{ y: -1 }}
             whileTap={{ y: 2 }}
             className="btn-primary group h-[54px] xl:h-[60px] text-sm xl:text-base"
@@ -59,7 +60,7 @@ const AccreditationWorkflow = () => {
             <div className="w-7 h-7 xl:w-8 xl:h-8 rounded-sm bg-black/10 flex items-center justify-center shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)]">
               <Download size={16} className="group-hover:-translate-y-1 transition-transform" />
             </div>
-          </motion.button>
+          </motion.a>
         </div>
 
         {/* --- 2. WORKFLOW TIMELINE SECTION --- */}
@@ -169,17 +170,6 @@ const AccreditationWorkflow = () => {
               </p>
             </div>
 
-            <motion.button 
-              whileHover={{ y: -1 }}
-              whileTap={{ y: 2 }}
-              className="flex items-center justify-center gap-3 px-6 lg:px-8 py-3.5 lg:py-4 rounded-xl border-2 border-[#CA8A04] bg-[#CA8A04]/10 backdrop-blur-md shadow-[var(--shadow-ind-floating)] text-white hover:bg-[#CA8A04] font-bold text-sm lg:text-base transition-all duration-300 whitespace-nowrap group/btn w-full md:w-auto shrink-0"
-            >
-              {t("workflow.noteCta")}
-              <div className="w-5 h-5 lg:w-6 lg:h-6 rounded-sm bg-black/30 flex items-center justify-center shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]">
-                 <ArrowLeft size={14} className="text-[#CA8A04] group-hover/btn:-translate-x-1 transition-transform" />
-              </div>
-            </motion.button>
-            
           </div>
         </motion.div>
 
